@@ -1095,7 +1095,7 @@ export const resourceColumns = [
   },
   {
     title: '竞赛训练',
-    items: ['历年赛题归档', '模拟赛资料', '复盘与讲评记录'],
+    items: [{ label: '历年赛题归档', href: '/training' }, '模拟赛资料', '复盘与讲评记录'],
   },
   {
     title: '写作模板',

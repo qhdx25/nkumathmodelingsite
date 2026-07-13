@@ -196,7 +196,10 @@ onBeforeUnmount(() => {
           <article v-for="column in resourceColumns" :key="column.title" class="resource-card">
             <h3>{{ column.title }}</h3>
             <ul class="resource-list">
-              <li v-for="item in column.items" :key="item">{{ item }}</li>
+              <li v-for="item in column.items" :key="item.label || item">
+                <a v-if="item.href" :href="item.href">{{ item.label }}</a>
+                <span v-else>{{ item }}</span>
+              </li>
             </ul>
           </article>
         </div>
