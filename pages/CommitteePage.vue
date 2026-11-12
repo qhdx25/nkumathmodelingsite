@@ -54,10 +54,7 @@ const departments = [
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">治理结构</p>
-            <h2>三级议事与执行</h2>
-          </div>
+          <h2>三级议事与执行</h2>
         </div>
 
         <ol class="level-list">
@@ -75,10 +72,8 @@ const departments = [
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">部门</p>
-            <h2>四个执行方向</h2>
-          </div>
+          <h2>四个执行方向</h2>
+          <span class="head-note">秘书处 · 竞赛部 · 宣传部 · 工作委员会</span>
         </div>
 
         <div class="dept-grid">
@@ -146,11 +141,8 @@ const departments = [
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">会议纪要</p>
-            <h2>历次会议记录</h2>
-          </div>
-          <RouterLink class="head-link" to="/notice">全部公示文件</RouterLink>
+          <h2>历次会议记录</h2>
+          <RouterLink class="head-link" to="/notice">全部公示文件 →</RouterLink>
         </div>
 
         <ul class="minutes-list">
@@ -169,10 +161,8 @@ const departments = [
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">沿革</p>
-            <h2>南开数学与协会</h2>
-          </div>
+          <h2>南开数学与协会</h2>
+          <span class="head-note">学科沿革</span>
         </div>
 
         <ol class="timeline">

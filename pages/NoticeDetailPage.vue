@@ -107,11 +107,8 @@ const related = computed(() => {
       <section v-if="related.length" class="section">
         <div class="container">
           <div class="section-head">
-            <div>
-              <p class="kicker">同类</p>
-              <h2>其他公示文件</h2>
-            </div>
-            <RouterLink class="head-link" to="/notice">全部</RouterLink>
+            <h2>其他公示文件</h2>
+            <RouterLink class="head-link" to="/notice">全部 →</RouterLink>
           </div>
 
           <div class="related-grid">

@@ -23,10 +23,8 @@ import { notices, owner, resources, tracks } from '../data/training'
         </p>
 
         <div class="section-head">
-          <div>
-            <p class="kicker">资料链接</p>
-            <h2>培训资料</h2>
-          </div>
+          <h2>培训资料</h2>
+          <span class="head-note">外部链接汇总</span>
         </div>
 
         <ul class="link-list">
@@ -39,7 +37,7 @@ import { notices, owner, resources, tracks } from '../data/training'
             <div v-else class="link-row is-pending">
               <span class="link-title">{{ item.label }}</span>
               <span class="link-note">{{ item.desc }}</span>
-              <span class="badge badge-pending">待补充</span>
+              <span class="link-open">待补充</span>
             </div>
           </li>
         </ul>
@@ -49,11 +47,8 @@ import { notices, owner, resources, tracks } from '../data/training'
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">训练体系</p>
-            <h2>四个阶段，从零到上场</h2>
-          </div>
-          <span class="head-note">内容待各专题负责人填充</span>
+          <h2>训练体系</h2>
+          <span class="head-note">四个阶段，从零到上场</span>
         </div>
 
         <div class="track-grid">
@@ -65,17 +60,16 @@ import { notices, owner, resources, tracks } from '../data/training'
             </ul>
           </article>
         </div>
+
+        <p class="section-foot">各阶段的具体讲义、作业与录屏由对应专题负责人补充。</p>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">培训通知</p>
-            <h2>代表队培训通知</h2>
-          </div>
-          <span class="badge badge-pending">暂无通知</span>
+          <h2>代表队培训通知</h2>
+          <span class="head-note">{{ notices.length ? `共 ${notices.length} 条` : '暂无通知' }}</span>
         </div>
 
         <ul v-if="notices.length" class="notice-plain">
@@ -90,7 +84,7 @@ import { notices, owner, resources, tracks } from '../data/training'
           title="培训通知位"
           desc="按时间倒序列出代表队培训的时间、地点、主讲与参训对象，支持跳转原文。"
           requirement="负责人提供通知条目（日期 / 标题 / 链接）后填入 data/training.js 的 notices 数组即可。"
-          ratio="16 / 4"
+          ratio="auto"
           compact
         />
       </div>

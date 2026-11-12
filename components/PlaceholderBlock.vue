@@ -9,7 +9,11 @@ defineProps({
 </script>
 
 <template>
-  <div class="placeholder" :class="{ 'is-compact': compact }" :style="{ aspectRatio: ratio }">
+  <div
+    class="placeholder"
+    :class="{ 'is-compact': compact }"
+    :style="ratio === 'auto' ? null : { aspectRatio: ratio }"
+  >
     <span class="ph-badge">待补充</span>
     <div class="ph-body">
       <p class="ph-title">{{ title }}</p>

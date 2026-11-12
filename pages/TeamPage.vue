@@ -61,10 +61,8 @@ const active = ref('all')
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">规划</p>
-            <h2>需要实现的功能</h2>
-          </div>
+          <h2>需要实现的功能</h2>
+          <span class="head-note">待接入后端</span>
         </div>
 
         <ul class="plan-list">

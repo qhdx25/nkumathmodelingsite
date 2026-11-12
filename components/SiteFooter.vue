@@ -39,7 +39,7 @@ import { campuses, footerLinks, nav, subNav } from '../data/site'
 
     <div class="container footer-bottom">
       <span>© 2026 南开大学数学建模协会</span>
-      <span class="demo-tag">Demo 预览版 · 部分数据为占位，待补充后上线</span>
+      <span>Demo 预览版 · 部分数据为占位，待补充后上线</span>
     </div>
   </footer>
 </template>

@@ -9,63 +9,64 @@ import { banners, entries, intro, stats } from '../data/site'
   <main>
     <HeroSlider :items="banners" />
 
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="kicker">南开大学数学建模协会 · 成立于 2016 年</p>
+    <section class="section">
+      <div class="container intro">
+        <div>
           <h1>
             用数学描述问题，<br />
             <em>用模型检验答案。</em>
           </h1>
-          <p class="hero-lead">
+          <p>
+            南开大学数学建模协会成立于 2016 年，是数学科学学院下属学生社团。
             我们承办校内规模最大的数学建模赛事，服务全校 1200 余名参赛同学，
-            组织培训、选拔与校际交流。一次建模，终身受益。
+            并组织培训、选拔与校际交流。
           </p>
-          <div class="hero-actions">
+          <div class="intro-actions">
             <RouterLink class="btn btn-solid" to="/competition">查看竞赛信息</RouterLink>
             <RouterLink class="btn btn-ghost" to="/materials">打开建模资料</RouterLink>
           </div>
         </div>
 
-        <div class="hero-panel">
-          <div class="stat-grid">
-            <div v-for="item in stats" :key="item.label" class="stat-card">
-              <p class="stat-value">{{ item.value }}</p>
-              <p class="stat-label">{{ item.label }}</p>
-              <p class="stat-note">{{ item.note }}</p>
-            </div>
+        <div class="stat-grid">
+          <div v-for="item in stats" :key="item.label" class="stat-card">
+            <span class="stat-value">{{ item.value }}</span>
+            <span class="stat-label">{{ item.label }}</span>
+            <span class="stat-note">{{ item.note }}</span>
           </div>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <div class="container intro-grid">
-        <article v-for="item in intro" :key="item.title" class="intro-card">
-          <p class="kicker">{{ item.kicker }}</p>
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.body }}</p>
-        </article>
+      <div class="container">
+        <div class="section-head">
+          <h2>协会概况</h2>
+          <RouterLink class="head-link" to="/committee">组织架构 →</RouterLink>
+        </div>
+
+        <div class="facts">
+          <div v-for="item in intro" :key="item.title">
+            <p class="kicker">{{ item.kicker }}</p>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.body }}</p>
+          </div>
+        </div>
       </div>
     </section>
 
     <NewsFeed />
 
-    <section class="section section-entries">
+    <section class="section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">快速入口</p>
-            <h2>你可能在找</h2>
-          </div>
+          <h2>你可能在找</h2>
         </div>
 
-        <div class="entry-grid">
-          <RouterLink v-for="item in entries" :key="item.title" class="entry-card" :to="item.to">
-            <p class="card-kicker">{{ item.kicker }}</p>
+        <div class="entries">
+          <RouterLink v-for="item in entries" :key="item.title" class="entry" :to="item.to">
             <h3>{{ item.title }}</h3>
             <p>{{ item.body }}</p>
-            <span class="text-link">{{ item.action }} →</span>
+            <span class="entry-more">{{ item.action }} →</span>
           </RouterLink>
         </div>
       </div>

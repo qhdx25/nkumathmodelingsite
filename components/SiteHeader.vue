@@ -1,45 +1,58 @@
 <script setup>
-import { RouterLink } from 'vue-router'
-import { nav } from '../data/site'
+import { computed } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+import { nav, subNav } from '../data/site'
+
+const route = useRoute()
+
+const isActive = (to) => (to === '/' ? route.path === '/' : route.path.startsWith(to))
+const subActive = computed(() => subNav.some((item) => route.path.startsWith(item.to)))
 </script>
 
 <template>
-  <div class="topbar">
-    <div class="container">
-      <span class="topbar-en">Nankai University Mathematical Modeling Association</span>
-      <span class="topbar-right">关注「南开数院学工」公众号获取最新通知</span>
-    </div>
-  </div>
-
   <header class="site-header">
     <div class="container header-inner">
       <RouterLink to="/" class="brand">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 44 44" width="44" height="44">
-            <circle cx="22" cy="22" r="21" fill="#710a53" />
-            <circle cx="22" cy="22" r="17" fill="none" stroke="#cfa972" stroke-width="1" opacity="0.75" />
+          <svg viewBox="0 0 32 32" width="30" height="30">
+            <circle cx="16" cy="16" r="15" fill="#710a53" />
+            <circle cx="16" cy="16" r="12" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.55" />
             <text
-              x="22"
-              y="28"
+              x="16"
+              y="20.5"
               text-anchor="middle"
               font-family="Arial, Helvetica, sans-serif"
-              font-size="13"
+              font-size="9.5"
               font-weight="700"
-              letter-spacing="0.5"
               fill="#ffffff"
-            >
-              NKU
-            </text>
+            >NKU</text>
           </svg>
         </span>
         <span class="brand-copy">
           <strong>南开大学数学建模协会</strong>
-          <em>Nankai University Mathematical Modeling Association</em>
+          <em>数学科学学院</em>
         </span>
       </RouterLink>
 
       <nav class="main-nav" aria-label="主导航">
-        <RouterLink v-for="item in nav" :key="item.label" :to="item.to">{{ item.label }}</RouterLink>
+        <RouterLink
+          v-for="item in nav"
+          :key="item.to"
+          :to="item.to"
+          :class="{ 'is-active': isActive(item.to) }"
+        >{{ item.label }}</RouterLink>
+
+        <div class="nav-item">
+          <a href="#" :class="{ 'is-active': subActive }" @click.prevent>更多</a>
+          <div class="sub-nav">
+            <RouterLink
+              v-for="item in subNav"
+              :key="item.to"
+              :to="item.to"
+              :class="{ 'is-active': route.path.startsWith(item.to) }"
+            >{{ item.label }}</RouterLink>
+          </div>
+        </div>
       </nav>
     </div>
   </header>

@@ -10,15 +10,15 @@ import { feishu, groups } from '../data/materials'
         <p class="kicker">建模资料</p>
         <h1>资料共享，共同进步</h1>
         <p class="page-lead">
-          历年真题、获奖论文与工具资料，按五类归档。真题与论文以外部链接为主，LaTeX / Python /
-          MATLAB 三类正在整理。
+          历年真题、获奖论文与工具资料，按五类归档。真题与论文以外部链接为主，
+          LaTeX / Python / MATLAB 三类正在整理。
         </p>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
-        <a class="feishu-card" :href="feishu.url" target="_blank" rel="noreferrer">
+        <a class="strip" :href="feishu.url" target="_blank" rel="noreferrer">
           <div>
             <p class="card-kicker">飞书知识库</p>
             <h2>{{ feishu.title }}</h2>
@@ -36,11 +36,8 @@ import { feishu, groups } from '../data/materials'
     <section v-for="g in groups" :id="g.id" :key="g.id" class="section material-section">
       <div class="container">
         <div class="section-head">
-          <div>
-            <p class="kicker">{{ g.kicker }}</p>
-            <h2>{{ g.title }}</h2>
-          </div>
-          <span v-if="g.placeholder" class="badge badge-pending">整理中</span>
+          <h2>{{ g.title }}</h2>
+          <span v-if="g.placeholder" class="head-note">整理中</span>
         </div>
 
         <p class="section-intro">{{ g.desc }}</p>
@@ -66,13 +63,15 @@ import { feishu, groups } from '../data/materials'
       </div>
     </section>
 
-    <section class="section section-cta">
-      <div class="container cta-inner">
-        <div>
-          <h2>手上有资料愿意共享？</h2>
-          <p>讲义、模板、代码都可以交给学术部汇总，统一放进资料库。</p>
+    <section class="section">
+      <div class="container">
+        <div class="strip">
+          <div>
+            <h2>手上有资料愿意共享？</h2>
+            <p>讲义、模板、代码都可以交给学术部汇总，统一放进资料库。</p>
+          </div>
+          <a class="btn" :href="feishu.url" target="_blank" rel="noreferrer">进入飞书资料库</a>
         </div>
-        <a class="btn btn-solid" :href="feishu.url" target="_blank" rel="noreferrer">进入飞书资料库</a>
       </div>
     </section>
   </main>
