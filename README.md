@@ -15,30 +15,18 @@ npm run dev      # http://localhost:5173
 npm run build    # 产物在 dist/
 ```
 
-## 版本分支
+## 版本记录
 
-每一版都留了独立分支，随时可以切回去看或对比（分支只是指向某个提交的指针，不占额外空间）。
-
-| 分支 | 内容 | 页数 | 提交 |
-|---|---|---|---|
-| `v1-demo` | 首个可用 Demo：首页精简 + 竞赛页四区块 | 5 | `2731e16` |
-| `v2-carousel` | 首页首屏预留图片轮播位，三条图位已接链接 | 5 | `c5b1e38` |
-| `v3-notice` | 新增信息公示模块（列表 + 逐页阅读器），配色改为官网青莲紫 | 7 | `aea0646` |
-| `v4-ia` | 按总任务重排信息架构：导航四栏目 + 校队培训 + 组队平台 | 9 | `ea9bbc3` |
-| `v5-flat` | 扁平化改版：去卡片化、导航加「更多」下拉、首页双栏 | 9 | `26e4ac8` |
-| `main` | 最新版（当前 = `v5-flat` 之后） | — | — |
-
-查看某一版：
+开发只在 `main` 上做，历史即版本——每一版都在提交记录里，需要时回到某一版即可。
+首个可用 Demo 打了 tag `v1-origin`，方便直接定位。
 
 ```bash
-git fetch --all
-git switch v3-notice     # 切过去
-npm run dev              # node_modules 是共用的，不用重装
-git switch main          # 看完切回来
+git log --oneline          # 看所有版本
+git switch --detach v1-origin   # 回到首个 Demo（只读查看）
+git switch main                 # 看完切回来
 ```
 
-GitHub 网页上也能看：`Code` 下拉切分支，或 `Compare` 两两对比差异（例如 `v4-ia...v5-flat`）。
-五个分支都实际跑过 `npm run build`，不是空壳。
+GitHub 网页上同理：`commits` 看时间线，`Code` 下拉切到 tag，或用 `Compare` 对比任意两次提交。
 
 ## 信息架构
 
