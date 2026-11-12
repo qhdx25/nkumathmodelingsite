@@ -4,6 +4,7 @@
 export const nav = [
   { label: '首页', to: '/' },
   { label: '竞赛', to: '/competition' },
+  { label: '公示', to: '/notice' },
   { label: '建模资料', to: '/materials' },
   { label: '委员会', to: '/committee' },
 ]
@@ -121,6 +122,13 @@ export const entries = [
     body: '竞赛日历、近期赛事报名入口、成绩与积分公示。',
     to: '/competition',
     action: '进入竞赛页',
+  },
+  {
+    kicker: '公示',
+    title: '信息公示',
+    body: '获奖名单、公示公告、会议纪要，可逐页阅读或下载原件。',
+    to: '/notice',
+    action: '查看公示文件',
   },
   {
     kicker: '资料',

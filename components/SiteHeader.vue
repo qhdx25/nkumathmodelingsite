@@ -16,8 +16,8 @@ import { nav } from '../data/site'
       <RouterLink to="/" class="brand">
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 44 44" width="44" height="44">
-            <circle cx="22" cy="22" r="21" fill="#6510ad" />
-            <circle cx="22" cy="22" r="17" fill="none" stroke="#c8a710" stroke-width="1" opacity="0.75" />
+            <circle cx="22" cy="22" r="21" fill="#710a53" />
+            <circle cx="22" cy="22" r="17" fill="none" stroke="#cfa972" stroke-width="1" opacity="0.75" />
             <text
               x="22"
               y="28"

@@ -1,11 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+const SITE = '南开大学数学建模协会'
+
 const routes = [
-  { path: '/', name: 'home', component: () => import('./pages/HomePage.vue') },
-  { path: '/competition', name: 'competition', component: () => import('./pages/CompetitionPage.vue') },
-  { path: '/materials', name: 'materials', component: () => import('./pages/MaterialsPage.vue') },
-  { path: '/committee', name: 'committee', component: () => import('./pages/CommitteePage.vue') },
-  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./pages/NotFoundPage.vue') },
+  { path: '/', name: 'home', component: () => import('./pages/HomePage.vue'), meta: { title: '首页' } },
+  { path: '/competition', name: 'competition', component: () => import('./pages/CompetitionPage.vue'), meta: { title: '竞赛' } },
+  { path: '/notice', name: 'notice', component: () => import('./pages/NoticePage.vue'), meta: { title: '信息公示' } },
+  { path: '/notice/:slug', name: 'notice-detail', component: () => import('./pages/NoticeDetailPage.vue'), meta: { title: '信息公示' } },
+  { path: '/materials', name: 'materials', component: () => import('./pages/MaterialsPage.vue'), meta: { title: '建模资料' } },
+  { path: '/committee', name: 'committee', component: () => import('./pages/CommitteePage.vue'), meta: { title: '委员会' } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./pages/NotFoundPage.vue'), meta: { title: '页面不存在' } },
 ]
 
 const router = createRouter({
@@ -16,6 +20,11 @@ const router = createRouter({
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
     return { top: 0 }
   },
+})
+
+router.afterEach((to) => {
+  const page = to.meta?.title
+  document.title = !page || to.name === 'home' ? SITE : `${page} · ${SITE}`
 })
 
 export default router

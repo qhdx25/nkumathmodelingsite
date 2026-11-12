@@ -110,6 +110,12 @@ const openCount = contests.filter((item) => item.status === 'open').length
             compact
           />
         </div>
+
+        <p class="section-foot">
+          国赛获奖名单（初稿）已在
+          <RouterLink class="text-link" to="/notice/cumcm-2026-award-draft">信息公示</RouterLink>
+          发布，可逐页阅读或查看官方原文。
+        </p>
       </div>
     </section>
 
