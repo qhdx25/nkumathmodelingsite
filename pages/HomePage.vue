@@ -12,7 +12,7 @@ import { entries, intro, stats } from '../data/site'
           <p class="kicker">南开大学数学建模协会 · 成立于 2016 年</p>
           <h1>
             用数学描述问题，<br />
-            用模型检验答案。
+            <em>用模型检验答案。</em>
           </h1>
           <p class="hero-lead">
             我们承办校内规模最大的数学建模赛事，服务全校 1200 余名参赛同学，

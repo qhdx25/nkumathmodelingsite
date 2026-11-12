@@ -4,21 +4,29 @@ import { nav } from '../data/site'
 </script>
 
 <template>
+  <div class="topbar">
+    <div class="container">
+      <span class="topbar-en">Nankai University Mathematical Modeling Association</span>
+      <span class="topbar-right">关注「南开数院学工」公众号获取最新通知</span>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="container header-inner">
       <RouterLink to="/" class="brand">
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 44 44" width="44" height="44">
-            <circle cx="22" cy="22" r="21" fill="#7b2358" />
-            <circle cx="22" cy="22" r="17" fill="none" stroke="#c8a160" stroke-width="0.8" opacity="0.65" />
+            <circle cx="22" cy="22" r="21" fill="#6510ad" />
+            <circle cx="22" cy="22" r="17" fill="none" stroke="#c8a710" stroke-width="1" opacity="0.75" />
             <text
               x="22"
               y="28"
               text-anchor="middle"
-              font-family="Georgia, serif"
-              font-size="14"
+              font-family="Arial, Helvetica, sans-serif"
+              font-size="13"
+              font-weight="700"
               letter-spacing="0.5"
-              fill="#f6f1f3"
+              fill="#ffffff"
             >
               NKU
             </text>
