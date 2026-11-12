@@ -111,11 +111,14 @@ const openCount = contests.filter((item) => item.status === 'open').length
           />
         </div>
 
-        <p class="section-foot">
-          国赛获奖名单（初稿）已在
-          <RouterLink class="text-link" to="/notice/cumcm-2026-award-draft">信息公示</RouterLink>
-          发布，可逐页阅读或查看官方原文。
-        </p>
+        <RouterLink class="notice-callout" to="/notice/cumcm-2026-award-draft">
+          <span class="nc-tag">公示中</span>
+          <span class="nc-main">
+            <strong>2026 高教社杯国赛获奖名单（初稿）</strong>
+            <span>45 页 · 公示期 2026-11-08 — 11-14 · 可站内逐页阅读或跳官方原文</span>
+          </span>
+          <span class="nc-go" aria-hidden="true">›</span>
+        </RouterLink>
       </div>
     </section>
 

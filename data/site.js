@@ -4,9 +4,15 @@
 export const nav = [
   { label: '首页', to: '/' },
   { label: '竞赛', to: '/competition' },
-  { label: '公示', to: '/notice' },
+  { label: '校队培训', to: '/training' },
   { label: '建模资料', to: '/materials' },
+  { label: '组队平台', to: '/team' },
+]
+
+// 页脚次级入口：不在主导航里，但内容不能丢
+export const subNav = [
   { label: '委员会', to: '/committee' },
+  { label: '信息公示', to: '/notice' },
 ]
 
 // 首屏轮播位：image 置空时渲染占位块，填入图片路径即自动切换为图片
@@ -124,25 +130,25 @@ export const entries = [
     action: '进入竞赛页',
   },
   {
-    kicker: '公示',
-    title: '信息公示',
-    body: '获奖名单、公示公告、会议纪要，可逐页阅读或下载原件。',
-    to: '/notice',
-    action: '查看公示文件',
+    kicker: '训练',
+    title: '校队培训',
+    body: '培训资料、训练体系与代表队培训通知。',
+    to: '/training',
+    action: '查看培训',
   },
   {
     kicker: '资料',
-    title: '建模资料库',
-    body: '历年真题、优秀论文、常用模型与工具教程。',
+    title: '建模资料',
+    body: '历年真题、优秀论文、LaTeX / Python / MATLAB 资料。',
     to: '/materials',
     action: '打开资料库',
   },
   {
-    kicker: '组织',
-    title: '委员会与部门',
-    body: '理事会、常务理事会与各部门成员构成。',
-    to: '/committee',
-    action: '查看组织架构',
+    kicker: '组队',
+    title: '组队平台',
+    body: '发布招募、寻找队友、交流经验。',
+    to: '/team',
+    action: '进入组队平台',
   },
 ]
 
@@ -150,4 +156,19 @@ export const footerLinks = [
   { label: '南开大学', href: 'https://www.nankai.edu.cn' },
   { label: '数学科学学院', href: 'https://www.cim.nankai.edu.cn' },
   { label: '南开新闻网', href: 'https://news.nankai.edu.cn' },
+]
+
+// 原站校区信息，收进页脚
+export const campuses = [
+  { name: '八里台校区', address: '天津市南开区卫津路 94 号', postcode: '300071' },
+  { name: '津南校区', address: '天津海河教育园区同砚路 38 号', postcode: '300350' },
+  { name: '泰达校区', address: '天津经济技术开发区宏达街 23 号', postcode: '300457' },
+]
+
+// 原站「数学底色」时间线，收进委员会页作为沿革
+export const history = [
+  { year: '1920', title: '南开数学起点', desc: '南开数学系由姜立夫创立，是中国高校较早设立的数学系之一。' },
+  { year: '1985', title: '陈省身数学研究所', desc: '由陈省身先生倡议创办并亲任所长，成为南开数学走向世界的学术名片。' },
+  { year: '1997', title: '数学科学学院成立', desc: '形成更完整的人才培养与科研组织结构，为建模训练提供课程与学术支撑。' },
+  { year: '今天', title: '服务建模训练', desc: '数学、统计与数据科学等学科资源，为协会的培训、选拔与竞赛提供土壤。' },
 ]

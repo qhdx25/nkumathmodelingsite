@@ -1,18 +1,6 @@
 <script setup>
-import PlaceholderBlock from '../components/PlaceholderBlock.vue'
-
-const feishu = {
-  title: '建模资料总入口',
-  desc: '历年竞赛真题、优秀论文、常用模型与工具教程，均在飞书知识库内按分类整理。',
-  url: 'https://nankai.feishu.cn/wiki/CMSXwe42YiGJtpkxSYHcaO5inwb',
-}
-
-const groups = [
-  { kicker: '真题', title: '历年竞赛真题', body: '国赛、美赛、MathorCup、五校联赛等历年题目与数据附件。' },
-  { kicker: '论文', title: '获奖论文合集', body: '按赛事与题目分类的优秀论文，含获奖等级与队伍信息。' },
-  { kicker: '方法', title: '常用模型与算法', body: '预测、优化、评价、分类四类模型的模板代码与使用说明。' },
-  { kicker: '工具', title: '工具与教程', body: 'Python / MATLAB 环境配置、绘图规范、论文排版模板。' },
-]
+import PaperLibrary from '../components/PaperLibrary.vue'
+import { feishu, groups } from '../data/materials'
 </script>
 
 <template>
@@ -22,7 +10,8 @@ const groups = [
         <p class="kicker">建模资料</p>
         <h1>资料共享，共同进步</h1>
         <p class="page-lead">
-          所有资料集中在飞书知识库，按赛事、方法、工具三类归档，持续由学术部维护。
+          历年真题、获奖论文与工具资料，按五类归档。真题与论文以外部链接为主，LaTeX / Python /
+          MATLAB 三类正在整理。
         </p>
       </div>
     </section>
@@ -38,33 +27,52 @@ const groups = [
           <span class="btn btn-solid">打开资料库 ↗</span>
         </a>
 
-        <div class="entry-grid entry-grid-4">
-          <article v-for="item in groups" :key="item.title" class="entry-card">
-            <p class="card-kicker">{{ item.kicker }}</p>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.body }}</p>
-          </article>
-        </div>
+        <nav class="anchor-bar" aria-label="资料分类">
+          <a v-for="g in groups" :key="g.id" :href="`#${g.id}`">{{ g.title }}</a>
+        </nav>
       </div>
     </section>
 
-    <section class="section">
+    <section v-for="g in groups" :id="g.id" :key="g.id" class="section material-section">
       <div class="container">
         <div class="section-head">
           <div>
-            <p class="kicker">培训与讲座</p>
-            <h2>专题培训安排</h2>
+            <p class="kicker">{{ g.kicker }}</p>
+            <h2>{{ g.title }}</h2>
           </div>
-          <span class="badge badge-soon">待补充</span>
+          <span v-if="g.placeholder" class="badge badge-pending">整理中</span>
         </div>
 
-        <PlaceholderBlock
-          title="讲座与培训排期"
-          desc="按学期列出专题培训主题、主讲人、时间地点与回放链接。"
-          requirement="提供本学期培训计划表（主题 / 时间 / 地点 / 主讲），接入后做成时间轴。"
-          ratio="16 / 5"
-          compact
-        />
+        <p class="section-intro">{{ g.desc }}</p>
+
+        <!-- 历年真题：官方入口 -->
+        <ul v-if="g.items?.length" class="link-list">
+          <li v-for="item in g.items" :key="item.label">
+            <a :href="item.href" target="_blank" rel="noreferrer">
+              <span class="link-title">{{ item.label }}</span>
+              <span class="link-note">{{ item.note }}</span>
+              <span class="link-open" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- 历年优秀论文：97 份，组件内按年份折叠 -->
+        <PaperLibrary v-if="g.embed === 'papers'" />
+
+        <p v-if="g.placeholder" class="todo-box">
+          <span class="todo-tag">待补充</span>
+          {{ g.placeholder }}
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-cta">
+      <div class="container cta-inner">
+        <div>
+          <h2>手上有资料愿意共享？</h2>
+          <p>讲义、模板、代码都可以交给学术部汇总，统一放进资料库。</p>
+        </div>
+        <a class="btn btn-solid" :href="feishu.url" target="_blank" rel="noreferrer">进入飞书资料库</a>
       </div>
     </section>
   </main>

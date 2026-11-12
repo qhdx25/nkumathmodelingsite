@@ -1,4 +1,10 @@
 <script setup>
+import { RouterLink } from 'vue-router'
+import { history } from '../data/site'
+import { listNotices } from '../data/notices'
+
+const minutes = listNotices('minutes')
+
 const lv = [
   { title: '会员代表大会', desc: '协会最高议事机构，选举产生理事会。' },
   { title: '理事会', desc: '协会日常决策机构，向会员代表大会负责。' },
@@ -134,6 +140,50 @@ const departments = [
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="kicker">会议纪要</p>
+            <h2>历次会议记录</h2>
+          </div>
+          <RouterLink class="head-link" to="/notice">全部公示文件</RouterLink>
+        </div>
+
+        <ul class="minutes-list">
+          <li v-for="n in minutes" :key="n.slug">
+            <RouterLink :to="`/notice/${n.slug}`">
+              <time>{{ n.date }}</time>
+              <span class="ml-title">{{ n.title }}</span>
+              <span class="ml-sub">{{ n.sub }}</span>
+              <span class="ml-go" aria-hidden="true">›</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="kicker">沿革</p>
+            <h2>南开数学与协会</h2>
+          </div>
+        </div>
+
+        <ol class="timeline">
+          <li v-for="h in history" :key="h.year">
+            <span class="tl-year">{{ h.year }}</span>
+            <div>
+              <h3>{{ h.title }}</h3>
+              <p>{{ h.desc }}</p>
+            </div>
+          </li>
+        </ol>
       </div>
     </section>
   </main>

@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { footerLinks, nav } from '../data/site'
+import { campuses, footerLinks, nav, subNav } from '../data/site'
 </script>
 
 <template>
@@ -12,6 +12,7 @@ import { footerLinks, nav } from '../data/site'
           成立于 2016 年，数学科学学院下属学生社团。<br />
           以赛促学，学以致用。
         </p>
+        <p class="footer-slogan">允公允能，日新月异</p>
       </div>
 
       <div class="footer-column">
@@ -20,10 +21,19 @@ import { footerLinks, nav } from '../data/site'
       </div>
 
       <div class="footer-column">
-        <strong>官方链接</strong>
+        <strong>更多</strong>
+        <RouterLink v-for="item in subNav" :key="item.label" :to="item.to">{{ item.label }}</RouterLink>
         <a v-for="item in footerLinks" :key="item.label" :href="item.href" target="_blank" rel="noreferrer">
           {{ item.label }}
         </a>
+      </div>
+
+      <div class="footer-column footer-address">
+        <strong>校区地址</strong>
+        <p v-for="c in campuses" :key="c.name">
+          <span class="addr-name">{{ c.name }}</span>
+          <span class="addr-detail">{{ c.address }}（{{ c.postcode }}）</span>
+        </p>
       </div>
     </div>
 
