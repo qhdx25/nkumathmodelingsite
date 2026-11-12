@@ -1,11 +1,14 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import HeroSlider from '../components/HeroSlider.vue'
 import NewsFeed from '../components/NewsFeed.vue'
-import { entries, intro, stats } from '../data/site'
+import { banners, entries, intro, stats } from '../data/site'
 </script>
 
 <template>
   <main>
+    <HeroSlider :items="banners" />
+
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy">

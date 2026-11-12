@@ -8,6 +8,35 @@ export const nav = [
   { label: '委员会', to: '/committee' },
 ]
 
+// 首屏轮播位：image 置空时渲染占位块，填入图片路径即自动切换为图片
+// 每张都可点击跳转，url 换掉即可
+export const banners = [
+  {
+    id: 'banner-1',
+    tag: '学院新闻',
+    title: '第一届天津市五校数学建模联赛答辩会在南开举行',
+    url: 'https://news.nankai.edu.cn/zhxw/system/2026/11/01/030075089.shtml',
+    image: '',
+    linkLabel: '南开新闻网原文',
+  },
+  {
+    id: 'banner-2',
+    tag: '协会动态',
+    title: '2026 招新：加入数学建模协会，从好奇到上手',
+    url: 'http://mp.weixin.qq.com/s?__biz=MzkwMzY1NTI1OA==&mid=2247497554&idx=1&sn=bcf90d69a11e11d46a4f709f50f802db',
+    image: '',
+    linkLabel: '学院公众号推文',
+  },
+  {
+    id: 'banner-3',
+    tag: '赛事通知',
+    title: '2027 年美国大学生数学建模竞赛报名已开放',
+    url: 'https://www.contest.comap.com/undergraduate/contests/mcm/register.php',
+    image: '',
+    linkLabel: 'COMAP 官方报名页',
+  },
+]
+
 export const stats = [
   { value: '2016', label: '协会成立', note: '2026 年成立十周年' },
   { value: '1200+', label: '覆盖参赛学生', note: '面向全校本硕博' },

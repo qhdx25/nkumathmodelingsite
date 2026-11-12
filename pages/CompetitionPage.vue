@@ -30,12 +30,14 @@ const openCount = contests.filter((item) => item.status === 'open').length
           <span class="badge badge-soon">制作中</span>
         </div>
 
-        <PlaceholderBlock
-          :title="calendar.title"
-          :desc="calendar.note"
-          :requirement="calendar.requirement"
-          ratio="3 / 2"
-        />
+        <div class="calendar-slot">
+          <PlaceholderBlock
+            :title="calendar.title"
+            :desc="calendar.note"
+            :requirement="calendar.requirement"
+            ratio="3 / 2"
+          />
+        </div>
 
         <p class="section-foot">
           图片放入 <code>assets/calendar.png</code> 后，替换本区块即可；不需要改其他代码。
@@ -104,7 +106,7 @@ const openCount = contests.filter((item) => item.status === 'open').length
             title="获奖名单明细"
             desc="按赛事分组的完整名单：队伍编号、队名、队员、指导教师、奖项等级。"
             requirement="提供 Excel 或飞书表格链接即可，我来接成表格并支持按赛事筛选。"
-            ratio="16 / 5"
+            ratio="16 / 4"
             compact
           />
         </div>
