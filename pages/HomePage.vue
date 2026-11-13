@@ -28,7 +28,7 @@ import { banners, entries, intro, stats } from '../data/site'
           </div>
         </div>
 
-        <VerticalTicker :items="stats" :rows="2" :cell-height="84" :speed="14">
+        <VerticalTicker :items="stats" :rows="2" :cell-height="84" :speed="26">
           <template #default="{ item }">
             <div class="stat">
               <p class="stat-v">{{ item.value }}</p>

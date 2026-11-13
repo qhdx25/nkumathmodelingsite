@@ -391,7 +391,7 @@ main { flex: 1; }
   width: 10px;
   display: flex;
   justify-content: flex-end;
-  padding: 1px 2px 1px 0;
+  padding: 0 2px 0 0;
   opacity: 0;
   transition: opacity 0.18s ease;
   cursor: pointer;
