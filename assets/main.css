@@ -156,6 +156,8 @@ main { flex: 1; }
 .head-link { font-size: 13px; color: var(--muted); }
 .head-link:hover { color: var(--accent); }
 .head-note { font-size: 12.5px; color: var(--faint); }
+/* 让标题右侧链接与轮播里的日期右边界对齐（轮播留了 12px 给滑动条） */
+.dual .section-head { padding-right: 12px; }
 
 .section-foot {
   margin-top: 12px;
@@ -351,37 +353,65 @@ main { flex: 1; }
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line-soft);
 }
+/* 上下边缘柔化，避免滚动时被切一半的行太生硬 */
+.ticker-window {
+  height: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 10px,
+    #000 calc(100% - 10px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 10px,
+    #000 calc(100% - 10px),
+    transparent 100%
+  );
+}
 .ticker-track { will-change: transform; }
 .ticker-cell {
   display: flex;
   align-items: stretch;
   box-sizing: border-box;
+  padding-right: 12px;
   border-bottom: 1px solid var(--line-soft);
 }
 .ticker-cell > * { flex: 1; min-width: 0; }
-.ticker.has-dots .ticker-cell { padding-right: 26px; }
 
-.ticker-dots {
+/* 右侧滑动条：停留显现，拖动时接管滚动 */
+.ticker-scroll {
   position: absolute;
+  top: 0;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 0;
+  width: 10px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-}
-.ticker-dot {
-  width: 2px;
-  height: 12px;
-  padding: 0;
-  border: 0;
-  border-radius: 1px;
-  background: #e2e2e2;
+  justify-content: flex-end;
+  padding: 1px 2px 1px 0;
+  opacity: 0;
+  transition: opacity 0.18s ease;
   cursor: pointer;
-  transition: background 0.2s ease;
+  touch-action: none;
 }
-.ticker-dot.is-active { background: var(--accent); }
+.ticker.is-hover .ticker-scroll,
+.ticker.is-dragging .ticker-scroll { opacity: 1; }
+/* 触屏没有 hover，直接常显，否则摸不到 */
+@media (hover: none) {
+  .ticker-scroll { opacity: 1; }
+}
+.ticker-thumb {
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(113, 10, 83, 0.32);
+  transition: background 0.18s ease;
+}
+.ticker-scroll:hover .ticker-thumb,
+.ticker.is-dragging .ticker-thumb { background: rgba(113, 10, 83, 0.62); }
+.ticker.is-dragging { cursor: grabbing; user-select: none; }
 
 /* 列表型单元格（标题 + 日期，单行） */
 .news-cell,
@@ -411,23 +441,26 @@ main { flex: 1; }
 .news-cell:hover .cell-title,
 .notice-cell:hover .cell-title { color: var(--accent); }
 
-/* 数字轮播 */
+/* 数字轮播：同屏两行，每行 数值 + 说明 */
 .stat {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 4px 0;
+  align-items: center;
+  gap: 16px;
+  padding: 0 2px;
 }
 .stat .stat-v {
-  font-size: 46px;
+  flex: none;
+  width: 122px;
+  font-size: 34px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
-.stat .stat-l { font-size: 15px; line-height: 1.5; color: var(--ink); margin-top: 12px; }
-.stat .stat-n { font-size: 12px; line-height: 1.6; color: var(--faint); margin-top: 4px; }
+.stat-txt { min-width: 0; }
+.stat .stat-l { font-size: 14px; line-height: 1.4; color: var(--ink); }
+.stat .stat-n { font-size: 12px; line-height: 1.5; color: var(--faint); margin-top: 3px; }
 
 /* ---------- 列表：标题 + 日期 ---------- */
 .list { border-top: 1px solid var(--line); }

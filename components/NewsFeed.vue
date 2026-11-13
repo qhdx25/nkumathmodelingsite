@@ -17,7 +17,7 @@ const catLabel = { award: '成绩', minutes: '纪要' }
           <RouterLink class="head-link" to="/news">更多动态 →</RouterLink>
         </div>
 
-        <VerticalTicker :items="news" :rows="4" :cell-height="46" :interval="3200">
+        <VerticalTicker :items="news" :rows="4" :cell-height="46" :speed="14">
           <template #default="{ item }">
             <a class="news-cell" :href="item.url" target="_blank" rel="noreferrer">
               <span class="cell-title">{{ item.title }}</span>
@@ -33,7 +33,7 @@ const catLabel = { award: '成绩', minutes: '纪要' }
           <RouterLink class="head-link" to="/notice">全部公示 →</RouterLink>
         </div>
 
-        <VerticalTicker :items="notices" :rows="4" :cell-height="46" :interval="4200">
+        <VerticalTicker :items="notices" :rows="4" :cell-height="46" :speed="14">
           <template #default="{ item }">
             <RouterLink class="notice-cell" :to="`/notice/${item.slug}`">
               <span class="cell-tag">{{ catLabel[item.category] }}</span>

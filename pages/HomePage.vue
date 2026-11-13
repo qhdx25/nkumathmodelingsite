@@ -28,12 +28,14 @@ import { banners, entries, intro, stats } from '../data/site'
           </div>
         </div>
 
-        <VerticalTicker :items="stats" :rows="1" :cell-height="168" :interval="5000" dots>
+        <VerticalTicker :items="stats" :rows="2" :cell-height="84" :speed="14">
           <template #default="{ item }">
             <div class="stat">
               <p class="stat-v">{{ item.value }}</p>
-              <p class="stat-l">{{ item.label }}</p>
-              <p class="stat-n">{{ item.note }}</p>
+              <div class="stat-txt">
+                <p class="stat-l">{{ item.label }}</p>
+                <p class="stat-n">{{ item.note }}</p>
+              </div>
             </div>
           </template>
         </VerticalTicker>
