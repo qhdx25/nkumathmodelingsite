@@ -12,7 +12,6 @@ import { campuses, footerLinks, nav, subNav } from '../data/site'
           成立于 2016 年，数学科学学院下属学生社团。<br />
           以赛促学，学以致用。
         </p>
-        <p class="footer-slogan">允公允能，日新月异</p>
       </div>
 
       <div class="footer-column">
@@ -35,6 +34,10 @@ import { campuses, footerLinks, nav, subNav } from '../data/site'
           <span class="addr-detail">{{ c.address }}（{{ c.postcode }}）</span>
         </p>
       </div>
+    </div>
+
+    <div class="container footer-motto">
+      <span>允公允能，日新月异</span>
     </div>
 
     <div class="container footer-bottom">
