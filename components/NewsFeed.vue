@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { news, newsMore } from '../data/site'
+import VerticalTicker from './VerticalTicker.vue'
+import { news } from '../data/site'
 import { listNotices } from '../data/notices'
 
 const notices = listNotices().slice(0, 6)
@@ -13,21 +14,17 @@ const catLabel = { award: '成绩', minutes: '纪要' }
       <div>
         <div class="section-head">
           <h2>最新动态</h2>
-          <a class="head-link" :href="newsMore.url" target="_blank" rel="noreferrer">
-            {{ newsMore.label }} →
-          </a>
+          <RouterLink class="head-link" to="/news">更多动态 →</RouterLink>
         </div>
 
-        <ul class="list">
-          <li v-for="item in news" :key="item.title">
-            <a :href="item.url" target="_blank" rel="noreferrer" :title="item.source">
-              <span class="list-title">{{ item.title }}</span>
-              <time>{{ item.date }}</time>
+        <VerticalTicker :items="news" :rows="4" :cell-height="46" :interval="3200">
+          <template #default="{ item }">
+            <a class="news-cell" :href="item.url" target="_blank" rel="noreferrer">
+              <span class="cell-title">{{ item.title }}</span>
+              <time class="cell-date">{{ item.date }}</time>
             </a>
-          </li>
-        </ul>
-
-        <p class="section-foot">{{ newsMore.hint }}，新推送同步转载至此。</p>
+          </template>
+        </VerticalTicker>
       </div>
 
       <div>
@@ -36,17 +33,15 @@ const catLabel = { award: '成绩', minutes: '纪要' }
           <RouterLink class="head-link" to="/notice">全部公示 →</RouterLink>
         </div>
 
-        <ul class="list">
-          <li v-for="n in notices" :key="n.slug">
-            <RouterLink :to="`/notice/${n.slug}`">
-              <span class="list-tag">{{ catLabel[n.category] }}</span>
-              <span class="list-title">{{ n.title }}</span>
-              <time>{{ n.date }}</time>
+        <VerticalTicker :items="notices" :rows="4" :cell-height="46" :interval="4200">
+          <template #default="{ item }">
+            <RouterLink class="notice-cell" :to="`/notice/${item.slug}`">
+              <span class="cell-tag">{{ catLabel[item.category] }}</span>
+              <span class="cell-title">{{ item.title }}</span>
+              <time class="cell-date">{{ item.date }}</time>
             </RouterLink>
-          </li>
-        </ul>
-
-        <p class="section-foot">成绩名单、会议纪要与公示文件，均可站内逐页阅读。</p>
+          </template>
+        </VerticalTicker>
       </div>
     </div>
   </section>

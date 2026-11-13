@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router'
 import HeroSlider from '../components/HeroSlider.vue'
 import NewsFeed from '../components/NewsFeed.vue'
+import VerticalTicker from '../components/VerticalTicker.vue'
 import { banners, entries, intro, stats } from '../data/site'
 </script>
 
@@ -27,13 +28,15 @@ import { banners, entries, intro, stats } from '../data/site'
           </div>
         </div>
 
-        <div class="stat-grid">
-          <div v-for="item in stats" :key="item.label" class="stat-card">
-            <span class="stat-value">{{ item.value }}</span>
-            <span class="stat-label">{{ item.label }}</span>
-            <span class="stat-note">{{ item.note }}</span>
-          </div>
-        </div>
+        <VerticalTicker :items="stats" :rows="1" :cell-height="168" :interval="5000" dots>
+          <template #default="{ item }">
+            <div class="stat">
+              <p class="stat-v">{{ item.value }}</p>
+              <p class="stat-l">{{ item.label }}</p>
+              <p class="stat-n">{{ item.note }}</p>
+            </div>
+          </template>
+        </VerticalTicker>
       </div>
     </section>
 

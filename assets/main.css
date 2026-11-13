@@ -327,6 +327,108 @@ main { flex: 1; }
 .stat-label { font-size: 14px; color: var(--ink); }
 .stat-note { margin-left: auto; font-size: 12px; color: var(--faint); }
 
+/* 动态归档页 */
+.news-archive { border-top: 1px solid var(--line); }
+.news-archive li { border-bottom: 1px solid var(--line-soft); }
+.news-archive a { display: flex; gap: 22px; padding: 14px 2px; }
+.news-archive time {
+  flex: none;
+  width: 78px;
+  padding-top: 3px;
+  font-size: 12.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.news-archive h3 { font-size: 15px; }
+.news-archive a:hover h3 { color: var(--accent); }
+.news-archive p { font-size: 13px; color: var(--muted); line-height: 1.75; margin-top: 4px; }
+.news-archive .src { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--faint); }
+
+/* ---------- 竖向轮播（ticker） ---------- */
+.ticker {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-soft);
+}
+.ticker-track { will-change: transform; }
+.ticker-cell {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--line-soft);
+}
+.ticker-cell > * { flex: 1; min-width: 0; }
+.ticker.has-dots .ticker-cell { padding-right: 26px; }
+
+.ticker-dots {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+.ticker-dot {
+  width: 2px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 1px;
+  background: #e2e2e2;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.ticker-dot.is-active { background: var(--accent); }
+
+/* 列表型单元格（标题 + 日期，单行） */
+.news-cell,
+.notice-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px;
+}
+.cell-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cell-date {
+  flex: none;
+  font-size: 12px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.cell-tag { flex: none; font-size: 12px; color: var(--accent-light); }
+.news-cell:hover .cell-title,
+.notice-cell:hover .cell-title { color: var(--accent); }
+
+/* 数字轮播 */
+.stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px 0;
+}
+.stat .stat-v {
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.stat .stat-l { font-size: 15px; line-height: 1.5; color: var(--ink); margin-top: 12px; }
+.stat .stat-n { font-size: 12px; line-height: 1.6; color: var(--faint); margin-top: 4px; }
+
 /* ---------- 列表：标题 + 日期 ---------- */
 .list { border-top: 1px solid var(--line); }
 .list li { border-bottom: 1px solid var(--line-soft); }

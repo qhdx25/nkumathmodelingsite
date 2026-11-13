@@ -11,6 +11,7 @@ const routes = [
   { path: '/notice', name: 'notice', component: () => import('./pages/NoticePage.vue'), meta: { title: '信息公示' } },
   { path: '/notice/:slug', name: 'notice-detail', component: () => import('./pages/NoticeDetailPage.vue'), meta: { title: '信息公示' } },
   { path: '/committee', name: 'committee', component: () => import('./pages/CommitteePage.vue'), meta: { title: '委员会' } },
+  { path: '/news', name: 'news', component: () => import('./pages/NewsPage.vue'), meta: { title: '最新动态' } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./pages/NotFoundPage.vue'), meta: { title: '页面不存在' } },
 ]
 
