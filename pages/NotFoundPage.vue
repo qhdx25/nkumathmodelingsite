@@ -6,7 +6,6 @@ import { RouterLink } from 'vue-router'
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">404</p>
         <h1>这个页面不存在</h1>
         <p class="page-lead">链接可能已经更新，或者地址输错了。</p>
         <div class="intro-actions">

@@ -11,7 +11,6 @@ const openCount = contests.filter((item) => item.status === 'open').length
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">竞赛</p>
         <h1>竞赛信息与成绩公示</h1>
         <p class="page-lead">
           全年赛事节点、报名入口、校内选拔安排，以及成绩与积分公示一览。

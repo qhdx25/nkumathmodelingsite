@@ -130,7 +130,6 @@ const related = computed(() => {
 
     <section v-else class="section">
       <div class="container">
-        <p class="kicker">信息公示</p>
         <h1>没有找到这份文件</h1>
         <p class="page-lead">链接可能已更新，或该文件尚未发布。</p>
         <p style="margin-top: 18px">

@@ -7,7 +7,6 @@ import { notices, owner, resources, tracks } from '../data/training'
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">校队培训</p>
         <h1>系统训练，备战竞赛</h1>
         <p class="page-lead">
           从入门到上场：培训资料、训练体系与代表队培训通知集中在这里。

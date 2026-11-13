@@ -43,7 +43,6 @@ const departments = [
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">组织</p>
         <h1>组织架构与部门职责</h1>
         <p class="page-lead">
           协会在理事会领导下开展工作，下设秘书处、竞赛部、宣传部与工作委员会。

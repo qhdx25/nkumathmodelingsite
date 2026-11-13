@@ -9,7 +9,6 @@ const active = ref('all')
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">组队平台</p>
         <h1>找队友，找队伍</h1>
         <p class="page-lead">
           面向全校的数模组队与交流板块：发布招募、寻找队友、分享经验。

@@ -17,7 +17,6 @@ const catLabel = (id) => categories.find((c) => c.id === id)?.label ?? ''
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">公示</p>
         <h1>信息公示</h1>
         <p class="page-lead">
           协会对外公开的获奖名单、公示公告与会议纪要。所有文件均可站内逐页阅读，也可下载原件。

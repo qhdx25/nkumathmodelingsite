@@ -7,7 +7,6 @@ import { feishu, groups } from '../data/materials'
   <main class="page">
     <section class="page-head">
       <div class="container">
-        <p class="kicker">建模资料</p>
         <h1>资料共享，共同进步</h1>
         <p class="page-lead">
           历年真题、获奖论文与工具资料，按五类归档。真题与论文以外部链接为主，

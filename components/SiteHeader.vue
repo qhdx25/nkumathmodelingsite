@@ -14,17 +14,17 @@ const subActive = computed(() => subNav.some((item) => route.path.startsWith(ite
     <div class="container header-inner">
       <RouterLink to="/" class="brand">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" width="30" height="30">
-            <circle cx="16" cy="16" r="15" fill="#710a53" />
-            <circle cx="16" cy="16" r="12" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.55" />
+          <svg viewBox="0 0 32 32" width="34" height="34">
+            <circle cx="16" cy="16" r="16" fill="#ffffff" />
+            <circle cx="16" cy="16" r="12.5" fill="none" stroke="#710a53" stroke-width="0.8" opacity="0.4" />
             <text
               x="16"
-              y="20.5"
+              y="20.6"
               text-anchor="middle"
               font-family="Arial, Helvetica, sans-serif"
-              font-size="9.5"
+              font-size="10"
               font-weight="700"
-              fill="#ffffff"
+              fill="#710a53"
             >NKU</text>
           </svg>
         </span>
