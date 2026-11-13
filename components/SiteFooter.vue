@@ -36,13 +36,10 @@ import { campuses, footerLinks, nav, subNav } from '../data/site'
       </div>
     </div>
 
-    <div class="container footer-motto">
-      <span>允公允能，日新月异</span>
-    </div>
-
     <div class="container footer-bottom">
-      <span>© 2026 南开大学数学建模协会</span>
-      <span>Demo 预览版 · 部分数据为占位，待补充后上线</span>
+      <span class="footer-copy">© 2026 南开大学数学建模协会</span>
+      <span class="footer-motto">允公允能，日新月异</span>
+      <span class="footer-demo">Demo 预览版 · 部分数据为占位，待补充后上线</span>
     </div>
   </footer>
 </template>
