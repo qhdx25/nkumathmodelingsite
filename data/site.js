@@ -2,11 +2,34 @@
 // 说明：动态条目均来自公开来源（南开新闻网 / 学院公众号），链接可直达原文
 
 export const nav = [
-  { label: '首页', to: '/' },
-  { label: '竞赛', to: '/competition' },
+  { label: '协会概况', to: '/' },
+  { label: '最新动态', to: '/news' },
+  { label: '赛事信息', to: '/competition' },
   { label: '校队培训', to: '/training' },
   { label: '建模资料', to: '/materials' },
+  { label: '组织架构', to: '/committee' },
+  { label: '信息公示', to: '/notice' },
+]
+
+// 顶部信息条右侧的小链接（对标南开官网那一排）
+export const topLinks = [
+  { label: '加入我们', to: '/team' },
+  { label: '联系我们', to: '/committee' },
+  { label: '资料下载', to: '/materials' },
+  { label: '信息公示', to: '/notice' },
+  { label: 'English', to: '/', note: 'English 版建设中' },
+]
+
+// 大图底部紫色横条上的栏目（8 个，与官网同构）
+export const stripNav = [
+  { label: '最新动态', to: '/news' },
+  { label: '通知公告', to: '/notice' },
+  { label: '赛事信息', to: '/competition' },
+  { label: '校队培训', to: '/training' },
+  { label: '建模资料', to: '/materials' },
+  { label: '组织架构', to: '/committee' },
   { label: '组队平台', to: '/team' },
+  { label: '影像数模', to: '/#gallery' },
 ]
 
 // 页脚次级入口：不在主导航里，但内容不能丢
@@ -15,33 +38,19 @@ export const subNav = [
   { label: '信息公示', to: '/notice' },
 ]
 
-// 首屏轮播位：image 置空时渲染占位块，填入图片路径即自动切换为图片
-// 每张都可点击跳转，url 换掉即可
+// 首屏大图轮播：图片来源为南开校园实拍，credit 为摄影署名
 export const banners = [
   {
-    id: 'banner-1',
-    tag: '学院新闻',
-    title: '第一届天津市五校数学建模联赛答辩会在南开举行',
+    id: 'nku-01',
+    image: '/img/hero/nku-01.jpg',
+    credit: '摄影：宗琪琪',
     url: 'https://news.nankai.edu.cn/zhxw/system/2026/11/01/030075089.shtml',
-    image: '',
-    linkLabel: '南开新闻网原文',
   },
-  {
-    id: 'banner-2',
-    tag: '协会动态',
-    title: '2026 招新：加入数学建模协会，从好奇到上手',
-    url: 'http://mp.weixin.qq.com/s?__biz=MzkwMzY1NTI1OA==&mid=2247497554&idx=1&sn=bcf90d69a11e11d46a4f709f50f802db',
-    image: '',
-    linkLabel: '学院公众号推文',
-  },
-  {
-    id: 'banner-3',
-    tag: '赛事通知',
-    title: '2027 年美国大学生数学建模竞赛报名已开放',
-    url: 'https://www.contest.comap.com/undergraduate/contests/mcm/register.php',
-    image: '',
-    linkLabel: 'COMAP 官方报名页',
-  },
+  { id: 'nku-02', image: '/img/hero/nku-02.jpg', credit: '摄影：周嵩娴', url: '' },
+  { id: 'nku-03', image: '/img/hero/nku-03.jpg', credit: '摄影：郭子昂', url: '' },
+  { id: 'nku-04', image: '/img/hero/nku-04.jpg', credit: '摄影：宗琪琪', url: '' },
+  { id: 'nku-05', image: '/img/hero/nku-05.jpg', credit: '摄影：郭子昂', url: '' },
+  { id: 'nku-06', image: '/img/hero/nku-06.jpg', credit: '南开大学主楼 · 晚霞', url: '' },
 ]
 
 export const stats = [

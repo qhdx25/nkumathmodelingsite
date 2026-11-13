@@ -1,36 +1,36 @@
 <script setup>
-import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { nav, subNav } from '../data/site'
+import { nav, topLinks } from '../data/site'
+
+defineProps({
+  // 首页：叠在大图上，文字反白
+  overlay: { type: Boolean, default: false },
+})
 
 const route = useRoute()
-
-const isActive = (to) => (to === '/' ? route.path === '/' : route.path.startsWith(to))
-const subActive = computed(() => subNav.some((item) => route.path.startsWith(item.to)))
+const isActive = (to) => (to === '/' ? route.path === '/' : route.path.startsWith(to.split('#')[0]))
 </script>
 
 <template>
-  <header class="site-header">
-    <div class="container header-inner">
+  <header class="site-head" :class="{ 'is-overlay': overlay }">
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <p class="topbar-note">数学科学学院 · 学生社团</p>
+        <ul class="top-links">
+          <li v-for="item in topLinks" :key="item.label">
+            <RouterLink v-if="item.to !== '/'" :to="item.to">{{ item.label }}</RouterLink>
+            <span v-else class="is-soon" :title="item.note">{{ item.label }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container masthead">
       <RouterLink to="/" class="brand">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" width="34" height="34">
-            <circle cx="16" cy="16" r="16" fill="#ffffff" />
-            <circle cx="16" cy="16" r="12.5" fill="none" stroke="#710a53" stroke-width="0.8" opacity="0.4" />
-            <text
-              x="16"
-              y="20.6"
-              text-anchor="middle"
-              font-family="Arial, Helvetica, sans-serif"
-              font-size="10"
-              font-weight="700"
-              fill="#710a53"
-            >NKU</text>
-          </svg>
-        </span>
+        <img class="brand-mark" src="/img/nku-mark.png" alt="南开大学校徽" />
         <span class="brand-copy">
           <strong>南开大学数学建模协会</strong>
-          <em>数学科学学院</em>
+          <em>Nankai University Mathematical Modeling Association</em>
         </span>
       </RouterLink>
 
@@ -41,18 +41,6 @@ const subActive = computed(() => subNav.some((item) => route.path.startsWith(ite
           :to="item.to"
           :class="{ 'is-active': isActive(item.to) }"
         >{{ item.label }}</RouterLink>
-
-        <div class="nav-item">
-          <a href="#" :class="{ 'is-active': subActive }" @click.prevent>更多</a>
-          <div class="sub-nav">
-            <RouterLink
-              v-for="item in subNav"
-              :key="item.to"
-              :to="item.to"
-              :class="{ 'is-active': route.path.startsWith(item.to) }"
-            >{{ item.label }}</RouterLink>
-          </div>
-        </div>
       </nav>
     </div>
   </header>
