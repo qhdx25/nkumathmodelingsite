@@ -1,38 +1,135 @@
-# math-modeling-site
+# NKU-shumo-demo
 
-This template should help get you started developing with Vue 3 in Vite.
+南开大学数学建模协会官网改版 Demo。基于原站点（`qhdx25/nkumathmodelingsite`）重做信息架构与视觉。
 
-## Recommended IDE Setup
+- 技术栈：Vue 3 + Vite 7 + vue-router 5，纯静态、无后端
+- 配色：南开大学官网 `www.nankai.edu.cn` 的青莲紫 `#710a53`，辅以浅紫 `#8d3a74`
+- 版式取向：参考 `mcm.cjlu.edu.cn` 一类院系站点——白底、细横线、标题带竖线、列表右对齐日期；不用卡片网格、圆角、阴影、渐变色块
+- 三段式配色：紫色页头（`#710a53`，84px，导航白字）→ 白色正文 → 浅紫页脚（`rgba(113,10,83,.05)`）
+- 构建产物：入口 JS 41 KB（gzip）、CSS 6 KB（gzip），按路由分包
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 本地运行
 
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
+npm run dev      # http://localhost:5173
+npm run build    # 产物在 dist/
 ```
 
-### Compile and Hot-Reload for Development
+## 版本记录
 
-```sh
-npm run dev
+开发只在 `main` 上做，历史即版本——每一版都在提交记录里，需要时回到某一版即可。
+首个可用 Demo 打了 tag `v1-origin`，方便直接定位。
+
+```bash
+git log --oneline          # 看所有版本
+git switch --detach v1-origin   # 回到首个 Demo（只读查看）
+git switch main                 # 看完切回来
 ```
 
-### Compile and Minify for Production
+GitHub 网页上同理：`commits` 看时间线，`Code` 下拉切到 tag，或用 `Compare` 对比任意两次提交。
 
-```sh
-npm run build
+## 信息架构
+
+主导航五项（首页 + 四个业务栏目），另加「更多」下拉：
+
+| 位置 | 路由 | 内容 | 状态 |
+|---|---|---|---|
+| 首页 | `/` | 轮播图位 / 简介与数据 / 协会概况 / 最新动态 + 通知公告 / 栏目入口 | 已建 |
+| 竞赛 | `/competition` | 竞赛日历、竞赛信息发布、成绩公示、积分公示 | 已建 |
+| 校队培训 | `/training` | 培训资料链接、训练体系、代表队培训通知 | **待建设**（骨架已留） |
+| 建模资料 | `/materials` | 历年真题、历年优秀论文、LaTeX、Python、MATLAB | 已建（三类待补） |
+| 组队平台 | `/team` | 论坛形态的组队与交流 | **待建设**（骨架已留） |
+| 更多 › 委员会 | `/committee` | 组织架构、部门职责、会议纪要、数学沿革 | 已建 |
+| 更多 › 信息公示 | `/notice` | 公示文件库（获奖名单、会议纪要） | 已建 |
+
+导航取舍：原先把「信息公示」「委员会」当一级栏目，与四个业务栏目并列，首页因此堆了两套入口。
+现在二者降级进「更多」，同时把「信息公示」的最新 6 份文件提到首页右栏「通知公告」，
+主路径（竞赛 → 成绩公示 → 公示文件）和兜底路径（更多 → 信息公示）都通。
+
+## 原站内容去向
+
+原站 4 个页面、11 个数据区块，映射关系如下（**没有丢内容**）：
+
+| 原站内容 | 现在的位置 |
+|---|---|
+| `slides` 首屏轮播 | 首页轮播位（图片留空 + 整块超链接） |
+| `overviewStats` 南开概览 4 条 | 首页数据条（改为协会自身数据）+ 页脚校训与三校区地址 |
+| `mathTimeline` 数学沿革 4 条 | 委员会页「南开数学与协会」时间轴 |
+| `associationCards` 协会框架 4 卡 | 首页快速入口 4 卡（改为竞赛 / 培训 / 资料 / 组队） |
+| `materialCards` 飞书资料入口 | 建模资料页顶部卡片 |
+| `resourceColumns` 培训 4 栏 | 校队培训页「四个阶段」 |
+| `awardPapers` 97 份获奖论文 | 建模资料 › 历年优秀论文（按年份折叠） |
+| `campusCards` 三校区 | 页脚「校区地址」 |
+| `committeeOverview` / `committeeDepartments` | 委员会页治理结构与部门 |
+| 原站没有的 | 新增：竞赛四区块、信息公示、组队平台 |
+
+原站把上百份论文摊在一个超长页面上，现在改为「年份切换 → 分组折叠」，默认只展开第一组。
+
+## 目录结构
+
 ```
+├── App.vue                     外壳：Header + RouterView + Footer
+├── router.js                   8 条路由 + 404，全部懒加载，带 title
+├── data/
+│   ├── site.js                 导航、轮播、简介、动态、入口、页脚、沿革
+│   ├── contests.js             竞赛日历、赛事、成绩、积分
+│   ├── notices.js              公示文件元数据 + 公示期状态计算
+│   ├── papers.js               97 份获奖论文（自原站搬迁）
+│   ├── materials.js            资料五分类
+│   ├── training.js             培训资料与通知
+│   └── team.js                 组队平台板块与规划
+├── components/
+│   ├── SiteHeader.vue          全站唯一导航
+│   ├── SiteFooter.vue          四列：简介 / 导航 / 更多 / 校区地址
+│   ├── HeroSlider.vue          首屏轮播：整块可点击，图空则降级占位
+│   ├── NewsFeed.vue            首页双栏：最新动态 + 通知公告
+│   ├── ContestCard.vue         赛事卡
+│   ├── PageReader.vue          文档翻页阅读器
+│   ├── PaperLibrary.vue        论文库：年份切换 + 分组折叠
+│   └── PlaceholderBlock.vue    统一占位块
+├── pages/                      8 个页面
+└── assets/main.css             单一全局样式
+
+public/
+├── pages/<slug>/p01.webp…      公示文档逐页图
+├── pages/<slug>/t01.webp…      缩略图
+└── files/*.pdf                 可下载原件（获奖名单初稿 63 MB，未入库）
+```
+
+## 占位与待补充
+
+页面内已用占位块或「待补充」标出，逐条对应：
+
+1. **首屏轮播图** —— 三条图位已接好链接，填 `data/site.js` 的 `banners[].image` 即可
+2. **竞赛日历图** —— 同学在做，`3:2` 图位留在 `/competition#calendar`
+3. **获奖名单明细** —— 五校联赛等分赛事名单；国赛初稿已在信息公示
+4. **积分公示表** —— 他人负责，表格位已留
+5. **培训资料与培训通知** —— 校队培训负责人提供
+6. **LaTeX / Python / MATLAB 三类资料** —— 缺什么已写在页面上
+7. **组队平台** —— 版式为骨架，功能待实现（规划见页面底部）
+8. **成员名单** —— 姓名公示方案待定，当前只列职务与人数
+
+> 图片类图位（轮播、竞赛日历）按真实比例预留；文字类占位块不锁比例、随内容撑高，
+> 只在 `<PlaceholderBlock>` 传 `ratio="auto"` 即可。
+
+## 文档阅读器（信息公示）
+
+- 列表 `/notice` 按类别筛选；详情 `/notice/:slug` 左侧摘要要点、右侧逐页阅读
+- 页图是预渲染的静态 WebP，**不依赖任何 PDF 运行时**：
+
+```bash
+pdftoppm -scale-to-x 1100 -scale-to-y -1 -r 150 -png 原件.pdf /tmp/p
+# 再逐页 sharp → webp（扫描件 q72，文字件 q82，缩略图宽 150）
+```
+
+- 新增一份公示文件：放 `public/pages/<slug>/`，在 `data/notices.js` 加一条，`file` 指向 `public/files/` 里的 PDF
+
+## 数据来源
+
+- 赛事时间与报名入口：各赛事官网（COMAP、mcm.edu.cn、mathorcup.org、赛氪等）
+- 动态条目：南开新闻网、数学科学学院公众号原文
+- 协会简介：2026 招新推文与十周年座谈会报道
+- 公示文件：全国大学生数学建模竞赛组委会公示页、协会理事会 / 常务理事会会议纪要原件
+
+> 标注「参考」的时间为上一赛季日期，仅用于提示时间窗，正式报名以官网通知为准。

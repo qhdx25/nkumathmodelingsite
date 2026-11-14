@@ -1,230 +1,404 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import HeroBanner from '../components/HeroBanner.vue'
+import NavStrip from '../components/NavStrip.vue'
+import VerticalTicker from '../components/VerticalTicker.vue'
+import { banners, news, series, stats } from '../data/site'
+import { notices } from '../data/notices'
+import { contests, seasonNodes } from '../data/contests'
+import { resources } from '../data/training'
+import { groups } from '../data/materials'
 
-import emblemUrl from '../assets/nku-emblem.jpg'
-import {
-  associationCards,
-  campusCards,
-  mathTimeline,
-  overviewStats,
-  resourceColumns,
-  slides,
-} from '../site-data'
+// 倒计时条：取 seasonNodes 里下一个尚未过去的时间节点，自动更新
+const NOW = Date.now()
+const upcomingNode = seasonNodes
+  .map((n) => ({ ...n, ts: new Date(`${n.date}T00:00:00+08:00`).getTime() }))
+  .filter((n) => n.ts + 86400000 >= NOW)
+  .sort((a, b) => a.ts - b.ts)[0]
+const daysLeft = upcomingNode ? Math.max(0, Math.ceil((upcomingNode.ts - NOW) / 86400000)) : 0
 
-const navigation = [
-  { label: '首页', href: '/' },
-  { label: '南开概览', href: '/#overview' },
-  { label: '协会框架', href: '/#association' },
-  { label: '校队培训', href: '/training' },
-  { label: '建模资料', href: '/materials' },
+// 距今天 14 天内的动态标成「进行中」，左侧加紫色竖条
+const FRESH_DAYS = 14
+const daysAgo = (iso) => {
+  const t = new Date(`${String(iso).replace(/\./g, '-')}T00:00:00+08:00`).getTime()
+  return Number.isNaN(t) ? null : Math.floor((NOW - t) / 86400000)
+}
+
+const tab = ref('news')
+const sideTab = ref('contest')
+const side2Tab = ref('committee')
+
+// 两条重点动态：封面图取自公众号原文
+const featured = [
+  {
+    title: '第一届天津市五校数学建模联赛答辩会议顺利举行',
+    date: '2026/10/27',
+    image: '/img/news/wx-league.jpg',
+    url: 'https://mp.weixin.qq.com/s/QvMJ6zMx8FKFsZCF2uSpGg',
+  },
+  {
+    title: '2026 年“华为杯”研究生数学建模竞赛报名通知',
+    date: '2026/06/02',
+    image: '/img/news/wx-huawei.jpg',
+    url: 'https://mp.weixin.qq.com/s/PWx5VBaqAiTaTf3_MALPYw',
+  },
 ]
 
-const activeSlide = ref(0)
-let slideTimer = null
+const newsRows = computed(() =>
+  news.map((item) => {
+    const iso = item.fullDate || item.date || ''
+    const m = String(iso).match(/(\d{4})[-.](\d{1,2})[-.](\d{1,2})/)
+    const ymd = String(iso).match(/(\d{4})[-.](\d{1,2})/)
+    const ago = daysAgo(item.fullDate || item.date || '')
+    return {
+      title: item.title,
+      day: m ? m[3] : ymd ? ymd[2] : '·',
+      month: m ? `${m[2]}月` : ymd ? `${ymd[1]}` : '',
+      href: item.url || null,
+      fresh: ago !== null && ago >= 0 && ago <= FRESH_DAYS,
+    }
+  }),
+)
 
-function stopAutoPlay() {
-  if (slideTimer) {
-    clearInterval(slideTimer)
-    slideTimer = null
-  }
+const noticeRows = computed(() =>
+  notices.map((item) => {
+    const m = String(item.date || '').match(/(\d{4})-(\d{2})-(\d{2})/)
+    return {
+      title: item.title,
+      day: m ? m[3] : '·',
+      yearMonth: m ? `${m[1]}-${m[2]}` : item.date,
+      to: `/notice/${item.slug}`,
+    }
+  }),
+)
+
+// 赛事日历：按日期升序，大日期 + 小字赛事名
+const calendarRows = computed(() =>
+  [...seasonNodes]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((item) => {
+      const m = item.date.match(/(\d{4})-(\d{2})-(\d{2})/)
+      return {
+        title: item.name,
+        tag: item.tag,
+        day: m[3],
+        yearMonth: `${m[1]}-${m[2]}`,
+        to: item.link,
+      }
+    }),
+)
+
+// 左侧大图 + 右侧三组列表（对标官网「媒体南开 / 校情通报 / 干部选任」那一块）
+const fmtMeta = (raw) => {
+  const text = String(raw || '')
+  const m = text.match(/(\d{4})-(\d{2})-(\d{2})/)
+  if (m) return `截止 ${m[1]}.${m[2]}.${m[3]}`
+  return text
 }
-
-function startAutoPlay() {
-  stopAutoPlay()
-  slideTimer = setInterval(() => {
-    activeSlide.value = (activeSlide.value + 1) % slides.length
-  }, 5000)
+const sideGroups = {
+  contest: contests.slice(0, 6).map((item) => ({
+    label: item.name,
+    meta: fmtMeta(item.registerBy || item.window || item.level),
+  })),
+  training: resources.map((item) => ({
+    label: item.label,
+    meta: item.status === 'ok' ? '可访问' : '待补充',
+  })),
+  material: groups.map((g) => ({
+    label: g.title,
+    meta: `${g.items.length} 项`,
+  })),
 }
+const sideList = computed(() => sideGroups[sideTab.value] || [])
+const sideLinks = { contest: '/competition', training: '/training', material: '/materials' }
 
-function goToSlide(index) {
-  activeSlide.value = index
-  startAutoPlay()
+// 第二组：组织架构 / 组队平台 / 影像数模
+const side2Groups = {
+  committee: [
+    { label: '会员代表大会', meta: '最高权力机构' },
+    { label: '理事会 · 常务理事会', meta: '决策机构' },
+    { label: '秘书处（策划室 / 办公室 / 财务室）', meta: '执行' },
+    { label: '竞赛部', meta: '赛事承办' },
+    { label: '宣传部', meta: '内容与视觉' },
+    { label: '工作委员会', meta: '专项工作' },
+  ],
+  team: [
+    { label: '发布招募信息', meta: '缺队友时发这里' },
+    { label: '寻找队友', meta: '按方向筛选' },
+    { label: '往届组队记录', meta: '2024 起' },
+    { label: '组队交流群', meta: '飞书群' },
+  ],
+  gallery: [
+    { label: '招新现场', meta: '待补充' },
+    { label: '培训与模拟赛', meta: '待补充' },
+    { label: '五校联赛答辩', meta: '待补充' },
+    { label: '颁奖与合影', meta: '待补充' },
+  ],
 }
+const side2List = computed(() => side2Groups[side2Tab.value] || [])
+const side2Links = { committee: '/committee', team: '/team', gallery: '/#gallery' }
 
-function nextSlide() {
-  activeSlide.value = (activeSlide.value + 1) % slides.length
-  startAutoPlay()
+// 系列专题：一次显示 3 张，可左右翻 + 圆点
+const SERIES_VISIBLE = 3
+const seriesIndex = ref(0)
+const seriesPages = computed(() => Math.max(1, series.length - SERIES_VISIBLE + 1))
+const seriesShown = computed(() => series.slice(seriesIndex.value, seriesIndex.value + SERIES_VISIBLE))
+function seriesGo(step) {
+  const max = seriesPages.value
+  seriesIndex.value = (seriesIndex.value + step + max) % max
 }
-
-function previousSlide() {
-  activeSlide.value = (activeSlide.value - 1 + slides.length) % slides.length
-  startAutoPlay()
-}
-
-onMounted(() => {
-  startAutoPlay()
-})
-
-onBeforeUnmount(() => {
-  stopAutoPlay()
-})
 </script>
 
 <template>
-  <main>
-    <section id="hero" class="hero-section">
-      <div class="hero-carousel">
-        <article
-          v-for="(slide, index) in slides"
-          :key="slide.title"
-          class="hero-slide"
-          :class="{ 'is-active': index === activeSlide }"
-          :style="{ backgroundImage: `url(${slide.image})` }"
-        >
-          <div class="container hero-content"></div>
-        </article>
+  <main class="home">
+    <HeroBanner :items="banners" />
+    <NavStrip />
 
-        <header class="site-header">
-          <div class="container header-inner">
-            <a class="brand" href="/">
-              <img :src="emblemUrl" alt="南开大学校标" class="brand-emblem" />
-              <div class="brand-copy">
-                <strong>南开大学数学建模协会</strong>
-                <p>Nankai University Mathematical Modeling Association</p>
-              </div>
-            </a>
+    <div v-if="upcomingNode" class="countdown">
+      <div class="container countdown-inner">
+        <span class="countdown-dot" aria-hidden="true" />
+        <p class="countdown-text">
+          距 <strong>{{ upcomingNode.name }}</strong> 还有
+          <b>{{ daysLeft }}</b> 天
+        </p>
+        <span class="countdown-tag">{{ upcomingNode.tag }}</span>
+        <RouterLink class="countdown-more" :to="upcomingNode.link">查看赛事 →</RouterLink>
+      </div>
+    </div>
 
-            <nav class="main-nav" aria-label="主导航">
-              <a v-for="item in navigation" :key="item.label" :href="item.href">{{ item.label }}</a>
-            </nav>
-          </div>
-        </header>
+    <section class="home-news">
+      <div class="container">
+        <div class="news-tabs">
+          <button type="button" :class="{ 'is-active': tab === 'news' }" @click="tab = 'news'">最新动态</button>
+          <button type="button" :class="{ 'is-active': tab === 'notice' }" @click="tab = 'notice'">通知公告</button>
+          <button type="button" :class="{ 'is-active': tab === 'calendar' }" @click="tab = 'calendar'">赛事日历</button>
+          <RouterLink
+            class="news-more"
+            :to="tab === 'news' ? '/news' : tab === 'notice' ? '/notice' : '/competition'"
+          >更多 &gt;</RouterLink>
+        </div>
 
-        <div class="container hero-controls">
-          <button class="carousel-arrow" type="button" aria-label="上一张" @click="previousSlide">‹</button>
-
-          <div class="carousel-dots" role="tablist" aria-label="轮播切换">
-            <button
-              v-for="(slide, index) in slides"
-              :key="slide.credit"
-              class="carousel-dot"
-              :class="{ 'is-active': index === activeSlide }"
-              type="button"
-              :aria-label="`切换到第 ${index + 1} 张`"
-              @click="goToSlide(index)"
+        <!-- 最新动态：左两张图文卡 + 右日期列表 -->
+        <div v-if="tab === 'news'" class="news-main">
+          <div class="feature-pair">
+            <a
+              v-for="item in featured"
+              :key="item.url"
+              class="feature-card"
+              :href="item.url"
+              target="_blank"
+              rel="noreferrer"
             >
-              <span class="carousel-dot-core" aria-hidden="true"></span>
-            </button>
+              <span class="feature-media"><img :src="item.image" alt="" /></span>
+              <span class="feature-body">
+                <span class="feature-title">{{ item.title }}</span>
+                <span class="feature-foot">
+                  <svg class="icon-clock" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+                    <path d="M12 7.6V12l3 1.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+                  <time>{{ item.date }}</time>
+                  <span class="feature-arrow">→</span>
+                </span>
+              </span>
+            </a>
           </div>
 
-          <button class="carousel-arrow" type="button" aria-label="下一张" @click="nextSlide">›</button>
+          <div class="date-list">
+            <VerticalTicker :items="newsRows" :rows="4" :cell-height="56" :speed="9">
+              <template #default="{ item }">
+                <a
+                  v-if="item.href"
+                  class="date-row"
+                  :class="{ 'is-fresh': item.fresh }"
+                  :href="item.href"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span class="date-box"><b>{{ item.day }}</b><em>{{ item.month }}</em></span>
+                  <span class="date-title">{{ item.title }}</span>
+                </a>
+              </template>
+            </VerticalTicker>
+            <div class="list-foot">
+              <RouterLink class="date-more" to="/news">查看全部动态 →</RouterLink>
+              <span class="data-stamp">数据截至 2026-11</span>
+            </div>
+          </div>
         </div>
+
+        <!-- 通知公告：三列灰底格 -->
+        <ul v-else-if="tab === 'notice'" class="notice-grid">
+          <li v-for="item in noticeRows" :key="item.to">
+            <RouterLink :to="item.to">
+              <span class="notice-date">
+                <b>{{ item.day }}</b>
+                <em>{{ item.yearMonth }}</em>
+              </span>
+              <span class="notice-cell-title">{{ item.title }}</span>
+            </RouterLink>
+          </li>
+        </ul>
+
+        <!-- 赛事日历：按日期升序，大日期 + 小字赛事名 -->
+        <ul v-else class="notice-grid">
+          <li v-for="item in calendarRows" :key="item.title">
+            <RouterLink :to="item.to">
+              <span class="notice-date">
+                <b>{{ item.day }}</b>
+                <em>{{ item.yearMonth }}</em>
+              </span>
+              <span class="cal-text">
+                <span class="notice-cell-title">{{ item.title }}</span>
+                <span class="cal-tag">{{ item.tag }}</span>
+              </span>
+            </RouterLink>
+          </li>
+        </ul>
       </div>
     </section>
 
-    <section id="overview" class="section">
+    <!-- 系列专题：整幅紫底带，居中标题 + 右侧更多 + 三张横排图卡（可翻页） -->
+    <section class="series-band">
       <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">南开概览</p>
-            <h2>百年学府，薪火相传</h2>
-          </div>
-          <p class="section-note">
-            南开大学作为百年名校，始终秉承"允公允能，日新月异"的校训精神，培养了一代代优秀人才。
-          </p>
+        <div class="series-head">
+          <h2>系列专题</h2>
+          <RouterLink class="head-more" to="/news">更多 &gt;</RouterLink>
         </div>
 
-        <div class="stats-grid">
-          <article v-for="item in overviewStats" :key="item.label" class="stat-card">
-            <p class="stat-label">{{ item.label }}</p>
-            <h3>{{ item.value }}</h3>
-            <p>{{ item.detail }}</p>
-          </article>
+        <div class="series-wrap">
+          <button type="button" class="series-arrow is-prev" aria-label="上一组" @click="seriesGo(-1)">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="m14.5 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+
+          <ul class="series-grid">
+            <li v-for="item in seriesShown" :key="item.title">
+              <RouterLink :to="item.to">
+                <span class="series-media">
+                  <img :src="item.image" :alt="item.title" />
+                  <span class="series-tag">{{ item.tag }}</span>
+                </span>
+                <span class="series-title">{{ item.title }}</span>
+                <span class="series-note">{{ item.note }}</span>
+              </RouterLink>
+            </li>
+          </ul>
+
+          <button type="button" class="series-arrow is-next" aria-label="下一组" @click="seriesGo(1)">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="m9.5 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="series-dots">
+          <button
+            v-for="n in seriesPages"
+            :key="n"
+            type="button"
+            :class="{ 'is-active': seriesIndex === n - 1 }"
+            :aria-label="`第 ${n} 组`"
+            @click="seriesIndex = n - 1"
+          />
         </div>
       </div>
     </section>
 
-    <section id="mathematics" class="section">
-      <div class="container math-grid">
-        <article class="math-story">
-          <p class="section-kicker">数学底色</p>
-          <h2>数学强国，南开担当</h2>
+    <!-- 左图 + 右三组列表：赛事 / 培训 / 资料 -->
+    <section class="side-band">
+      <div class="container side-inner">
+        <figure class="side-figure">
+          <img src="/img/news/wx-league.jpg" alt="五校联赛答辩会现场" />
+          <figcaption>第一届天津市五校数学建模联赛答辩会 · 2026.10</figcaption>
+        </figure>
+
+        <div class="side-panel">
+          <div class="side-tabs">
+            <button type="button" :class="{ 'is-active': sideTab === 'contest' }" @click="sideTab = 'contest'">赛事速递</button>
+            <button type="button" :class="{ 'is-active': sideTab === 'training' }" @click="sideTab = 'training'">培训资源</button>
+            <button type="button" :class="{ 'is-active': sideTab === 'material' }" @click="sideTab = 'material'">建模资料</button>
+            <RouterLink class="side-more" :to="sideLinks[sideTab]">更多 &gt;</RouterLink>
+          </div>
+          <ul class="side-list">
+            <li v-for="item in sideList" :key="item.label">
+              <RouterLink :to="sideLinks[sideTab]">
+                <span class="side-label">{{ item.label }}</span>
+                <span class="side-meta">{{ item.meta }}</span>
+              </RouterLink>
+            </li>
+          </ul>
+          <p class="data-stamp">数据截至 2026-11</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 第二组：组织架构 / 组队平台 / 影像数模 -->
+    <section id="association" class="side-band side-band-alt">
+      <div class="container side-inner">
+        <div class="side-panel">
+          <div class="side-tabs">
+            <button type="button" :class="{ 'is-active': side2Tab === 'committee' }" @click="side2Tab = 'committee'">组织架构</button>
+            <button type="button" :class="{ 'is-active': side2Tab === 'team' }" @click="side2Tab = 'team'">组队平台</button>
+            <button type="button" :class="{ 'is-active': side2Tab === 'gallery' }" @click="side2Tab = 'gallery'">影像数模</button>
+            <RouterLink class="side-more" :to="side2Links[side2Tab]">更多 &gt;</RouterLink>
+          </div>
+          <ul class="side-list">
+            <li v-for="item in side2List" :key="item.label">
+              <RouterLink :to="side2Links[side2Tab]">
+                <span class="side-label">{{ item.label }}</span>
+                <span class="side-meta">{{ item.meta }}</span>
+              </RouterLink>
+            </li>
+          </ul>
+          <p class="data-stamp">数据截至 2026-11 · 名单以最新公示为准</p>
+        </div>
+
+        <figure class="side-figure">
+          <img src="/img/hero/nku-06.jpg" alt="南开大学主楼" />
+          <figcaption>南开大学主楼 · 晚霞</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="overview" class="about-band">
+      <div class="container about-inner">
+        <div class="about-head">
+          <p class="about-kicker">协会概况</p>
+          <h2 class="about-slogan">
+            <span class="l1">用数学描述问题</span>
+            <span class="l2">用模型检验答案</span>
+          </h2>
+        </div>
+        <div class="about-body">
           <p>
-            南开大学数学学科历史悠久、实力雄厚。自1920年姜立夫先生创立数学系以来，历经百年发展，形成了独特的学术传统和卓越的科研实力。陈省身数学研究所的成立，更是为南开数学走向世界奠定了坚实基础。
+            南开大学数学建模协会成立于 2016 年，是数学科学学院下属学生社团。
+            我们承办校内规模最大的数学建模赛事，服务全校 1200 余名参赛同学，
+            并组织培训、选拔与校际交流。
           </p>
-          <p>
-            在这样的学术沃土上，数学建模协会蓬勃发展，致力于培养学生的创新思维和实践能力，为国家输送了大批优秀的数学建模人才。
-          </p>
-        </article>
-
-        <div class="timeline-grid">
-          <article v-for="item in mathTimeline" :key="item.title" class="timeline-card">
-            <span class="timeline-year">{{ item.year }}</span>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
-          </article>
+          <div class="about-cards">
+            <div v-for="item in stats" :key="item.value" class="about-card">
+              <p class="about-num">{{ item.value }}</p>
+              <p class="about-label">{{ item.label }}</p>
+              <p class="about-note">{{ item.note }}</p>
+            </div>
+          </div>
+          <p class="data-stamp">数据截至 2026-11 · 由协会秘书处维护</p>
         </div>
       </div>
     </section>
 
-    <section id="association" class="section">
+    <section class="gallery-band" id="gallery">
       <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">协会框架</p>
-            <h2>组织架构，协同共进</h2>
-          </div>
-          <p class="section-note">
-            协会下设多个部门，各部门分工明确、协同合作，共同推动协会各项工作的开展。
-          </p>
+        <div class="section-head">
+          <h2>影像数模</h2>
+          <span class="head-note">协会活动照片整理中 · 更新至 2026-11</span>
         </div>
-
-        <div class="portal-grid">
-          <article v-for="card in associationCards" :key="card.title" class="portal-card">
-            <p class="card-kicker">{{ card.kicker }}</p>
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.description }}</p>
-            <a :href="card.href">{{ card.action }}</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="resources" class="section">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">校队培训</p>
-            <h2>系统训练，备战竞赛</h2>
-          </div>
-          <p class="section-note">
-            从入门到精通，我们为你准备了全方位的培训资源和实战训练。
-          </p>
-        </div>
-
-        <div class="resource-grid">
-          <article v-for="column in resourceColumns" :key="column.title" class="resource-card">
-            <h3>{{ column.title }}</h3>
-            <ul class="resource-list">
-              <li v-for="item in column.items" :key="item.label || item">
-                <a v-if="item.href" :href="item.href">{{ item.label }}</a>
-                <span v-else>{{ item }}</span>
-              </li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="campus" class="section">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">校区信息</p>
-            <h2>一校三区，共创辉煌</h2>
-          </div>
-          <p class="section-note">
-            南开大学三个校区各具特色，共同构成了充满活力的校园文化。
-          </p>
-        </div>
-
-        <div class="campus-grid">
-          <article v-for="campus in campusCards" :key="campus.campus" class="campus-card">
-            <p class="card-kicker">{{ campus.campus }}</p>
-            <h3>{{ campus.address }}</h3>
-            <p class="campus-postcode">邮编 {{ campus.postcode }}</p>
-            <p>{{ campus.note }}</p>
-          </article>
+        <div class="gallery-empty">
+          <p>这里将放协会自己的活动照片</p>
+          <p class="gallery-empty-hint">招新、培训、模拟赛、五校联赛答辩、颁奖现场等，待照片汇总后按时间排列</p>
         </div>
       </div>
     </section>

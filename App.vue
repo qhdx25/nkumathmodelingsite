@@ -1,46 +1,40 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import SiteHeader from './components/SiteHeader.vue'
+import SiteFooter from './components/SiteFooter.vue'
+import TrainingLayout from './legacy-training/App.vue'
+import siteStyles from './assets/main.css?inline'
+import trainingStyles from './legacy-training/assets/main.css?inline'
 
-import emblemUrl from './assets/nku-emblem.jpg'
-import { footerLinks } from './site-data'
+const route = useRoute()
+const isTraining = computed(() => route.name === 'training')
+// 首页（中/英）头部叠在大图上，文字反白；其余页面为常规白底头部
+const overlayPage = computed(() => route.name === 'home' || route.name === 'en-home')
+const lang = computed(() => (route.meta?.lang === 'en' ? 'en' : 'zh'))
 
-const navigation = [
-  { label: '首页', href: '/' },
-  { label: '南开概览', href: '/#overview' },
-  { label: '数学底色', href: '/#mathematics' },
-  { label: '协会框架', href: '/#association' },
-  { label: '委员会', href: '/committee' },
-  { label: '建模资料', href: '/materials' },
-  { label: '资源中心', href: '/#resources' },
-  { label: '校区信息', href: '/#campus' },
-  { label: '联系我们', href: '#contact' },
-]
+// 滚过大图后头部变白底吸顶
+const stuck = ref(false)
+const onScroll = () => {
+  stuck.value = window.scrollY > 96
+}
+onMounted(() => {
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+onUnmounted(() => window.removeEventListener('scroll', onScroll))
+
+const overlay = computed(() => overlayPage.value && !stuck.value)
 </script>
 
 <template>
-  <div class="site-shell">
-    <div class="page-grid" aria-hidden="true"></div>
-
+  <Teleport to="head">
+    <component :is="'style'">{{ isTraining ? trainingStyles : siteStyles }}</component>
+  </Teleport>
+  <TrainingLayout v-if="isTraining" />
+  <div v-else class="site-shell">
+    <SiteHeader :overlay="overlay" :stuck="stuck" :lang="lang" />
     <RouterView />
-
-    <footer id="contact" class="site-footer">
-      <div class="container footer-grid">
-        <div class="footer-links">
-          <div class="footer-column">
-            <strong>官方链接</strong>
-            <a v-for="item in footerLinks" :key="item.label" :href="item.href" target="_blank" rel="noreferrer">
-              {{ item.label }}
-            </a>
-          </div>
-
-          <div class="footer-column">
-            <strong>站点导航</strong>
-            <a href="/">返回首页</a>
-            <a href="/committee">委员会</a>
-            <a href="/materials">建模资料</a>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <SiteFooter :lang="lang" />
   </div>
 </template>
