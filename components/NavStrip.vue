@@ -3,6 +3,13 @@ import { ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { stripNav } from '../data/site'
 
+const props = defineProps({
+  items: { type: Array, default: () => stripNav },
+  placeholder: { type: String, default: '搜索' },
+  // true 时栏目用页内锚点（英文版单页），否则走路由
+  hashMode: { type: Boolean, default: false },
+})
+
 const route = useRoute()
 const router = useRouter()
 const keyword = ref('')
@@ -24,19 +31,24 @@ function submit() {
     <div class="strip-shell">
       <div class="container strip-inner">
         <nav class="strip-links" aria-label="栏目导航">
-          <RouterLink
-            v-for="item in stripNav"
-            :key="item.label"
-            :to="item.to"
-            :class="{ 'is-active': isActive(item.to) }"
-          >{{ item.label }}</RouterLink>
+          <template v-if="hashMode">
+            <a v-for="item in items" :key="item.label" :href="item.to">{{ item.label }}</a>
+          </template>
+          <template v-else>
+            <RouterLink
+              v-for="item in items"
+              :key="item.label"
+              :to="item.to"
+              :class="{ 'is-active': isActive(item.to) }"
+            >{{ item.label }}</RouterLink>
+          </template>
         </nav>
 
         <form class="strip-search" role="search" @submit.prevent="submit">
           <input
             v-model="keyword"
             type="search"
-            placeholder="搜索"
+            :placeholder="placeholder"
             aria-label="站内搜索"
           />
           <button type="submit" aria-label="搜索">

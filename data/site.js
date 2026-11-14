@@ -13,11 +13,11 @@ export const nav = [
 
 // 顶部信息条右侧的小链接（对标南开官网那一排）
 export const topLinks = [
-  { label: '加入我们', to: '/team' },
+  { label: '加入我们', to: '/recruit' },
   { label: '联系我们', to: '/committee' },
   { label: '资料下载', to: '/materials' },
   { label: '信息公示', to: '/notice' },
-  { label: 'English', to: '/', note: 'English 版建设中' },
+  { label: 'English', to: '/en' },
 ]
 
 // 大图底部紫色横条上的栏目（8 个，与官网同构）
@@ -158,6 +158,90 @@ export const entries = [
     body: '发布招募、寻找队友、交流经验。',
     to: '/team',
     action: '进入组队平台',
+  },
+]
+
+// 系列专题：对标官网「系列专题」那一排图卡
+export const series = [
+  {
+    tag: '专题',
+    title: '天津市五校数学建模联赛',
+    note: '五校轮值举办 · 南开承办首届',
+    image: '/img/news/wx-league.jpg',
+    to: '/news',
+  },
+  {
+    tag: '专题',
+    title: '“华为杯”研究生数学建模竞赛',
+    note: '研究生组 · 每年 9 月开赛',
+    image: '/img/news/wx-huawei.jpg',
+    to: '/competition',
+  },
+  {
+    tag: '专题',
+    title: '全国大学生数学建模竞赛',
+    note: '兼校赛 · 国赛代表队选拔',
+    image: '/img/hero/nku-02.jpg',
+    to: '/competition',
+  },
+  {
+    tag: '专题',
+    title: '校队选拔与梯队训练',
+    note: '春季补选 · 教练组带训',
+    image: '/img/hero/nku-05.jpg',
+    to: '/training',
+  },
+]
+
+// 栏目总览：与紫色横条上的 8 个栏目一一对应，每个栏目给出更细的落点
+export const directory = [
+  {
+    label: '最新动态',
+    to: '/news',
+    desc: '协会新闻、活动纪要与媒体报道',
+    links: ['五校联赛答辩会', '成立十周年座谈会', '2026 招新启动'],
+  },
+  {
+    label: '通知公告',
+    to: '/notice',
+    desc: '报名通知、名单公示与信息发布',
+    links: ['国赛报名通知', '获奖名单公示', '积分与排名公示'],
+  },
+  {
+    label: '赛事信息',
+    to: '/competition',
+    desc: '竞赛日历、报名入口与成绩查询',
+    links: ['全年竞赛日历', '近期赛事报名', '成绩与积分'],
+  },
+  {
+    label: '校队培训',
+    to: '/training',
+    desc: '训练体系、讲义回放与选拔安排',
+    links: ['培训体系说明', '讲义与回放', '校队选拔办法'],
+  },
+  {
+    label: '建模资料',
+    to: '/materials',
+    desc: '历年真题、优秀论文与工具链',
+    links: ['历年竞赛真题', '优秀论文选编', 'LaTeX / Python / MATLAB'],
+  },
+  {
+    label: '组织架构',
+    to: '/committee',
+    desc: '理事会、秘书处与四个部门',
+    links: ['理事会与常务理事会', '秘书处与竞赛部', '协会章程'],
+  },
+  {
+    label: '组队平台',
+    to: '/team',
+    desc: '发布招募、寻找队友与经验交流',
+    links: ['发布招募信息', '寻找队友', '赛后经验交流'],
+  },
+  {
+    label: '影像数模',
+    to: '/#gallery',
+    desc: '协会活动照片与现场记录',
+    links: ['招新现场', '培训与模拟赛', '答辩与颁奖'],
   },
 ]
 

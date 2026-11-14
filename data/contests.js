@@ -137,3 +137,13 @@ export const points = {
 
 export const dataNote =
   '本页赛事时间为各赛事官方公布的当前赛季信息；标注「参考」的为上一赛季日期，仅用于提示大致时间窗，正式报名请以官网通知为准。'
+
+// 首页「赛事日历」用的时间节点：按日期升序，官方日期与参考日期分别标注
+export const seasonNodes = [
+  { date: '2026-09-10', name: '全国大学生数学建模竞赛（国赛）', tag: '参考：9 月上旬开赛', link: '/competition' },
+  { date: '2026-09-20', name: '“华为杯”研究生数学建模竞赛', tag: '每年 9 月开赛', link: '/competition' },
+  { date: '2026-12-25', name: 'MathorCup 报名开放', tag: '参考：前一年 12 月底', link: '/competition' },
+  { date: '2027-01-28', name: '美国大学生数学建模竞赛 · 报名截止', tag: '官方：15:00 EST', link: '/competition' },
+  { date: '2027-01-29', name: '美国大学生数学建模竞赛 · 开赛', tag: '官方：连续 96 小时', link: '/competition' },
+  { date: '2027-05-08', name: '美国大学生数学建模竞赛 · 结果公布', tag: '官方', link: '/competition' },
+]
