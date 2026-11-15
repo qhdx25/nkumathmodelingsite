@@ -3812,3 +3812,70 @@ main.home + .site-footer { margin-top: 0; }
   .comp-page .notice-card { grid-template-columns: 1fr; min-height: 0; }
   .comp-page .nc-body { justify-content: flex-start; padding: 18px 18px 16px; }
 }
+
+/* ---------- 卡片化：圆角 + 阴影 + 统一质感 ---------- */
+/* 动态列表：整行做成卡片，缩略图贴左缘、圆角裁切 */
+.comp-page .comp-archive {
+  border-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.comp-page .comp-archive li {
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(113, 10, 83, 0.06);
+  overflow: hidden;
+  transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
+}
+.comp-page .comp-archive li:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(113, 10, 83, 0.13); }
+.comp-page .comp-archive a { padding: 0; gap: 20px; }
+.comp-page .comp-archive .thumb { width: 172px; border-radius: 0; }
+.comp-page .comp-archive .row-body { padding: 16px 20px 16px 0; }
+
+/* 公示卡：圆角卡片 + 图只截一段（固定高度 cover） */
+.comp-page .notice-card {
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(113, 10, 83, 0.07);
+  min-height: 0;
+}
+.comp-page .notice-card:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(113, 10, 83, 0.15); }
+.comp-page .nc-media { height: 216px; }
+.comp-page .nc-media img { height: 100%; object-position: 50% 16%; }
+
+/* 纪要/公示行：卡片 + 缩略图放大居中 + 圆角 */
+.comp-page .notice-list { display: flex; flex-direction: column; gap: 10px; }
+.comp-page .notice-row {
+  align-items: center;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(113, 10, 83, 0.05);
+  transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
+}
+.comp-page .notice-row:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(113, 10, 83, 0.12); border-left-color: var(--accent); }
+.comp-page .row-thumb {
+  width: 66px;
+  height: 88px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.06);
+}
+
+/* 要闻大图与来源清单也统一圆角 */
+.comp-page .lead-story-media { border-radius: 12px; box-shadow: 0 8px 24px rgba(113, 10, 83, 0.08); }
+.comp-page .source-list li { border-radius: 8px; }
+.comp-page .source-list a { border-radius: 8px; }
+
+@media (max-width: 760px) {
+  .comp-page .comp-archive .thumb { width: 100%; height: 168px; }
+  .comp-page .comp-archive .row-body { padding: 14px 16px 16px; }
+  .comp-page .nc-media { height: 180px; }
+  .comp-page .row-thumb { width: 54px; height: 72px; }
+}
