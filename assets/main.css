@@ -3879,3 +3879,9 @@ main.home + .site-footer { margin-top: 0; }
   .comp-page .nc-media { height: 180px; }
   .comp-page .row-thumb { width: 54px; height: 72px; }
 }
+
+/* 卡片左侧不再留紫色强调线：四边统一浅边 */
+.comp-page .notice-row,
+.comp-page .notice-row:hover {
+  border: 1px solid rgba(17, 17, 17, 0.07);
+}
