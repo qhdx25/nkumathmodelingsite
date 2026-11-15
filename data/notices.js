@@ -12,6 +12,7 @@ export const categories = [
 export const notices = [
   {
     slug: 'cumcm-2026-award-draft',
+    image: '/pages/cumcm-2026-award-draft/t01.webp',
     category: 'award',
     title: '2026 高教社杯全国大学生数学建模竞赛获奖名单（初稿）',
     sub: '公示说明、异议受理程序与获奖名单全文，共 45 页',
@@ -35,6 +36,7 @@ export const notices = [
   },
   {
     slug: 'wuxiao-2026-award',
+    image: '/img/news/wuxiao.jpg',
     category: 'award',
     title: '第一届天津市五校数学建模联赛获奖名单',
     sub: '32 支队伍参加答辩、18 支获奖：金奖 3 项、银奖 6 项、铜奖 9 项',
@@ -57,6 +59,7 @@ export const notices = [
   },
   {
     slug: 'cumcm-2026-signup',
+    image: '/img/hero/nku-01.jpg',
     category: 'files',
     title: '2026 年全国大学生数学建模竞赛（兼校赛）报名通知',
     sub: '三人一队、全员南开在籍本科生；4 月 8 日 9:00 — 4 月 22 日 16:00 报名',
@@ -79,6 +82,7 @@ export const notices = [
   },
   {
     slug: 'council-2-20260322',
+    image: '/pages/council-2-20260322/t01.webp',
     category: 'minutes',
     title: '二届理事会第二次会议纪要',
     sub: '补选常务理事、人事任免',
@@ -94,6 +98,7 @@ export const notices = [
   },
   {
     slug: 'minutes-2-20260317',
+    image: '/pages/minutes-2-20260317/t01.webp',
     category: 'minutes',
     title: '二届常务理事会第二次会议纪要',
     sub: '常务理事辞职与补选推荐',
@@ -113,6 +118,7 @@ export const notices = [
   },
   {
     slug: 'minutes-3-20260331',
+    image: '/pages/minutes-3-20260331/t01.webp',
     category: 'minutes',
     title: '二届常务理事会第三次会议纪要',
     sub: '副主席辞职与任命',
@@ -128,6 +134,7 @@ export const notices = [
   },
   {
     slug: 'minutes-4-20260722',
+    image: '/pages/minutes-4-20260722/t01.webp',
     category: 'minutes',
     title: '二届常务理事会第四次会议纪要',
     sub: '三项工作条例审议通过、启动换届',
@@ -148,6 +155,7 @@ export const notices = [
   },
   {
     slug: 'minutes-5-20260830',
+    image: '/pages/minutes-5-20260830/t01.webp',
     category: 'minutes',
     title: '二届常务理事会第五次会议纪要',
     sub: '新一届人事安排、年度表彰',

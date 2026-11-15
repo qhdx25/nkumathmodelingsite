@@ -76,7 +76,6 @@ onBeforeUnmount(() => {
         <span class="csn-brand-cn">南开大学<br />数学建模协会</span>
         <span class="csn-brand-en">Nankai MCM Association</span>
       </RouterLink>
-      <p class="csn-title">本页</p>
       <ul class="csn-list">
         <li v-for="s in sections" :key="s.id">
           <button

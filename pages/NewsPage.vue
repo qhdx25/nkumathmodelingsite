@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { imgUrl } from '../assets/resolver'
 import PageRail from '../components/PageRail.vue'
 import { news, newsMore, newsSources } from '../data/site'
 
@@ -34,20 +35,6 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
               数学科学学院官网、「南开数院学工」公众号或本地媒体，可点原文核对。
               目前已收录 <strong>{{ total }}</strong> 条。
             </p>
-            <div class="stat-strip">
-              <div class="stat">
-                <p class="stat-num">{{ total }}</p>
-                <p class="stat-label">收录条目</p>
-              </div>
-              <div class="stat">
-                <p class="stat-num">{{ years }}</p>
-                <p class="stat-label">覆盖年份</p>
-              </div>
-              <div class="stat">
-                <p class="stat-num">{{ newsSources.length }}</p>
-                <p class="stat-label">信息来源</p>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -59,6 +46,9 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
             </div>
 
             <a class="lead-story" :href="featured.url" target="_blank" rel="noreferrer">
+              <span class="lead-story-media">
+                <img :src="imgUrl(featured.image)" :alt="featured.title" />
+              </span>
               <p class="lead-story-meta">
                 <span class="lead-story-tag">{{ featured.tag }}</span>
                 <time>{{ featured.date }}</time>
@@ -80,8 +70,9 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
             <ul class="news-archive comp-archive">
               <li v-for="item in y2026" :key="item.title">
                 <a :href="item.url" target="_blank" rel="noreferrer">
-                  <time>{{ item.date }}</time>
-                  <div>
+                  <span class="thumb"><img :src="imgUrl(item.image)" :alt="item.title" loading="lazy" /></span>
+                  <div class="row-body">
+                    <time>{{ item.date }}</time>
                     <h3>{{ item.title }}</h3>
                     <p>{{ item.summary }}</p>
                     <span class="src">{{ item.source }} ↗</span>
@@ -101,8 +92,9 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
             <ul class="news-archive comp-archive">
               <li v-for="item in y2025" :key="item.title">
                 <a :href="item.url" target="_blank" rel="noreferrer">
-                  <time>{{ item.date }}</time>
-                  <div>
+                  <span class="thumb"><img :src="imgUrl(item.image)" :alt="item.title" loading="lazy" /></span>
+                  <div class="row-body">
+                    <time>{{ item.date }}</time>
                     <h3>{{ item.title }}</h3>
                     <p>{{ item.summary }}</p>
                     <span class="src">{{ item.source }} ↗</span>
@@ -120,11 +112,14 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
               <span class="head-note">{{ newsMore.hint }}</span>
             </div>
             <ul class="source-list">
-              <li v-for="s in newsSources" :key="s.label">
+              <li v-for="(s, i) in newsSources" :key="s.label">
                 <a :href="s.url" target="_blank" rel="noreferrer">
-                  <strong>{{ s.label }}</strong>
-                  <span>{{ s.note }}</span>
-                  <em aria-hidden="true">↗</em>
+                  <span class="src-idx">{{ String(i + 1).padStart(2, '0') }}</span>
+                  <span class="src-body">
+                    <strong>{{ s.label }}</strong>
+                    <span>{{ s.note }}</span>
+                  </span>
+                  <span class="src-go" aria-hidden="true">↗</span>
                 </a>
               </li>
             </ul>

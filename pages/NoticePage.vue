@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { imgUrl } from '../assets/resolver'
 import PageRail from '../components/PageRail.vue'
 import { categories, listNotices } from '../data/notices'
 
@@ -10,13 +11,13 @@ const award = computed(() => all.value.filter((n) => n.category === 'award'))
 const files = computed(() => all.value.filter((n) => n.category === 'files'))
 const minutes = computed(() => all.value.filter((n) => n.category === 'minutes'))
 const total = computed(() => all.value.length)
+const latest = computed(() => all.value[0]?.date ?? '')
 
 const catLabel = (id) => categories.find((c) => c.id === id)?.label ?? ''
 // 外部条目没有站内页图，别显示「共 0 页」
 const pageText = (n) => (n.pages ? ` · 共 ${n.pages} 页` : '')
-const latest = computed(() => all.value[0]?.date ?? '')
 
-// 有公示中的文件才把「正在公示」放在最前，否则直接从获奖与成绩开始
+// 有公示中的文件才把「正在公示」放在最前
 const sections = computed(() => {
   const base = [
     { id: 'award', label: '获奖与成绩' },
@@ -43,20 +44,6 @@ const sections = computed(() => {
               也可跳转发布单位的原文核对。当前收录 <strong>{{ total }}</strong> 份<template v-if="live.length">，其中
               <strong>{{ live.length }}</strong> 份处于公示期</template><template v-else>，暂无文件处于公示期</template>。
             </p>
-            <div class="stat-strip">
-              <div class="stat">
-                <p class="stat-num">{{ total }}</p>
-                <p class="stat-label">公开文件</p>
-              </div>
-              <div class="stat">
-                <p class="stat-num">{{ live.length }}</p>
-                <p class="stat-label">公示中</p>
-              </div>
-              <div class="stat">
-                <p class="stat-num">{{ award.length }}</p>
-                <p class="stat-label">获奖与成绩</p>
-              </div>
-            </div>
             <p class="head-note-inline">最近更新 {{ latest }}</p>
           </div>
         </section>
@@ -67,9 +54,9 @@ const sections = computed(() => {
               <h2>正在公示</h2>
               <span class="head-note">异议请在公示期内按原文渠道提出</span>
             </div>
-
             <div class="notice-list">
               <RouterLink v-for="n in live" :key="n.slug" class="notice-row" :to="`/notice/${n.slug}`">
+                <span v-if="n.image" class="row-thumb"><img :src="imgUrl(n.image)" :alt="n.title" /></span>
                 <div class="notice-main">
                   <div class="notice-tags">
                     <span class="tag" :class="`tag-${n.category}`">{{ catLabel(n.category) }}</span>
@@ -91,19 +78,19 @@ const sections = computed(() => {
               <h2>获奖与成绩</h2>
               <span class="head-note">{{ award.length }} 份</span>
             </div>
-            <div class="notice-list">
-              <RouterLink v-for="n in award" :key="n.slug" class="notice-row" :to="`/notice/${n.slug}`">
-                <div class="notice-main">
-                  <div class="notice-tags">
-                    <span class="tag" :class="`tag-${n.category}`">{{ catLabel(n.category) }}</span>
-                    <span v-if="n.internal" class="tag tag-internal">内部文件</span>
-                    <span class="status" :class="`is-${n.status.tone}`">{{ n.status.text }}</span>
-                  </div>
-                  <h3>{{ n.title }}</h3>
-                  <p class="notice-sub">{{ n.sub }}</p>
-                  <p class="notice-meta">{{ n.issuer }} · {{ n.date }}{{ pageText(n) }}</p>
-                </div>
-                <span class="notice-go" aria-hidden="true">›</span>
+            <div class="notice-cards">
+              <RouterLink v-for="n in award" :key="n.slug" class="notice-card" :to="`/notice/${n.slug}`">
+                <span class="nc-media">
+                  <img :src="imgUrl(n.image)" :alt="n.title" />
+                  <span class="nc-cat">{{ catLabel(n.category) }}</span>
+                  <span class="nc-title">{{ n.title }}</span>
+                </span>
+                <span class="nc-body">
+                  <span class="nc-sub">{{ n.sub }}</span>
+                  <span class="nc-meta">{{ n.issuer }} · {{ n.date }}{{ pageText(n) }}</span>
+                  <span class="nc-state" :class="`is-${n.status.tone}`">{{ n.status.text }}</span>
+                  <span class="nc-more">查看 →</span>
+                </span>
               </RouterLink>
             </div>
           </div>
@@ -115,18 +102,19 @@ const sections = computed(() => {
               <h2>赛务文件</h2>
               <span class="head-note">报名通知、赛制与选拔办法</span>
             </div>
-            <div class="notice-list">
-              <RouterLink v-for="n in files" :key="n.slug" class="notice-row" :to="`/notice/${n.slug}`">
-                <div class="notice-main">
-                  <div class="notice-tags">
-                    <span class="tag" :class="`tag-${n.category}`">{{ catLabel(n.category) }}</span>
-                    <span class="status" :class="`is-${n.status.tone}`">{{ n.status.text }}</span>
-                  </div>
-                  <h3>{{ n.title }}</h3>
-                  <p class="notice-sub">{{ n.sub }}</p>
-                  <p class="notice-meta">{{ n.issuer }} · {{ n.date }}</p>
-                </div>
-                <span class="notice-go" aria-hidden="true">›</span>
+            <div class="notice-cards">
+              <RouterLink v-for="n in files" :key="n.slug" class="notice-card" :to="`/notice/${n.slug}`">
+                <span class="nc-media">
+                  <img :src="imgUrl(n.image)" :alt="n.title" />
+                  <span class="nc-cat">{{ catLabel(n.category) }}</span>
+                  <span class="nc-title">{{ n.title }}</span>
+                </span>
+                <span class="nc-body">
+                  <span class="nc-sub">{{ n.sub }}</span>
+                  <span class="nc-meta">{{ n.issuer }} · {{ n.date }}{{ pageText(n) }}</span>
+                  <span class="nc-state" :class="`is-${n.status.tone}`">{{ n.status.text }}</span>
+                  <span class="nc-more">查看 →</span>
+                </span>
               </RouterLink>
             </div>
           </div>
@@ -140,6 +128,7 @@ const sections = computed(() => {
             </div>
             <div class="notice-list">
               <RouterLink v-for="n in minutes" :key="n.slug" class="notice-row" :to="`/notice/${n.slug}`">
+                <span v-if="n.image" class="row-thumb"><img :src="imgUrl(n.image)" :alt="n.title" loading="lazy" /></span>
                 <div class="notice-main">
                   <div class="notice-tags">
                     <span class="tag" :class="`tag-${n.category}`">{{ catLabel(n.category) }}</span>
