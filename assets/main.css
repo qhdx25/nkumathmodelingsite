@@ -515,19 +515,24 @@ main { flex: 1; }
 .cal-tag { font-size: 11.5px; line-height: 1.5; color: var(--faint); }
 
 /* 左图 + 右三组列表 */
-.side-band { padding: 6px 0 44px; }
+.side-band {
+  /* 上边距给足，不再顶到上一条紫带；整条铺纸白，压住底下的动态数学背景 */
+  padding: 40px 0 46px;
+  background: #fff;
+}
 .side-inner { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 44px; align-items: start; }
 .side-figure { margin: 0; }
 .side-figure img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
 .side-figure figcaption { margin-top: 9px; font-size: 12px; color: var(--faint); }
-.side-tabs { display: flex; align-items: baseline; gap: 26px; border-bottom: 1px solid var(--line); }
+.side-tabs { display: flex; align-items: baseline; gap: 30px; border-bottom: 1px solid rgba(17, 17, 17, 0.16); }
 .side-tabs button {
   position: relative;
-  padding: 0 0 10px;
+  padding: 0 0 12px;
   border: 0;
   background: none;
   font-family: inherit;
-  font-size: 18px;
+  font-size: 19px;
+  letter-spacing: 0.01em;
   color: var(--muted);
   cursor: pointer;
 }
@@ -536,19 +541,18 @@ main { flex: 1; }
 .side-tabs button.is-active::after {
   content: '';
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: -1px;
-  transform: translateX(-50%);
-  width: 32px;
-  height: 3px;
+  height: 2px;
   background: var(--accent);
 }
-.side-more { margin-left: auto; padding-bottom: 12px; font-size: 12.5px; color: var(--faint); }
+.side-more { margin-left: auto; padding-bottom: 12px; font-size: 13px; letter-spacing: 0.01em; color: var(--faint); }
 .side-more:hover { color: var(--accent); }
 .side-list li { border-bottom: 1px solid var(--line-soft); }
-.side-list a { display: flex; align-items: baseline; gap: 16px; padding: 12px 2px; }
-.side-label { min-width: 0; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.side-meta { flex: none; max-width: 48%; margin-left: auto; font-size: 12px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side-list a { display: flex; align-items: baseline; gap: 20px; padding: 14px 2px; }
+.side-label { min-width: 0; font-size: 15.5px; line-height: 1.55; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side-meta { flex: none; max-width: 48%; margin-left: auto; font-size: 12.5px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .side-list a:hover .side-label { color: var(--accent); }
 
 /* ---------- 首页：系列专题 ---------- */
@@ -1786,11 +1790,13 @@ main { flex: 1; }
   .feature-title { font-size: 14px; }
   .notice-grid { grid-template-columns: 1fr; gap: 10px; padding-top: 18px; }
   .notice-grid a { min-height: 74px; padding: 12px 14px; }
-  .side-band { padding-bottom: 28px; }
-  .side-tabs { gap: 16px; }
-  .side-tabs button { font-size: 15px; }
-  .side-more { padding-bottom: 11px; }
-  .side-label { font-size: 13px; }
+  .side-band { padding: 26px 0 30px; }
+  .side-tabs { gap: 20px; }
+  .side-tabs button { font-size: 17px; }
+  .side-more { padding-bottom: 11px; font-size: 12.5px; }
+  .side-list a { gap: 14px; padding: 13px 2px; }
+  .side-label { font-size: 14.5px; }
+  .side-meta { font-size: 12px; }
   .series-band { padding: 28px 0 8px; }
   .series-media { aspect-ratio: 3 / 2; }
   .series-title { margin-top: 10px; font-size: 13.5px; }
@@ -2830,6 +2836,8 @@ main { flex: 1; }
 
 /* 本页隐藏前景大符号画布：z:30 的前景符号会压在正文上，影响可读性 */
 .site-shell:has(.comp-page) .mathbg-front { display: none; }
+/* 首页有大图与密集列表：前景符号会压在图片与文字上，首页整层关掉，只留背景层 */
+.site-shell:has(.home) .mathbg-front { display: none; }
 
 /* ---- 紫栏 ---- */
 .comp-page .comp-side-nav {
