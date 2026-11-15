@@ -46,6 +46,9 @@ const noticeRows = computed(() =>
 )
 
 const sideList = computed(() => enSideGroups[sideTab.value] || [])
+
+// 概况带的莲花线稿水印（走资源解析器，单文件构建时内联成 data URL）
+const decoStyle = { backgroundImage: `url(${imgUrl('/img/deco/lotus.jpg')})` }
 </script>
 
 <template>
@@ -165,6 +168,7 @@ const sideList = computed(() => enSideGroups[sideTab.value] || [])
 
     <!-- About -->
     <section id="about" class="about-band">
+      <span class="about-deco" :style="decoStyle" aria-hidden="true" />
       <div class="container about-inner">
         <div class="about-head">
           <p class="about-kicker">{{ enAbout.kicker }}</p>

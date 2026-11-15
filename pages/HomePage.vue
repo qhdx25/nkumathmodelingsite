@@ -133,6 +133,9 @@ const side2Groups = {
   ],
 }
 const side2List = computed(() => side2Groups[side2Tab.value] || [])
+// 概况带的莲花线稿水印（走资源解析器，单文件构建时内联成 data URL）
+const decoStyle = { backgroundImage: `url(${imgUrl('/img/deco/lotus.jpg')})` }
+
 const side2Links = { committee: '/committee', team: '/team' }
 
 // 列表行悬停：记录鼠标在行内的位置，交给 ::before 的径向渐变做浅紫跟随
@@ -367,6 +370,7 @@ function seriesGo(step) {
     </section>
 
     <section id="overview" class="about-band">
+      <span class="about-deco" :style="decoStyle" aria-hidden="true" />
       <div class="container about-inner">
         <div class="about-head">
           <p class="about-kicker">协会概况</p>
