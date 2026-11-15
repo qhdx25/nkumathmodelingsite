@@ -3615,7 +3615,7 @@ main.home + .site-footer { margin-top: 0; }
 /* 动态列表：缩略图 + 文字 */
 .comp-page .comp-archive a {
   display: grid;
-  grid-template-columns: 132px minmax(0, 1fr);
+  grid-template-columns: 172px minmax(0, 1fr);
   gap: 20px;
   padding: 18px 0;
   align-items: start;
@@ -3761,7 +3761,7 @@ main.home + .site-footer { margin-top: 0; }
 .comp-page .source-list a:hover .src-go { transform: translate(2px, -2px); color: var(--accent); }
 
 @media (max-width: 760px) {
-  .comp-page .comp-archive a { grid-template-columns: 1fr; gap: 12px; }
+  .comp-page .comp-archive a { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .comp-page .comp-archive .thumb { width: 100%; height: 150px; }
   .comp-page .notice-card { grid-template-columns: 1fr; min-height: 0; }
   .comp-page .nc-media { height: 176px; }
