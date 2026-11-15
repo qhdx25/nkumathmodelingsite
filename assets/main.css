@@ -3767,3 +3767,48 @@ main.home + .site-footer { margin-top: 0; }
   .comp-page .nc-media { height: 176px; }
   .comp-page .source-list a { grid-template-columns: 32px minmax(0, 1fr) 20px; gap: 10px; }
 }
+
+/* ---------- 书本式页面：图文块对齐与字色加深 ---------- */
+/* 动态行：缩略图随行高拉伸，避免图下方留出一块白 */
+.comp-page .comp-archive a { align-items: stretch; }
+.comp-page .comp-archive .thumb {
+  width: 140px;
+  height: 100%;
+  min-height: 96px;
+  align-self: stretch;
+}
+.comp-page .comp-archive .thumb img { height: 100%; }
+
+/* 公示卡：图收窄一点，右侧内容整体垂直居中并放大字号 */
+.comp-page .notice-card { grid-template-columns: 34% minmax(0, 1fr); min-height: 196px; }
+.comp-page .nc-body {
+  justify-content: center;
+  gap: 10px;
+  padding: 22px 24px;
+}
+.comp-page .nc-sub { font-size: 14.5px; line-height: 1.85; color: var(--text); }
+.comp-page .nc-meta { font-size: 12.5px; color: #5f5f5f; }
+.comp-page .nc-state { margin-top: 2px; font-size: 12.5px; color: #5f5f5f; }
+.comp-page .nc-state.is-live { color: #8a1c14; font-weight: 600; }
+.comp-page .nc-more { margin-top: 6px; font-size: 13px; }
+.comp-page .nc-title { font-size: 18px; left: 16px; right: 16px; bottom: 14px; }
+.comp-page .nc-cat { font-size: 11.5px; padding: 3px 9px; }
+
+/* 字色加深：正文用 text，辅助信息用更深的灰 */
+.comp-page .comp-archive p,
+.comp-page .notice-sub { color: var(--text); }
+.comp-page .comp-archive time,
+.comp-page .comp-archive .src,
+.comp-page .notice-meta { color: #5f5f5f; }
+.comp-page .head-note,
+.comp-page .section-foot,
+.comp-page .head-note-inline,
+.comp-page .rule-list li,
+.comp-page .src-body span { color: #5c5c5c; }
+.comp-page .src-body strong { color: var(--ink); }
+
+@media (max-width: 760px) {
+  .comp-page .comp-archive .thumb { width: 100%; height: 170px; max-height: none; align-self: start; }
+  .comp-page .notice-card { grid-template-columns: 1fr; min-height: 0; }
+  .comp-page .nc-body { justify-content: flex-start; padding: 18px 18px 16px; }
+}
