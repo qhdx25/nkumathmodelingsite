@@ -4,8 +4,12 @@ import { RouterView, useRoute } from 'vue-router'
 import SiteHeader from './components/SiteHeader.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import MathBackground from './components/MathBackground.vue'
+import TrainingLayout from './legacy-training/App.vue'
+import siteStyles from './assets/main.css?inline'
+import trainingStyles from './legacy-training/assets/main.css?inline'
 
 const route = useRoute()
+const isTraining = computed(() => route.name === 'training')
 // 首页（中/英）头部叠在大图上，文字反白；其余页面为常规白底头部
 const overlayPage = computed(() => route.name === 'home' || route.name === 'en-home')
 const lang = computed(() => (route.meta?.lang === 'en' ? 'en' : 'zh'))
@@ -51,7 +55,11 @@ onUnmounted(() => window.removeEventListener('pointerdown', onPointerDown))
 </script>
 
 <template>
-  <div class="site-shell">
+  <Teleport to="head">
+    <component :is="'style'">{{ isTraining ? trainingStyles : siteStyles }}</component>
+  </Teleport>
+  <TrainingLayout v-if="isTraining" />
+  <div v-else class="site-shell">
     <MathBackground />
     <SiteHeader :overlay="overlay" :stuck="stuck" :lang="lang" />
     <RouterView />

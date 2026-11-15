@@ -3,12 +3,12 @@ import { imgUrl } from '../assets/resolver'
 // 说明：动态条目均来自公开来源（南开新闻网 / 学院公众号），链接可直达原文
 
 export const nav = [
-  { label: '协会概况', to: '/' },
+  { label: '首页', to: '/' },
   { label: '最新动态', to: '/news' },
-  { label: '赛事信息', to: '/competition' },
+  { label: '竞赛', to: '/competition' },
   { label: '校队培训', to: '/training' },
   { label: '建模资料', to: '/materials' },
-  { label: '组织架构', to: '/committee' },
+  { label: '组队平台', to: '/team' },
   { label: '信息公示', to: '/notice' },
 ]
 

@@ -331,7 +331,7 @@ function seriesGo(step) {
     </section>
 
     <!-- 第二组：组织架构 / 组队平台 -->
-    <section class="side-band side-band-alt">
+    <section id="association" class="side-band side-band-alt">
       <div class="container side-inner">
         <div class="side-panel">
           <div class="side-tabs">
@@ -357,7 +357,7 @@ function seriesGo(step) {
       </div>
     </section>
 
-    <section class="about-band">
+    <section id="overview" class="about-band">
       <div class="container about-inner">
         <div class="about-head">
           <p class="about-kicker">协会概况</p>

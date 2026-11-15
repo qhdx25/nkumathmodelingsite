@@ -12,7 +12,7 @@ const routes = [
   { path: '/en/committee', name: 'en-committee', component: () => import('./pages/EnComingPage.vue'), meta: { title: 'Committee', titleEn: 'Committee', zhPath: '/committee', lang: 'en' } },
   { path: '/en/recruit', name: 'en-recruit', component: () => import('./pages/EnRecruitPage.vue'), meta: { title: 'Join us', lang: 'en' } },
   { path: '/competition', name: 'competition', component: () => import('./pages/CompetitionPage.vue'), meta: { title: '竞赛' } },
-  { path: '/training', name: 'training', component: () => import('./pages/TrainingPage.vue'), meta: { title: '校队培训' } },
+  { path: '/training', name: 'training', component: () => import('./legacy-training/pages/TrainingPage.vue'), meta: { title: '校队培训' } },
   { path: '/materials', name: 'materials', component: () => import('./pages/MaterialsPage.vue'), meta: { title: '建模资料' } },
   { path: '/team', name: 'team', component: () => import('./pages/TeamPage.vue'), meta: { title: '组队平台' } },
   { path: '/recruit', name: 'recruit', component: () => import('./pages/RecruitPage.vue'), meta: { title: '加入我们' } },
@@ -36,6 +36,11 @@ const router = createRouter({
 })
 
 router.afterEach((to) => {
+  if (to.name === 'training') {
+    document.documentElement.lang = 'zh-CN'
+    document.title = SITE + '官网'
+    return
+  }
   const page = to.meta?.title
   const isEn = to.meta?.lang === 'en'
   document.documentElement.lang = isEn ? 'en' : 'zh-CN'
