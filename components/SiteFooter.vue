@@ -1,4 +1,5 @@
 <script setup>
+import { imgUrl } from '../assets/resolver'
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { campuses, footerLinks, nav, subNav } from '../data/site'
@@ -24,6 +25,7 @@ const enCampuses = [
 <template>
   <footer class="site-footer" :class="{ 'has-spine': showSpine }">
     <div v-if="showSpine" class="spine-foot" aria-hidden="true">
+      <img class="spine-emblem" :src="imgUrl('/img/nku-mark.png')" alt="" />
       <span>数学科学学院 · 学生社团</span>
       <span>站内信息以官方通知为准</span>
     </div>
