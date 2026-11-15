@@ -49,7 +49,7 @@ const related = computed(() => {
               <dt>发布日期</dt>
               <dd>{{ doc.date }}</dd>
             </div>
-            <div>
+            <div v-if="doc.pages">
               <dt>页数</dt>
               <dd>{{ doc.pages }} 页</dd>
             </div>
@@ -98,7 +98,15 @@ const related = computed(() => {
             </div>
 
             <div class="notice-reader">
-              <PageReader :base="doc.reader" :pages="doc.pages" :title="doc.title" />
+              <PageReader v-if="doc.reader && doc.pages" :base="doc.reader" :pages="doc.pages" :title="doc.title" />
+              <div v-else class="notice-external">
+                <p class="card-kicker">站内暂未收录页图</p>
+                <p>
+                  本文件为外部来源条目，正文请点击上方
+                  <strong>{{ doc.sourceLabel || '查看官方原文' }}</strong>
+                  前往发布单位页面阅读；如需在站内逐页展示，把 PDF 或页图给我即可接入。
+                </p>
+              </div>
             </div>
           </div>
         </div>

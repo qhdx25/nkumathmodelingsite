@@ -85,43 +85,110 @@ export const intro = [
 export const news = [
   {
     date: '2026.11',
-    fullDate: '2026-11-01',
+    ym: '2026-11-01',
     title: '第一届天津市五校数学建模联赛答辩会在南开举行',
     summary:
-      '五校 32 支队伍参赛、18 支获奖，评选出金奖 3 项、银奖 6 项、铜奖 9 项。协会负责人作年度工作汇报。',
+      '五校 32 支队伍参加答辩、18 支获奖（金奖 3、银奖 6、铜奖 9）。教练组组长胡刚作《蛋白质固有无序区域预测》报告，协会负责人江绮佳作年度工作汇报。',
     source: '南开新闻网',
     url: 'https://news.nankai.edu.cn/zhxw/system/2026/11/01/030075089.shtml',
     featured: true,
+    tag: '五校联赛',
   },
   {
     date: '2026.09',
-    title: '南开大学数学建模协会 2026 招新启动',
-    summary: '会员注册与干事招募同步开放，秘书处、竞赛部、宣传部、工作委员会四个方向。',
-    source: '学院公众号',
+    ym: '2026-09-18',
+    title: '协会 2026 招新启动：成立十周年，会员与干事双通道',
+    summary:
+      '2016 年成立、今年满十年。协会服务全校近 1200 名参赛选手，承办每年 8 月的南开大学数学建模竞赛（兼选拔赛），近 300 支队伍参赛。',
+    source: '南开数院学工',
     url: 'http://mp.weixin.qq.com/s?__biz=MzkwMzY1NTI1OA==&mid=2247497554&idx=1&sn=bcf90d69a11e11d46a4f709f50f802db',
+    tag: '招新',
   },
   {
     date: '2026.05',
-    fullDate: '2026-05-07',
+    ym: '2026-05-07',
     title: '南开大学数学建模协会成立十周年座谈会举行',
-    summary: '学院与教练组代表回顾十年历程，提出培养"善于沟通工程与数学的翻译队伍"。',
+    summary: '学院与教练组代表回顾十年历程，提出培养「善于沟通工程与数学的翻译队伍」。',
     source: '南开新闻网',
     url: 'https://news.nankai.edu.cn/dcxy/system/2026/05/07/030071789.shtml',
+    tag: '十周年',
   },
   {
     date: '2026.04',
+    ym: '2026-04-27',
+    title: '北方网专访：王飞鸣——国赛一等奖与「深圳杯」最高奖背后',
+    summary:
+      '统计与数据科学学院本科生王飞鸣率队拿下 2025 年全国大学生数学建模竞赛一等奖，并与队友在「深圳杯」从 3000 支队伍中夺得全国唯一最高奖「谭永基特别奖」。',
+    source: '北方网',
+    url: 'http://news.enorth.com.cn/system/2026/04/27/059353536.shtml',
+    tag: '人物',
+  },
+  {
+    date: '2026.04',
+    ym: '2026-04-08',
     title: '2026 年全国大学生数学建模竞赛（兼校赛）报名通知',
-    summary: '三人一队、全员为南开在籍本科生，通过飞书群云文档填报组队信息。',
-    source: '学院公众号',
-    url: 'http://mp.weixin.qq.com/s?__biz=MzU2OTEwNzkzMA==&mid=2247563028&idx=2&sn=3bdb8fff58088c42c1ce36c9f44d3eb3',
+    summary:
+      '三人一队、全员为南开在籍本科生；报名时间 4 月 8 日 9:00 — 4 月 22 日 16:00，在飞书交流群云文档填报组队信息。',
+    source: '数学科学学院官网',
+    url: 'https://math.nankai.edu.cn/2026/0414/c34414a592893/page.htm',
+    tag: '报名',
   },
   {
-    date: '2026.04',
+    date: '2026.03',
+    ym: '2026-03-16',
+    title: '致敬数学：南开大学 2026 年数学文化节启幕',
+    summary:
+      '3 月 14 日国际数学日当天开幕，设「数学的魅力」科普报告、「乐游数海」趣味游园会与「数启新程」数学文化地标漫游，近千名大中小学生参与。',
+    source: '津云 · 南开新闻网转载',
+    url: 'https://news.nankai.edu.cn/mtnk/system/2026/03/16/030071076.shtml',
+    tag: '数学文化节',
+  },
+  {
+    date: '2025.09',
+    ym: '2025-09-11',
+    title: '南开学子获第十五届「深圳杯」数学建模挑战赛最高奖',
+    summary:
+      '统计与数据科学学院王飞鸣、电子信息与光学工程学院梁睿智、软件学院薛以贤获「谭永基特别奖」（全国唯一）；数学科学学院董梧铮、朱雨娟、苏子衿获优秀论文奖。',
+    source: '南开新闻网',
+    url: 'https://news.nankai.edu.cn/ywsd/system/2025/09/11/030068683.shtml',
+    tag: '深圳杯',
+  },
+  {
+    date: '2025.06',
+    ym: '2025-06-30',
+    title: '第十五届 MathorCup 数学应用挑战赛：本科生组全国二等奖',
+    summary: '金莫迪、周昊川、欧阳子恒（指导教师 黎建宇）获本科生组全国二等奖，并获赛区一等奖。',
+    source: '南开数院学工',
+    url: 'http://mp.weixin.qq.com/s?__biz=MzkwMzY1NTI1OA==&mid=2247497554&idx=1&sn=bcf90d69a11e11d46a4f709f50f802db',
+    tag: 'MathorCup',
+  },
+  {
+    date: '2025.05',
+    ym: '2025-05-01',
+    title: '2025 年美国大学生数学建模竞赛：多支队伍获 Finalist',
+    summary:
+      '金莫迪/钟亚威/黄一乔（指导教师 黎建宇）、安家硕/石冰一/曲晟熙、唐维轩/陆俊实/杨正杰、覃露美/张曼/崔丽英、张梦珂/杨申/孟庆蕊等队伍获 Finalist。',
+    source: '南开数院学工',
+    url: 'http://mp.weixin.qq.com/s?__biz=MzkwMzY1NTI1OA==&mid=2247491365&idx=1&sn=c14f47860365a6fe430e1d1393c1662b',
+    tag: '美赛',
+  },
+  {
+    date: '2025.04',
+    ym: '2025-04-20',
     title: '南开大学数学建模代表队春季补选通知',
     summary: '个人参赛完成一篇建模论文，与校队学员共同排名，按排名确定补选名单。',
-    source: '学院公众号',
+    source: '南开数院学工',
     url: 'http://mp.weixin.qq.com/s?__biz=MzU2OTEwNzkzMA==&mid=2247562931&idx=4&sn=324e77052cc00498b44f8ab5a1f1176e',
+    tag: '选拔',
   },
+]
+
+// 资料来源：动态页底部列出，方便读者回原文核对
+export const newsSources = [
+  { label: '南开新闻网', note: '学校官方新闻，赛事与人物报道的主要来源', url: 'https://news.nankai.edu.cn/' },
+  { label: '数学科学学院官网', note: '竞赛报名通知、赛制与选拔办法', url: 'https://math.nankai.edu.cn/' },
+  { label: '南开数院学工', note: '学院学生工作公众号，招新、培训与获奖记录', url: 'https://www.cim.nankai.edu.cn/' },
+  { label: '北方网', note: '天津本地媒体，人物专访', url: 'http://news.enorth.com.cn/' },
 ]
 
 export const newsMore = {

@@ -2539,12 +2539,21 @@ main.home + .site-footer { margin-top: 0; }
   background: #c0392b;
   vertical-align: 1px;
 }
-/* 顺序改为「标题/说明 → 公示中 → ›」，标签靠右收口 */
+/* 右侧收口块：宽度与「状态」列一致，标签左对齐后正好排在状态文字那一列下面 */
 .comp-page .table-wrap .nc-main { order: 1; flex: 1 1 auto; gap: 3px; }
 .comp-page .table-wrap .nc-main strong { font-size: 14px; }
 .comp-page .table-wrap .nc-main span { text-wrap: pretty; }
-.comp-page .table-wrap .nc-tag { order: 2; margin-left: auto; }
-.comp-page .table-wrap .nc-go { order: 3; margin-left: 0; font-size: 17px; transition: transform 240ms cubic-bezier(0.22, 0.7, 0.2, 1); }
+.comp-page .table-wrap .nc-side {
+  order: 2;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 124px;
+  margin-left: auto;
+}
+.comp-page .table-wrap .nc-tag { margin: 0; font-size: 11.5px; }
+.comp-page .table-wrap .nc-go { margin-left: auto; font-size: 17px; transition: transform 240ms cubic-bezier(0.22, 0.7, 0.2, 1); }
 .comp-page .table-wrap .notice-callout:hover { background: rgba(17, 17, 17, 0.018); transform: none; }
 .comp-page .table-wrap .notice-callout:hover .nc-go { transform: translateX(4px); }
 .comp-page .table-wrap .notice-callout:hover .nc-main strong { color: var(--accent); }
@@ -3429,7 +3438,7 @@ main.home + .site-footer { margin-top: 0; }
   /* 公示脚注条：竖排 */
   .comp-page .table-wrap .notice-callout { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 16px 0 12px; }
   .comp-page .table-wrap .nc-main { flex: 1 1 100%; }
-  .comp-page .table-wrap .nc-tag { display: inline-block; margin: 0; }
+  .comp-page .table-wrap .nc-side { width: auto; margin-left: 0; }
   .comp-page .table-wrap .nc-main strong { font-size: 13.5px; }
   .comp-page .table-wrap .nc-main span { font-size: 11.5px; line-height: 1.75; }
   .comp-page .table-wrap .nc-go { display: none; }
@@ -3453,4 +3462,143 @@ main.home + .site-footer { margin-top: 0; }
   .footer-bottom { gap: 12px; }
   .footer-motto { font-size: 23px; letter-spacing: 0.14em; padding-left: 0.14em; }
   .footer-demo { font-size: 11.5px; }
+}
+
+/* ---------- 书本式版式：信息公示 / 最新动态 ---------- */
+.comp-page .head-note-inline {
+  margin-top: 16px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.comp-page .empty-line {
+  padding: 22px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+
+/* 要闻：无图大条目，靠字号与细线撑住 */
+.comp-page .lead-story {
+  display: block;
+  padding: 26px 0 22px;
+  border-top: 2px solid #1a1a1a;
+  text-decoration: none;
+}
+.comp-page .lead-story-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.comp-page .lead-story-tag {
+  padding: 2px 9px;
+  border: 1px solid rgba(113, 10, 83, 0.24);
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.comp-page .lead-story h3 {
+  margin-top: 16px;
+  font-size: 27px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+  transition: color 200ms ease;
+}
+.comp-page .lead-story-sum {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 2;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+.comp-page .lead-story-go {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.comp-page .lead-story:hover h3 { color: var(--accent); }
+
+/* 书本式页面的列表不用毛玻璃卡片，退回通透的细线行（与竞赛页成绩表一致） */
+.comp-page .notice-row,
+.comp-page .news-archive li {
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.comp-page .notice-row { border-width: 0 0 1px 2px; border-style: solid; border-color: transparent transparent var(--line-soft) transparent; }
+.comp-page .notice-row:hover { background: rgba(255, 255, 255, 0.5); border-left-color: var(--accent); }
+.comp-page .news-archive li { border-width: 0 0 1px 0; border-style: solid; border-color: var(--line-soft); }
+
+/* 名单/动态列表在 860 的书页栏里放大一档 */
+.comp-page .comp-archive { border-top: 1px solid var(--line); }
+.comp-page .comp-archive a { gap: 26px; padding: 18px 2px; }
+.comp-page .comp-archive time { width: 84px; font-size: 13px; }
+.comp-page .comp-archive h3 { font-size: 16.5px; line-height: 1.55; }
+.comp-page .comp-archive p { font-size: 13.5px; line-height: 1.85; }
+.comp-page .notice-row { padding: 16px 2px 16px 14px; }
+.comp-page .notice-row h3 { font-size: 16px; line-height: 1.5; }
+.comp-page .notice-sub { font-size: 13.5px; }
+
+/* 资料来源 */
+.comp-page .source-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.comp-page .source-list a {
+  display: block;
+  padding: 18px 18px 16px;
+  background: #fff;
+  text-decoration: none;
+}
+.comp-page .source-list strong { display: block; font-size: 14.5px; color: var(--ink); }
+.comp-page .source-list span { display: block; margin-top: 6px; font-size: 12.5px; line-height: 1.75; color: var(--muted); }
+.comp-page .source-list em { display: inline-block; margin-top: 8px; font-size: 12px; font-style: normal; color: var(--faint); }
+.comp-page .source-list a:hover strong { color: var(--accent); }
+
+/* 公示说明 */
+.comp-page .rule-list { border-top: 1px solid var(--line); }
+.comp-page .rule-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 13.5px;
+  line-height: 1.95;
+  color: var(--muted);
+}
+.comp-page .rule-list strong {
+  display: inline-block;
+  min-width: 3.6em;
+  margin-right: 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+/* 没有站内页图时的兜底 */
+.notice-external {
+  padding: 26px 24px;
+  border: 1px dashed var(--line);
+  background: rgba(255, 255, 255, 0.55);
+}
+.notice-external p { font-size: 13.5px; line-height: 1.95; color: var(--muted); }
+.notice-external .card-kicker { margin-bottom: 8px; }
+
+@media (max-width: 760px) {
+  .comp-page .lead-story h3 { font-size: 21px; }
+  .comp-page .lead-story-sum { font-size: 13px; line-height: 1.9; }
+  .comp-page .comp-archive a { gap: 14px; padding: 15px 0; flex-direction: column; }
+  .comp-page .comp-archive time { width: auto; padding-top: 0; }
+  .comp-page .source-list { grid-template-columns: 1fr; }
+  .comp-page .rule-list strong { min-width: 0; }
 }

@@ -11,7 +11,8 @@ const isEn = () => props.lang === 'en'
 
 // 竞赛页：左侧紫栏（书脊）一直通到页脚底部，落款文字也跟到最底部
 const route = useRoute()
-const showSpine = computed(() => route.path === '/competition')
+const SPINE_PAGES = ['/competition', '/notice', '/news']
+const showSpine = computed(() => SPINE_PAGES.includes(route.path))
 
 const enCampuses = [
   { name: 'Balitai Campus', address: '94 Weijin Road, Nankai District, Tianjin', postcode: '300071' },
