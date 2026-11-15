@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import HeroBanner from '../components/HeroBanner.vue'
 import NavStrip from '../components/NavStrip.vue'
+import IconNav from '../components/IconNav.vue'
 import VerticalTicker from '../components/VerticalTicker.vue'
 import { banners, news, series, stats } from '../data/site'
 import { notices } from '../data/notices'
@@ -133,6 +134,14 @@ const side2Groups = {
 }
 const side2List = computed(() => side2Groups[side2Tab.value] || [])
 const side2Links = { committee: '/committee', team: '/team' }
+
+// 列表行悬停：记录鼠标在行内的位置，交给 ::before 的径向渐变做浅紫跟随
+function onRowMove(e) {
+  const el = e.currentTarget
+  const r = el.getBoundingClientRect()
+  el.style.setProperty('--mx', `${e.clientX - r.left}px`)
+  el.style.setProperty('--my', `${e.clientY - r.top}px`)
+}
 
 // 系列专题：一次显示 3 张，可左右翻 + 圆点
 const SERIES_VISIBLE = 3
@@ -319,7 +328,7 @@ function seriesGo(step) {
           </div>
           <ul class="side-list">
             <li v-for="item in sideList" :key="item.label">
-              <RouterLink :to="sideLinks[sideTab]">
+              <RouterLink :to="sideLinks[sideTab]" @mousemove="onRowMove">
                 <span class="side-label">{{ item.label }}</span>
                 <span class="side-meta">{{ item.meta }}</span>
               </RouterLink>
@@ -341,7 +350,7 @@ function seriesGo(step) {
           </div>
           <ul class="side-list">
             <li v-for="item in side2List" :key="item.label">
-              <RouterLink :to="side2Links[side2Tab]">
+              <RouterLink :to="side2Links[side2Tab]" @mousemove="onRowMove">
                 <span class="side-label">{{ item.label }}</span>
                 <span class="side-meta">{{ item.meta }}</span>
               </RouterLink>
@@ -383,5 +392,7 @@ function seriesGo(step) {
         </div>
       </div>
     </section>
+
+    <IconNav />
   </main>
 </template>

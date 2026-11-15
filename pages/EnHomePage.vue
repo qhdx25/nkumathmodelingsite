@@ -3,6 +3,7 @@ import { imgUrl } from '../assets/resolver'
 import { computed, ref } from 'vue'
 import HeroBanner from '../components/HeroBanner.vue'
 import NavStrip from '../components/NavStrip.vue'
+import IconNav from '../components/IconNav.vue'
 import VerticalTicker from '../components/VerticalTicker.vue'
 import {
   enAbout,
@@ -184,5 +185,6 @@ const sideList = computed(() => enSideGroups[sideTab.value] || [])
         </div>
       </div>
     </section>
+    <IconNav lang="en" />
   </main>
 </template>
