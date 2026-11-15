@@ -51,7 +51,7 @@ watch(() => route.fullPath, () => { menuOpen.value = false })
 
     <div class="container masthead">
       <RouterLink :to="homeTo" class="brand">
-        <img class="brand-mark" :src="imgUrl('/img/nku-mark.png')" :alt="isEn ? enHeader.alt : '南开大学校徽'" />
+        <img class="brand-mark" :src="imgUrl('/img/nku-logo.png')" :alt="isEn ? enHeader.alt : '南开大学数学建模协会徽标'" />
         <span class="brand-copy">
           <strong>{{ brand }}</strong>
           <em>{{ brandSub }}</em>

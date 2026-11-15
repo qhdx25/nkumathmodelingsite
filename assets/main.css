@@ -138,9 +138,9 @@ main { flex: 1; }
   /* 校徽 PNG 自带透明通道，不再垫白底，让底色透出来 */
   background: transparent;
 }
-/* 首页叠在大图上时，校徽整体反白，靠照片透出的明暗做对比，细节才看得清 */
+/* 首页叠在大图上时，徽标保留本色（自带白底圆），只补一层投影让它从照片上浮起来 */
 .site-head.is-overlay .brand-mark {
-  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.42));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
 }
 .brand-copy strong {
   display: block;
@@ -550,15 +550,19 @@ main { flex: 1; }
 }
 .side-more { margin-left: auto; padding-bottom: 12px; font-size: 13px; letter-spacing: 0.01em; color: var(--faint); }
 .side-more:hover { color: var(--accent); }
-.side-list li { border-bottom: 1px solid var(--line-soft); }
+/* 卡片不透明、背景透明：每行是一张白卡片，行间 4px 的缝隙里能看见动态背景 */
+.side-list { display: flex; flex-direction: column; gap: 4px; }
+.side-list li { border-bottom: 0; }
 .side-list a {
   position: relative;
   display: flex;
   align-items: baseline;
   gap: 20px;
-  /* 负边距 + 内边距：文字仍与标签栏左对齐，但悬停底色可以向左溢出一点 */
+  /* 负边距 + 内边距：文字仍与标签栏左对齐，卡片比文字略宽 */
   margin: 0 -14px;
   padding: 14px;
+  background-color: #fff;
+  border-radius: 2px;
   transform-origin: left center;
   transition:
     transform 300ms cubic-bezier(0.2, 0.75, 0.25, 1),
@@ -586,7 +590,7 @@ main { flex: 1; }
 .side-list a:hover,
 .side-list a.is-hot {
   transform: translateX(-10px) scale(1.015);
-  background-color: rgba(255, 255, 255, 0.94);
+  background-color: #fff;
   border-radius: 3px;
   box-shadow: 0 10px 24px rgba(113, 10, 83, 0.1);
 }
@@ -1980,11 +1984,13 @@ main.home + .site-footer { margin-top: 0; }
 
   /* 移动端首页顺序：数据 → 协会概况 → 系列专题 → 左图栏 */
   .home { display: flex; flex-direction: column; }
+  /* 与桌面同序收尾：图标导航 → 协会概况 → 页脚 */
   .home > .home-news { order: 1; }
-  .home > .about-band { order: 2; }
-  .home > .series-band { order: 3; }
-  .home > .side-band { order: 4; }
-  .home > .side-band-alt { order: 5; }
+  .home > .series-band { order: 2; }
+  .home > .side-band { order: 3; }
+  .home > .side-band-alt { order: 4; }
+  .home > .icon-nav { order: 5; }
+  .home > .about-band { order: 6; }
   .home > .nav-strip { order: 0; }
   .home > .hero { order: 0; }
 
@@ -3014,6 +3020,15 @@ main.home + .site-footer { margin-top: 0; }
   transition: transform 460ms cubic-bezier(0.25, 0.9, 0.2, 1.06), height 320ms ease, opacity 400ms ease;
 }
 .csn-spine.is-ok { opacity: 1; }
+/* 紫栏落款：校徽反白压淡，贴在导航下方 */
+.csn-emblem {
+  width: 104px;
+  height: 104px;
+  margin: 42px 0 0;
+  border-radius: 50%;
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+}
 .csn-brand { text-decoration: none; display: flex; flex-direction: column; gap: 7px; padding-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.13); }
 .csn-brand-cn { font-size: 15px; font-weight: 800; line-height: 1.45; color: #fff; letter-spacing: 0.02em; }
 .csn-brand-en { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 255, 255, 0.42); }

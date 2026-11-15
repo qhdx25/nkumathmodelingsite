@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
+import { imgUrl } from '../assets/resolver'
 import ContestCard from '../components/ContestCard.vue'
 import PlaceholderBlock from '../components/PlaceholderBlock.vue'
 import { calendar, contests, dataNote, points, results } from '../data/contests'
@@ -244,6 +245,7 @@ onBeforeUnmount(() => {
               </button>
             </li>
           </ul>
+          <img class="csn-emblem" :src="imgUrl('/img/nku-mark.png')" alt="" aria-hidden="true" />
         </div>
         <span class="csn-progress" aria-hidden="true"></span>
       </nav>

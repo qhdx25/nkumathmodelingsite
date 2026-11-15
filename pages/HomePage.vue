@@ -369,6 +369,8 @@ function seriesGo(step) {
       </div>
     </section>
 
+    <IconNav />
+
     <section id="overview" class="about-band">
       <span class="about-deco" :style="decoStyle" aria-hidden="true" />
       <div class="container about-inner">
@@ -397,6 +399,5 @@ function seriesGo(step) {
       </div>
     </section>
 
-    <IconNav />
   </main>
 </template>
