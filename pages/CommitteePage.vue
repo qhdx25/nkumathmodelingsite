@@ -1,7 +1,9 @@
 <script setup>
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { history } from '../data/site'
 import { listNotices } from '../data/notices'
+import { rosterYears, rosters } from '../data/roster'
 
 const minutes = listNotices('minutes')
 
@@ -11,32 +13,29 @@ const lv = [
   { title: '常务理事会', desc: '理事会闭会期间的执行机构，统筹重大事项。' },
 ]
 
-const departments = [
-  {
-    name: '秘书处',
-    desc: '联络竞赛部与宣传部，承接立项工作，重大事项由秘书长会议专人负责。',
-    rooms: [
-      { title: '策划室', duty: '活动策划与方案设计，承接立项。' },
-      { title: '办公室', duty: '团务、外勤、文书档案与会议纪要。' },
-      { title: '财务室', duty: '物资采买、出纳与仓库管理。' },
-    ],
-  },
-  {
-    name: '竞赛部',
-    desc: '负责各类赛事报名、维护竞赛日历、推进与报名平台合作。',
-    rooms: [],
-  },
-  {
-    name: '宣传部',
-    desc: '发布报名通知、招募信息与正式通知，转发学术性文章。',
-    rooms: [],
-  },
-  {
-    name: '工作委员会',
-    desc: '承担跨部门协调，推动部门间配合与事项落地。',
-    rooms: [],
-  },
-]
+// 花名册学年切换
+const year = ref(rosterYears[0])
+const roster = computed(() => rosters[year.value])
+
+function memberCount(dept) {
+  return dept.rows.reduce((sum, row) => sum + row.names.length, 0)
+}
+
+// 主要负责人：行式列表 + 点击姓名弹出详情卡片
+const leaderRows = computed(() => roster.value.leadership)
+const activeLeader = ref(null)
+
+function openLeader(p) {
+  activeLeader.value = p
+}
+function closeLeader() {
+  activeLeader.value = null
+}
+function onEsc(e) {
+  if (e.key === 'Escape') closeLeader()
+}
+onMounted(() => window.addEventListener('keydown', onEsc))
+onBeforeUnmount(() => window.removeEventListener('keydown', onEsc))
 </script>
 
 <template>
@@ -45,7 +44,8 @@ const departments = [
       <div class="container">
         <h1>组织架构与部门职责</h1>
         <p class="page-lead">
-          协会在理事会领导下开展工作，下设秘书处、竞赛部、宣传部与工作委员会。
+          协会在理事会领导下开展工作，下设秘书处与各职能部门、工作委员会办公室，
+          并组建南开大学数学建模代表队（校代表队）。
         </p>
       </div>
     </section>
@@ -68,71 +68,116 @@ const departments = [
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="roster">
       <div class="container">
         <div class="section-head">
-          <h2>四个执行方向</h2>
-          <span class="head-note">秘书处 · 竞赛部 · 宣传部 · 工作委员会</span>
+          <h2>协会负责人与分工</h2>
+          <div class="board-tabs" role="group" aria-label="学年切换">
+            <button
+              v-for="y in rosterYears"
+              :key="y"
+              type="button"
+              class="chip"
+              :class="{ 'is-active': year === y }"
+              :aria-pressed="year === y"
+              @click="year = y"
+            >
+              {{ rosters[y].label }}
+            </button>
+          </div>
         </div>
 
-        <div class="dept-grid">
-          <article v-for="dept in departments" :key="dept.name" class="dept-card">
-            <h3>{{ dept.name }}</h3>
-            <p class="dept-desc">{{ dept.desc }}</p>
-            <ul v-if="dept.rooms.length" class="dept-rooms">
-              <li v-for="room in dept.rooms" :key="room.title">
-                <strong>{{ room.title }}</strong>
-                <span>{{ room.duty }}</span>
-              </li>
-            </ul>
-          </article>
-        </div>
+        <p class="council-line">
+          <strong>常务理事会</strong>{{ roster.council.join('、') }}
+        </p>
+        <p v-if="roster.councilNote" class="council-note">{{ roster.councilNote }}</p>
+        <p v-if="roster.councilFull" class="council-line">
+          <strong>理事会（{{ roster.councilFull.length }} 人）</strong>{{ roster.councilFull.join('、') }}
+        </p>
+
+        <ul class="leader-rows">
+          <li v-for="p in leaderRows" :key="p.name + p.role">
+            <button
+              type="button"
+              class="leader-name-btn"
+              :aria-label="`查看 ${p.name} 的详细信息`"
+              @click="openLeader(p)"
+            >
+              {{ p.name }}
+            </button>
+            <span class="leader-role-cell">{{ p.role }}</span>
+            <span class="leader-duty-cell">{{ p.duty }}</span>
+          </li>
+        </ul>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
-        <div class="notice-card">
-          <p class="card-kicker">关于成员名单</p>
-          <h3>本 Demo 暂不展示姓名</h3>
-          <p>
-            原站点将理事会与各部门成员的真实姓名直接放在公开页面上，公网可检索。
-            Demo 版改为按「部门 — 职务」呈现，姓名留空待确认。
-          </p>
-          <ul>
-            <li>方案 A：只公示职务与人数，姓名不出现在公网（当前采用）</li>
-            <li>方案 B：公示姓名，但仓库转为私有，仅发布构建产物</li>
-            <li>方案 C：只公示常务理事会成员姓名，其余按职务</li>
-          </ul>
-          <p class="notice-foot">确认方案后，把名单按「部门 / 职务 / 姓名」三列给我，即可填入。</p>
+        <div class="section-head">
+          <h2>部门设置与成员名单</h2>
+          <span class="head-note">{{ roster.label }} · 共 {{ roster.departments.length }} 个部门</span>
         </div>
 
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>部门</th>
-                <th>职务</th>
-                <th>人数</th>
-                <th>姓名</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in [
-                { dept: '常务理事会', role: '成员', count: '7', name: '待确认公示方案' },
-                { dept: '理事会', role: '成员', count: '27', name: '待确认公示方案' },
-                { dept: '秘书处', role: '秘书长 / 副秘书长', count: '待补', name: '待确认公示方案' },
-                { dept: '竞赛部', role: '部长 / 副部长', count: '待补', name: '待确认公示方案' },
-                { dept: '宣传部', role: '部长 / 副部长', count: '待补', name: '待确认公示方案' },
-                { dept: '工作委员会', role: '负责人', count: '待补', name: '待确认公示方案' },
-              ]" :key="row.dept + row.role">
-                <td class="cell-strong">{{ row.dept }}</td>
-                <td>{{ row.role }}</td>
-                <td>{{ row.count }}</td>
-                <td class="cell-muted">{{ row.name }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="org-grid">
+          <article v-for="dept in roster.departments" :key="dept.name" class="org-block">
+            <h3>{{ dept.name }}<span class="org-count">{{ memberCount(dept) }} 人</span></h3>
+            <dl class="org-rows">
+              <div
+                v-for="row in dept.rows"
+                :key="row.role"
+                class="org-row"
+                :class="{ 'is-head': row.role.includes('副主席') || row.role.includes('负责人') }"
+              >
+                <dt>{{ row.role }}</dt>
+                <dd v-if="row.names.length">{{ row.names.join('、') }}</dd>
+                <dd v-else class="org-empty">{{ row.empty || '待补' }}</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <p class="section-foot">
+          名单转录自《南开大学数学建模协会（校代表队）理事干事花名册》，按学年更新；
+          空缺职务以协会后续通知为准。
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="org-grid">
+          <article class="org-block">
+            <h3>{{ roster.league.title }}<span class="org-count">团务</span></h3>
+            <dl class="org-rows">
+              <div
+                v-for="row in roster.league.rows"
+                :key="row.role"
+                class="org-row"
+                :class="{ 'is-head': row.role.includes('书记') }"
+              >
+                <dt>{{ row.role }}</dt>
+                <dd v-if="row.names.length">{{ row.names.join('、') }}</dd>
+                <dd v-else class="org-empty">{{ row.empty || '待补' }}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="org-block">
+            <h3>{{ roster.team.title }}<span class="org-count">{{ memberCount(roster.team) }} 人</span></h3>
+            <dl class="org-rows">
+              <div
+                v-for="row in roster.team.rows"
+                :key="row.role"
+                class="org-row"
+                :class="{ 'is-head': row.role.includes('队长') }"
+              >
+                <dt>{{ row.role }}</dt>
+                <dd v-if="row.names.length">{{ row.names.join('、') }}</dd>
+                <dd v-else class="org-empty">{{ row.empty || '待补' }}</dd>
+              </div>
+            </dl>
+          </article>
         </div>
       </div>
     </section>
@@ -176,4 +221,18 @@ const departments = [
       </div>
     </section>
   </main>
+
+  <!-- 负责人详情弹窗 -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="activeLeader" class="modal-overlay" @click.self="closeLeader">
+        <div class="leader-modal" role="dialog" aria-modal="true" :aria-label="activeLeader.name">
+          <button type="button" class="modal-close" aria-label="关闭" @click="closeLeader">×</button>
+          <span class="lm-name">{{ activeLeader.name }}</span>
+          <span class="lm-role">{{ activeLeader.role }}</span>
+          <p class="lm-duty">{{ activeLeader.duty }}</p>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>

@@ -1,4 +1,5 @@
 <script setup>
+import { imgUrl } from '../assets/resolver'
 import { computed, ref } from 'vue'
 import HeroBanner from '../components/HeroBanner.vue'
 import NavStrip from '../components/NavStrip.vue'
@@ -138,7 +139,7 @@ const sideList = computed(() => enSideGroups[sideTab.value] || [])
     <section id="events" class="side-band">
       <div class="container side-inner">
         <figure class="side-figure">
-          <img src="/img/news/wx-league.jpg" alt="Five-University Modeling League defence" />
+          <img :src="imgUrl('/img/news/wx-league.jpg')" alt="Five-University Modeling League defence" />
           <figcaption>First Tianjin Five-University Modeling League · Oct 2026</figcaption>
         </figure>
 
@@ -180,20 +181,6 @@ const sideList = computed(() => enSideGroups[sideTab.value] || [])
               <p class="about-note">{{ item.note }}</p>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Gallery (empty for now) -->
-    <section id="gallery" class="gallery-band">
-      <div class="container">
-        <div class="section-head">
-          <h2>Gallery</h2>
-          <span class="head-note">Photos being collected</span>
-        </div>
-        <div class="gallery-empty">
-          <p>Photos of association activities will appear here</p>
-          <p class="gallery-empty-hint">Recruitment, training, mock contests, league defence and award ceremonies — listed by date once collected</p>
         </div>
       </div>
     </section>

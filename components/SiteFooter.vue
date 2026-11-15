@@ -1,5 +1,6 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { campuses, footerLinks, nav, subNav } from '../data/site'
 import { enFooter, enHeader } from '../data/en'
 
@@ -7,6 +8,10 @@ const props = defineProps({
   lang: { type: String, default: 'zh' },
 })
 const isEn = () => props.lang === 'en'
+
+// 竞赛页：左侧紫栏（书脊）一直通到页脚底部，落款文字也跟到最底部
+const route = useRoute()
+const showSpine = computed(() => route.path === '/competition')
 
 const enCampuses = [
   { name: 'Balitai Campus', address: '94 Weijin Road, Nankai District, Tianjin', postcode: '300071' },
@@ -16,7 +21,11 @@ const enCampuses = [
 </script>
 
 <template>
-  <footer class="site-footer">
+  <footer class="site-footer" :class="{ 'has-spine': showSpine }">
+    <div v-if="showSpine" class="spine-foot" aria-hidden="true">
+      <span>数学科学学院 · 学生社团</span>
+      <span>站内信息以官方通知为准</span>
+    </div>
     <div class="container footer-grid">
       <div class="footer-brand">
         <p class="footer-title">{{ isEn() ? enFooter.title : '南开大学数学建模协会' }}</p>

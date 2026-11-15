@@ -1,3 +1,4 @@
+import { imgUrl } from '../assets/resolver'
 // English version content for /en. Kept separate from data/site.js so the
 // Chinese site stays untouched; add new keys here when more pages are translated.
 
@@ -29,29 +30,28 @@ export const enStripNav = [
   { label: 'Training', to: '#events' },
   { label: 'Resources', to: '#events' },
   { label: 'Series', to: '#series' },
-  { label: 'Gallery', to: '#gallery' },
 ]
 
 export const enBanners = [
-  { id: 'nku-01', image: '/img/hero/nku-01.jpg', credit: 'Photo: Zong Qiqi', url: '' },
-  { id: 'nku-02', image: '/img/hero/nku-02.jpg', credit: 'Photo: Zhou Songxian', url: '' },
-  { id: 'nku-03', image: '/img/hero/nku-03.jpg', credit: 'Photo: Guo Ziang', url: '' },
-  { id: 'nku-04', image: '/img/hero/nku-04.jpg', credit: 'Photo: Zong Qiqi', url: '' },
-  { id: 'nku-05', image: '/img/hero/nku-05.jpg', credit: 'Photo: Guo Ziang', url: '' },
-  { id: 'nku-06', image: '/img/hero/nku-06.jpg', credit: 'Main Building at dusk', url: '' },
+  { id: 'nku-01', image: imgUrl('/img/hero/nku-01.jpg'), credit: 'Photo: Zong Qiqi', url: '' },
+  { id: 'nku-02', image: imgUrl('/img/hero/nku-02.jpg'), credit: 'Photo: Zhou Songxian', url: '' },
+  { id: 'nku-03', image: imgUrl('/img/hero/nku-03.jpg'), credit: 'Photo: Guo Ziang', url: '' },
+  { id: 'nku-04', image: imgUrl('/img/hero/nku-04.jpg'), credit: 'Photo: Zong Qiqi', url: '' },
+  { id: 'nku-05', image: imgUrl('/img/hero/nku-05.jpg'), credit: 'Photo: Guo Ziang', url: '' },
+  { id: 'nku-06', image: imgUrl('/img/hero/nku-06.jpg'), credit: 'Main Building at dusk', url: '' },
 ]
 
 export const enFeatured = [
   {
     title: 'First Tianjin Five-University Modeling League defence held at Nankai',
     date: '2026/10/27',
-    image: '/img/news/wx-league.jpg',
+    image: imgUrl('/img/news/wx-league.jpg'),
     url: 'https://mp.weixin.qq.com/s/QvMJ6zMx8FKFsZCF2uSpGg',
   },
   {
     title: '2026 “Huawei Cup” Graduate Modeling Contest: registration open',
     date: '2026/06/02',
-    image: '/img/news/wx-huawei.jpg',
+    image: imgUrl('/img/news/wx-huawei.jpg'),
     url: 'https://mp.weixin.qq.com/s/PWx5VBaqAiTaTf3_MALPYw',
   },
 ]
@@ -86,19 +86,19 @@ export const enSeries = [
     tag: 'Series',
     title: 'Tianjin Five-University Modeling League',
     note: 'Hosted in rotation · Nankai hosted the first',
-    image: '/img/news/wx-league.jpg',
+    image: imgUrl('/img/news/wx-league.jpg'),
   },
   {
     tag: 'Series',
     title: '“Huawei Cup” Graduate Modeling Contest',
     note: 'For graduate students · starts every September',
-    image: '/img/news/wx-huawei.jpg',
+    image: imgUrl('/img/news/wx-huawei.jpg'),
   },
   {
     tag: 'Series',
     title: 'China Undergraduate Mathematical Contest in Modeling',
     note: 'Also the campus contest and team selection',
-    image: '/img/hero/nku-02.jpg',
+    image: imgUrl('/img/hero/nku-02.jpg'),
   },
 ]
 

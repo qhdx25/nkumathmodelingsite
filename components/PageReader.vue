@@ -1,4 +1,5 @@
 <script setup>
+import { assetUrl } from '../assets/resolver'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
@@ -14,8 +15,8 @@ const stage = ref(null)
 const strip = ref(null)
 
 const pad = (n) => String(n).padStart(2, '0')
-const pageSrc = (n) => `${props.base}/p${pad(n)}.webp`
-const thumbSrc = (n) => `${props.base}/t${pad(n)}.webp`
+const pageSrc = (n) => assetUrl(`${props.base}/p${pad(n)}.webp`)
+const thumbSrc = (n) => assetUrl(`${props.base}/t${pad(n)}.webp`)
 
 const current = computed(() => pageSrc(index.value))
 const atFirst = computed(() => index.value <= 1)

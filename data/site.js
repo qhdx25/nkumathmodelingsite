@@ -1,3 +1,4 @@
+import { imgUrl } from '../assets/resolver'
 // 站点基础数据：导航、简介、动态、入口、页脚
 // 说明：动态条目均来自公开来源（南开新闻网 / 学院公众号），链接可直达原文
 
@@ -20,7 +21,7 @@ export const topLinks = [
   { label: 'English', to: '/en' },
 ]
 
-// 大图底部紫色横条上的栏目（8 个，与官网同构）
+// 大图底部紫色横条上的栏目（7 个，与官网同构）
 export const stripNav = [
   { label: '最新动态', to: '/news' },
   { label: '通知公告', to: '/notice' },
@@ -29,7 +30,6 @@ export const stripNav = [
   { label: '建模资料', to: '/materials' },
   { label: '组织架构', to: '/committee' },
   { label: '组队平台', to: '/team' },
-  { label: '影像数模', to: '/#gallery' },
 ]
 
 // 页脚次级入口：不在主导航里，但内容不能丢
@@ -42,15 +42,15 @@ export const subNav = [
 export const banners = [
   {
     id: 'nku-01',
-    image: '/img/hero/nku-01.jpg',
+    image: imgUrl('/img/hero/nku-01.jpg'),
     credit: '摄影：宗琪琪',
     url: 'https://news.nankai.edu.cn/zhxw/system/2026/11/01/030075089.shtml',
   },
-  { id: 'nku-02', image: '/img/hero/nku-02.jpg', credit: '摄影：周嵩娴', url: '' },
-  { id: 'nku-03', image: '/img/hero/nku-03.jpg', credit: '摄影：郭子昂', url: '' },
-  { id: 'nku-04', image: '/img/hero/nku-04.jpg', credit: '摄影：宗琪琪', url: '' },
-  { id: 'nku-05', image: '/img/hero/nku-05.jpg', credit: '摄影：郭子昂', url: '' },
-  { id: 'nku-06', image: '/img/hero/nku-06.jpg', credit: '南开大学主楼 · 晚霞', url: '' },
+  { id: 'nku-02', image: imgUrl('/img/hero/nku-02.jpg'), credit: '摄影：周嵩娴', url: '' },
+  { id: 'nku-03', image: imgUrl('/img/hero/nku-03.jpg'), credit: '摄影：郭子昂', url: '' },
+  { id: 'nku-04', image: imgUrl('/img/hero/nku-04.jpg'), credit: '摄影：宗琪琪', url: '' },
+  { id: 'nku-05', image: imgUrl('/img/hero/nku-05.jpg'), credit: '摄影：郭子昂', url: '' },
+  { id: 'nku-06', image: imgUrl('/img/hero/nku-06.jpg'), credit: '南开大学主楼 · 晚霞', url: '' },
 ]
 
 export const stats = [
@@ -167,33 +167,33 @@ export const series = [
     tag: '专题',
     title: '天津市五校数学建模联赛',
     note: '五校轮值举办 · 南开承办首届',
-    image: '/img/news/wx-league.jpg',
+    image: imgUrl('/img/news/wx-league.jpg'),
     to: '/news',
   },
   {
     tag: '专题',
     title: '“华为杯”研究生数学建模竞赛',
     note: '研究生组 · 每年 9 月开赛',
-    image: '/img/news/wx-huawei.jpg',
+    image: imgUrl('/img/news/wx-huawei.jpg'),
     to: '/competition',
   },
   {
     tag: '专题',
     title: '全国大学生数学建模竞赛',
     note: '兼校赛 · 国赛代表队选拔',
-    image: '/img/hero/nku-02.jpg',
+    image: imgUrl('/img/hero/nku-02.jpg'),
     to: '/competition',
   },
   {
     tag: '专题',
     title: '校队选拔与梯队训练',
     note: '春季补选 · 教练组带训',
-    image: '/img/hero/nku-05.jpg',
+    image: imgUrl('/img/hero/nku-05.jpg'),
     to: '/training',
   },
 ]
 
-// 栏目总览：与紫色横条上的 8 个栏目一一对应，每个栏目给出更细的落点
+// 栏目总览：与紫色横条上的栏目一一对应，每个栏目给出更细的落点
 export const directory = [
   {
     label: '最新动态',
@@ -236,12 +236,6 @@ export const directory = [
     to: '/team',
     desc: '发布招募、寻找队友与经验交流',
     links: ['发布招募信息', '寻找队友', '赛后经验交流'],
-  },
-  {
-    label: '影像数模',
-    to: '/#gallery',
-    desc: '协会活动照片与现场记录',
-    links: ['招新现场', '培训与模拟赛', '答辩与颁奖'],
   },
 ]
 

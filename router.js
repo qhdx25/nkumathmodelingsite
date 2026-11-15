@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 
 const SITE = '南开大学数学建模协会'
 
@@ -25,7 +25,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // 单文件预览构建（VITE_ROUTER_HISTORY=hash）走 hash 模式，file:// 直开也能跳转
+  history: import.meta.env.VITE_ROUTER_HISTORY === 'hash' ? createWebHashHistory() : createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition

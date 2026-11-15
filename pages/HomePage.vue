@@ -1,4 +1,5 @@
 <script setup>
+import { imgUrl } from '../assets/resolver'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import HeroBanner from '../components/HeroBanner.vue'
@@ -34,13 +35,13 @@ const featured = [
   {
     title: '第一届天津市五校数学建模联赛答辩会议顺利举行',
     date: '2026/10/27',
-    image: '/img/news/wx-league.jpg',
+    image: imgUrl('/img/news/wx-league.jpg'),
     url: 'https://mp.weixin.qq.com/s/QvMJ6zMx8FKFsZCF2uSpGg',
   },
   {
     title: '2026 年“华为杯”研究生数学建模竞赛报名通知',
     date: '2026/06/02',
-    image: '/img/news/wx-huawei.jpg',
+    image: imgUrl('/img/news/wx-huawei.jpg'),
     url: 'https://mp.weixin.qq.com/s/PWx5VBaqAiTaTf3_MALPYw',
   },
 ]
@@ -113,7 +114,7 @@ const sideGroups = {
 const sideList = computed(() => sideGroups[sideTab.value] || [])
 const sideLinks = { contest: '/competition', training: '/training', material: '/materials' }
 
-// 第二组：组织架构 / 组队平台 / 影像数模
+// 第二组：组织架构 / 组队平台
 const side2Groups = {
   committee: [
     { label: '会员代表大会', meta: '最高权力机构' },
@@ -129,15 +130,9 @@ const side2Groups = {
     { label: '往届组队记录', meta: '2024 起' },
     { label: '组队交流群', meta: '飞书群' },
   ],
-  gallery: [
-    { label: '招新现场', meta: '待补充' },
-    { label: '培训与模拟赛', meta: '待补充' },
-    { label: '五校联赛答辩', meta: '待补充' },
-    { label: '颁奖与合影', meta: '待补充' },
-  ],
 }
 const side2List = computed(() => side2Groups[side2Tab.value] || [])
-const side2Links = { committee: '/committee', team: '/team', gallery: '/#gallery' }
+const side2Links = { committee: '/committee', team: '/team' }
 
 // 系列专题：一次显示 3 张，可左右翻 + 圆点
 const SERIES_VISIBLE = 3
@@ -311,7 +306,7 @@ function seriesGo(step) {
     <section class="side-band">
       <div class="container side-inner">
         <figure class="side-figure">
-          <img src="/img/news/wx-league.jpg" alt="五校联赛答辩会现场" />
+          <img :src="imgUrl('/img/news/wx-league.jpg')" alt="五校联赛答辩会现场" />
           <figcaption>第一届天津市五校数学建模联赛答辩会 · 2026.10</figcaption>
         </figure>
 
@@ -335,14 +330,13 @@ function seriesGo(step) {
       </div>
     </section>
 
-    <!-- 第二组：组织架构 / 组队平台 / 影像数模 -->
+    <!-- 第二组：组织架构 / 组队平台 -->
     <section class="side-band side-band-alt">
       <div class="container side-inner">
         <div class="side-panel">
           <div class="side-tabs">
             <button type="button" :class="{ 'is-active': side2Tab === 'committee' }" @click="side2Tab = 'committee'">组织架构</button>
             <button type="button" :class="{ 'is-active': side2Tab === 'team' }" @click="side2Tab = 'team'">组队平台</button>
-            <button type="button" :class="{ 'is-active': side2Tab === 'gallery' }" @click="side2Tab = 'gallery'">影像数模</button>
             <RouterLink class="side-more" :to="side2Links[side2Tab]">更多 &gt;</RouterLink>
           </div>
           <ul class="side-list">
@@ -357,7 +351,7 @@ function seriesGo(step) {
         </div>
 
         <figure class="side-figure">
-          <img src="/img/hero/nku-06.jpg" alt="南开大学主楼" />
+          <img :src="imgUrl('/img/hero/nku-06.jpg')" alt="南开大学主楼" />
           <figcaption>南开大学主楼 · 晚霞</figcaption>
         </figure>
       </div>
@@ -386,19 +380,6 @@ function seriesGo(step) {
             </div>
           </div>
           <p class="data-stamp">数据截至 2026-11 · 由协会秘书处维护</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="gallery-band" id="gallery">
-      <div class="container">
-        <div class="section-head">
-          <h2>影像数模</h2>
-          <span class="head-note">协会活动照片整理中 · 更新至 2026-11</span>
-        </div>
-        <div class="gallery-empty">
-          <p>这里将放协会自己的活动照片</p>
-          <p class="gallery-empty-hint">招新、培训、模拟赛、五校联赛答辩、颁奖现场等，待照片汇总后按时间排列</p>
         </div>
       </div>
     </section>

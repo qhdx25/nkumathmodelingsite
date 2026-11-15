@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { imgUrl } from '../assets/resolver'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { nav, topLinks } from '../data/site'
 import { enHeader } from '../data/en'
@@ -29,6 +30,10 @@ const isActive = (to) => {
   if (to === '/' || to === '/en') return route.path === to
   return route.path.startsWith(to)
 }
+
+// 窄屏折叠菜单：点击展开/收起，路由变化自动收起
+const menuOpen = ref(false)
+watch(() => route.fullPath, () => { menuOpen.value = false })
 </script>
 
 <template>
@@ -46,14 +51,14 @@ const isActive = (to) => {
 
     <div class="container masthead">
       <RouterLink :to="homeTo" class="brand">
-        <img class="brand-mark" src="/img/nku-mark.png" :alt="isEn ? enHeader.alt : '南开大学校徽'" />
+        <img class="brand-mark" :src="imgUrl('/img/nku-mark.png')" :alt="isEn ? enHeader.alt : '南开大学校徽'" />
         <span class="brand-copy">
           <strong>{{ brand }}</strong>
           <em>{{ brandSub }}</em>
         </span>
       </RouterLink>
 
-      <nav class="main-nav" :aria-label="isEn ? 'Main navigation' : '主导航'">
+      <nav class="main-nav" :class="{ 'is-open': menuOpen }" :aria-label="isEn ? 'Main navigation' : '主导航'">
         <RouterLink
           v-for="item in navItems"
           :key="item.label"
@@ -61,6 +66,18 @@ const isActive = (to) => {
           :class="{ 'is-active': isActive(item.to) }"
         >{{ item.label }}</RouterLink>
       </nav>
+
+      <button
+        type="button"
+        class="nav-toggle"
+        :class="{ 'is-open': menuOpen }"
+        :aria-expanded="menuOpen ? 'true' : 'false'"
+        :aria-label="isEn ? 'Menu' : '菜单'"
+        @click="menuOpen = !menuOpen"
+      >
+        <span class="nt-bars" aria-hidden="true"><i></i><i></i></span>
+        <span class="nt-txt">{{ menuOpen ? (isEn ? 'Close' : '收起') : (isEn ? 'Menu' : '菜单') }}</span>
+      </button>
     </div>
   </header>
 </template>
