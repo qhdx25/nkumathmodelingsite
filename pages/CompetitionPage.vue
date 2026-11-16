@@ -391,6 +391,7 @@ onBeforeUnmount(() => {
                 <td class="cell-strong">
                   {{ item.event }}
                   <span class="cell-note">{{ item.note }}</span>
+                  <RouterLink v-if="item.to" class="cell-link" :to="item.to">查看名单 →</RouterLink>
                 </td>
                 <td data-label="时间">{{ item.time }}</td>
                 <td data-label="结果">{{ item.summary }}</td>
