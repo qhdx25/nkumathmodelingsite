@@ -69,13 +69,13 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
             </div>
             <ul class="news-archive comp-archive">
               <li v-for="item in y2026" :key="item.title">
-                <a :href="item.url" target="_blank" rel="noreferrer">
+                <a :href="item.url || undefined" :target="item.url ? '_blank' : undefined" :rel="item.url ? 'noreferrer' : undefined">
                   <span class="thumb"><img :src="imgUrl(item.image)" :alt="item.title" loading="lazy" /></span>
                   <div class="row-body">
                     <time>{{ item.date }}</time>
                     <h3>{{ item.title }}</h3>
                     <p>{{ item.summary }}</p>
-                    <span class="src">{{ item.source }} ↗</span>
+                    <span class="src">{{ item.source }}<template v-if="item.url"> ↗</template></span>
                   </div>
                 </a>
               </li>
@@ -91,13 +91,13 @@ const years = computed(() => new Set(news.map((n) => n.ym.slice(0, 4))).size)
             </div>
             <ul class="news-archive comp-archive">
               <li v-for="item in y2025" :key="item.title">
-                <a :href="item.url" target="_blank" rel="noreferrer">
+                <a :href="item.url || undefined" :target="item.url ? '_blank' : undefined" :rel="item.url ? 'noreferrer' : undefined">
                   <span class="thumb"><img :src="imgUrl(item.image)" :alt="item.title" loading="lazy" /></span>
                   <div class="row-body">
                     <time>{{ item.date }}</time>
                     <h3>{{ item.title }}</h3>
                     <p>{{ item.summary }}</p>
-                    <span class="src">{{ item.source }} ↗</span>
+                    <span class="src">{{ item.source }}<template v-if="item.url"> ↗</template></span>
                   </div>
                 </a>
               </li>

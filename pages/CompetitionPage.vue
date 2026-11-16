@@ -304,6 +304,19 @@ onBeforeUnmount(() => {
           <span class="head-note">更新于 2026.11</span>
         </div>
 
+        <div class="signup-band" id="mcm-signup">
+          <img class="signup-qr" :src="imgUrl('/img/news/mcm-2026.jpg')" alt="2026 美赛报名群二维码" />
+          <div class="signup-body">
+            <p class="signup-kicker">报名中 · MCM / ICM 2027</p>
+            <h3>美国大学生数学建模竞赛：协会统一组织报名</h3>
+            <p class="signup-text">
+              今年美赛协会依旧组织统一报名。报名细则、校内截止时间、组队通知等后续安排都会在群内统一发布；
+              不限基础、不限专业，感兴趣的同学先进群。
+            </p>
+            <p class="signup-note">群二维码面向南开在校生，扫码后按群公告填写组队信息 · 二维码有效期至 2027-11-16</p>
+          </div>
+        </div>
+
         <div
           class="contest-carousel"
           ref="carouselEl"

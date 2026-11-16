@@ -85,6 +85,17 @@ export const intro = [
 export const news = [
   {
     date: '2026.11',
+    ym: '2026-11-16',
+    image: '/img/news/mcm-2026.jpg',
+    title: '2027 年美国大学生数学建模竞赛（美赛）协会统一报名开启',
+    summary:
+      '协会今年依旧组织统一报名：想参加美赛的同学先进群，报名细则、校内截止时间与组队通知都在群内统一发布。不限基础、不限专业。',
+    source: '协会通知',
+    url: '',
+    tag: '美赛',
+  },
+  {
+    date: '2026.11',
     ym: '2026-11-01',
     image: '/img/news/wuxiao.jpg',
     title: '第一届天津市五校数学建模联赛答辩会在南开举行',
