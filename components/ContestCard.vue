@@ -7,6 +7,7 @@ import { imgUrl } from '../assets/resolver'
 const props = defineProps({
   contest: { type: Object, required: true },
 })
+const emit = defineEmits(['signup'])
 
 // 赛事配图映射：优先真实竞赛现场照（五校联赛答辩），其余沿用校园实景
 const IMAGES = {
@@ -21,6 +22,11 @@ const image = IMAGES[props.contest.id] || null
 const imgBroken = ref(false)
 
 function open() {
+  // 有校内报名通道时，点卡片先进报名弹层（选校内二维码 / 官网）
+  if (props.contest.signup) {
+    emit('signup', props.contest)
+    return
+  }
   if (props.contest.officialUrl) window.open(props.contest.officialUrl, '_blank', 'noreferrer')
 }
 
@@ -99,16 +105,14 @@ onMounted(() => {
       </div>
 
       <div class="contest-actions">
-        <a
-          v-if="contest.registerUrl"
+        <button
+          v-if="contest.registerUrl || contest.signup"
+          type="button"
           class="btn btn-sm btn-solid"
-          :href="contest.registerUrl"
-          target="_blank"
-          rel="noreferrer"
-          @click.stop
+          @click.stop="emit('signup', contest)"
         >
           报名入口
-        </a>
+        </button>
         <a
           v-if="contest.officialUrl"
           class="btn btn-sm btn-more"

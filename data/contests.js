@@ -22,6 +22,11 @@ export const contests = [
     officialUrl: 'https://www.contest.comap.com/undergraduate/contests/mcm/instructions.html',
     registerUrl: 'https://www.contest.comap.com/undergraduate/contests/mcm/register.php',
     siteName: 'COMAP 官网',
+    signup: {
+      qr: '/img/news/mcm-2026.jpg',
+      title: '校内统一报名',
+      note: '协会统一组织报名。先进群，报名细则、校内截止时间与组队通知都在群内发布；不限基础、不限专业。二维码有效期至 2027-11-16。',
+    },
   },
   {
     id: 'cumcm-2027',

@@ -104,6 +104,10 @@ const activeSection = ref('calendar')
 // 页头总高（信息条 + 主导航）；锚点滚动与吸顶偏移都以此为准
 const HEAD_OFFSET = 152
 
+// 校内报名弹层：点卡片或「报名入口」都进这里，二选一（群二维码 / 官网）
+const signup = ref(null)
+const openSignup = (c) => { signup.value = c }
+
 function jumpTo(id) {
   const el = document.getElementById(id)
   if (!el) return
@@ -302,19 +306,7 @@ onBeforeUnmount(() => {
         <div class="section-head">
           <h2>竞赛信息发布</h2>
           <span class="head-note">更新于 2026.11</span>
-        </div>
 
-        <div class="signup-band" id="mcm-signup">
-          <img class="signup-qr" :src="imgUrl('/img/news/mcm-2026.jpg')" alt="2026 美赛报名群二维码" />
-          <div class="signup-body">
-            <p class="signup-kicker">报名中 · MCM / ICM 2027</p>
-            <h3>美国大学生数学建模竞赛：协会统一组织报名</h3>
-            <p class="signup-text">
-              今年美赛协会依旧组织统一报名。报名细则、校内截止时间、组队通知等后续安排都会在群内统一发布；
-              不限基础、不限专业，感兴趣的同学先进群。
-            </p>
-            <p class="signup-note">群二维码面向南开在校生，扫码后按群公告填写组队信息 · 二维码有效期至 2027-11-16</p>
-          </div>
         </div>
 
         <div
@@ -335,7 +327,7 @@ onBeforeUnmount(() => {
               class="car-cell"
               :class="cellClass(i)"
             >
-              <ContestCard :contest="item" />
+              <ContestCard :contest="item" @signup="openSignup" />
             </div>
           </div>
           <div class="carousel-nav">
@@ -479,6 +471,29 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </section>
+      </div>
+    </div>
+
+    <div v-if="signup" class="signup-modal" @click.self="signup = null">
+      <div class="signup-dialog" role="dialog" aria-modal="true" :aria-label="signup.name + ' 报名方式'">
+        <button type="button" class="signup-close" aria-label="关闭" @click="signup = null">×</button>
+        <p class="signup-kicker">{{ signup.abbr }} · 报名中</p>
+        <h3 class="signup-title">{{ signup.name }}</h3>
+        <div class="signup-grid">
+          <figure class="signup-figure">
+            <img :src="imgUrl(signup.signup.qr)" :alt="signup.name + ' 校内报名群二维码'" />
+            <figcaption>校内统一报名群</figcaption>
+          </figure>
+          <div class="signup-info">
+            <p class="signup-strong">推荐：校内统一报名</p>
+            <p class="signup-text">{{ signup.signup.note }}</p>
+            <div class="signup-actions">
+              <a v-if="signup.registerUrl" class="btn btn-sm btn-solid" :href="signup.registerUrl" target="_blank" rel="noreferrer">去官网自行报名 ↗</a>
+              <a v-if="signup.officialUrl" class="btn btn-sm btn-more" :href="signup.officialUrl" target="_blank" rel="noreferrer">赛事规则 ↗</a>
+            </div>
+            <p class="signup-note">报名截止 {{ signup.registerBy }} · 比赛时间 {{ signup.window }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </main>
