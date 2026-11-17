@@ -1,92 +1,22 @@
 <script setup>
-import PlaceholderBlock from '../components/PlaceholderBlock.vue'
-import { notices, owner, resources, tracks } from '../data/training'
+import { computed, ref } from 'vue'
+import { notices, resources, tracks } from '../data/training'
+const years = ['2026', '2025']
+const activeYear = ref(years[0])
+const visibleNotices = computed(() => notices.length ? notices : [{ title: '培训通知整理中', date: '', desc: '校队选拔、培训安排及模拟竞赛通知待更新。', feishuUrl: '#' }])
 </script>
-
 <template>
-  <main class="page">
-    <section class="page-head">
-      <div class="container">
-        <h1>系统训练，备战竞赛</h1>
-        <p class="page-lead">
-          从入门到上场：培训资料、训练体系与代表队培训通知集中在这里。
-        </p>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <p class="owner-note">
-          <span class="owner-tag">待建设</span>
-          {{ owner.note }}{{ owner.contact }}
-        </p>
-
-        <div class="section-head">
-          <h2>培训资料</h2>
-          <span class="head-note">外部链接汇总</span>
-        </div>
-
-        <ul class="link-list">
-          <li v-for="item in resources" :key="item.label">
-            <a v-if="item.href" :href="item.href" target="_blank" rel="noreferrer">
-              <span class="link-title">{{ item.label }}</span>
-              <span class="link-note">{{ item.desc }}</span>
-              <span class="link-open" aria-hidden="true">↗</span>
-            </a>
-            <div v-else class="link-row is-pending">
-              <span class="link-title">{{ item.label }}</span>
-              <span class="link-note">{{ item.desc }}</span>
-              <span class="link-open">待补充</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <h2>训练体系</h2>
-          <span class="head-note">四个阶段，从零到上场</span>
-        </div>
-
-        <div class="track-grid">
-          <article v-for="t in tracks" :key="t.title" class="track-card">
-            <h3>{{ t.title }}</h3>
-            <p class="track-desc">{{ t.desc }}</p>
-            <ul>
-              <li v-for="item in t.items" :key="item">{{ item }}</li>
-            </ul>
-          </article>
-        </div>
-
-        <p class="section-foot">各阶段的具体讲义、作业与录屏由对应专题负责人补充。</p>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <h2>代表队培训通知</h2>
-          <span class="head-note">{{ notices.length ? `共 ${notices.length} 条` : '暂无通知' }}</span>
-        </div>
-
-        <ul v-if="notices.length" class="notice-plain">
-          <li v-for="n in notices" :key="n.title">
-            <time>{{ n.date }}</time>
-            <span>{{ n.title }}</span>
-          </li>
-        </ul>
-
-        <PlaceholderBlock
-          v-else
-          title="培训通知位"
-          desc="按时间倒序列出代表队培训的时间、地点、主讲与参训对象，支持跳转原文。"
-          requirement="负责人提供通知条目（日期 / 标题 / 链接）后填入 data/training.js 的 notices 数组即可。"
-          ratio="auto"
-          compact
-        />
-      </div>
-    </section>
+  <main class="page training-page">
+    <section class="page-head"><div class="container"><h1>校队培训</h1><p class="page-lead">从基础入门到赛前冲刺，逐步提升数学建模、算法实现与论文写作能力。</p></div></section>
+    <section class="section training-reveal"><div class="container"><div class="section-head"><h2>培训体系</h2><span class="head-note">四个阶段，从零到上场</span></div><ol class="training-stages"><li v-for="(track,index) in tracks" :key="track.title" class="training-track" :style="{ '--delay': `${index * 70}ms` }"><span class="training-index">0{{ index + 1 }}</span><div><h3>{{ track.title }}</h3><p>{{ track.desc }}</p><ul><li v-for="item in track.items" :key="item"><a href="#" target="_blank" rel="noopener noreferrer">{{ item }}</a></li></ul></div></li></ol></div></section>
+    <section class="section training-reveal"><div class="container"><div class="section-head"><h2>历年培训资料</h2></div><div class="training-tabs"><button v-for="year in years" :key="year" type="button" class="chip" :class="{ 'is-active': year === activeYear }" @click="activeYear = year">{{ year }} 年</button></div><ul class="link-list"><li v-for="item in resources" :key="item.label" class="link-row"><div><span class="link-title">{{ item.label }}</span><p class="link-note">{{ item.desc }}</p></div><a v-if="item.href" :href="item.href" target="_blank" rel="noopener noreferrer" class="text-link">查看飞书文档 ↗</a><span v-else class="head-note">链接待补充</span></li></ul><p class="section-foot">{{ activeYear }} 年资料将按培训主题、主讲人和日期持续补充。</p></div></section>
+    <section class="section training-reveal"><div class="container"><div class="section-head"><h2>校队选拔及培训通知</h2><span class="head-note">{{ notices.length ? `共 ${notices.length} 条` : '待更新' }}</span></div><ul class="link-list"><li v-for="item in visibleNotices" :key="item.title" class="link-row"><div><span class="link-title">{{ item.title }}</span><p class="link-note">{{ item.desc }}</p></div><span class="head-note">{{ item.date || '发布日期待更新' }}</span></li></ul></div></section>
   </main>
 </template>
+<style scoped>
+.training-stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}.training-stages>li{display:flex;gap:14px;padding:16px 18px 18px 0;border-bottom:1px solid var(--line-soft);animation:training-rise .45s both;animation-delay:var(--delay)}.training-index{color:var(--accent);font:12px/1.5 monospace}.training-stages h3{font-size:15px}.training-stages p,.training-stages ul,.link-note{color:var(--muted);font-size:13px;line-height:1.75}.training-stages ul{margin-top:6px}.training-tabs{display:flex;gap:20px;margin-bottom:12px}.link-row{justify-content:space-between}.link-row>div{min-width:0}.link-row>a{padding:0;font-size:13px}.training-reveal{animation:training-rise .45s both}.training-reveal:nth-of-type(3){animation-delay:80ms}.training-reveal:nth-of-type(4){animation-delay:160ms}@keyframes training-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}@media(max-width:760px){.training-stages{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.training-stages{grid-template-columns:1fr}.link-row{align-items:flex-start;flex-direction:column;gap:6px}}@media(prefers-reduced-motion:reduce){.training-stages,.training-reveal{animation:none}}
+</style>
+
+<style scoped> .training-track{transition:transform 220ms ease,box-shadow 220ms ease,border-color 220ms ease;border:1px solid rgba(113,10,83,.16);border-radius:8px;padding:24px;background:rgba(229,211,235,.34);box-shadow:0 10px 26px rgba(40,36,42,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.training-track:hover{transform:scale(1.09);box-shadow:0 20px 46px rgba(113,10,83,.34),0 0 0 1px rgba(113,10,83,.1);border-color:var(--accent)}.training-track a{color:var(--muted);text-decoration:none}.training-track a:hover{color:var(--accent);text-decoration:underline}@media(prefers-reduced-motion:reduce){.training-track{transition:none}.training-track:hover{transform:none;box-shadow:none}} </style>
+
+<style scoped>.training-page>.page-head h1{font-size:clamp(38px,6vw,56px)}.training-page .section-head h2{font-size:clamp(25px,3.6vw,36px)}.training-stages{gap:30px}.training-track{box-shadow:0 14px 34px rgba(40,36,42,.12)}.training-track:hover{box-shadow:0 24px 54px rgba(113,10,83,.4),0 0 0 1px rgba(113,10,83,.14)}</style>

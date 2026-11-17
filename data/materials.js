@@ -53,7 +53,7 @@ export const groups = [
     kicker: '编程',
     title: 'MATLAB 入门资料',
     desc: '零基础入门、常用工具箱与建模常用函数。',
-    items: [],
+    items: [{ label: '下载 MATLAB', note: '南开大学正版软件平台', href: 'https://ca.nankai.edu.cn/index.html#' }],
     placeholder:
       '待补充：MATLAB 安装与校园授权说明、基础语法速成、优化工具箱（linprog / fmincon）、曲线拟合与插值、绘图与论文配图。',
   },
