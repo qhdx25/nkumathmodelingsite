@@ -1,22 +1,28 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { notices, resources, tracks } from '../data/training'
-const years = ['2026', '2025']
-const activeYear = ref(years[0])
-const visibleNotices = computed(() => notices.length ? notices : [{ title: '培训通知整理中', date: '', desc: '校队选拔、培训安排及模拟竞赛通知待更新。', feishuUrl: '#' }])
+import HeroSlider from '../components/HeroSlider.vue'
+import { lessonLinks, notices } from '../data/training'
+const years=['2026','2025']
+const yearLessons = (year) => lessonLinks.map((lesson, index) => ({ ...lesson, href: year === '2026' && index === 0 ? 'https://nankai.feishu.cn/wiki/Ko5ewYHiNiS95qkGtiJcoifvnbc' : year === '2026' && index === 1 ? 'https://nankai.feishu.cn/wiki/Ko5ewYHiNiS95qkGtiJcoifvnbc#share-VMpgddV9CoJr0Nx6By9cBorXngk' : lesson.href }))
+const heroItems=Array.from({length:6},(_,i)=>({id:`hero-${i}`,image:`/img/hero/nku-0${i+1}.jpg`,title:'南开大学数学建模协会',url:'#'}))
 </script>
-<template>
-  <main class="page training-page">
-    <section class="page-head"><div class="container"><h1>校队培训</h1><p class="page-lead">从基础入门到赛前冲刺，逐步提升数学建模、算法实现与论文写作能力。</p></div></section>
-    <section class="section training-reveal"><div class="container"><div class="section-head"><h2>培训体系</h2><span class="head-note">四个阶段，从零到上场</span></div><ol class="training-stages"><li v-for="(track,index) in tracks" :key="track.title" class="training-track" :style="{ '--delay': `${index * 70}ms` }"><span class="training-index">0{{ index + 1 }}</span><div><h3>{{ track.title }}</h3><p>{{ track.desc }}</p><ul><li v-for="item in track.items" :key="item"><a href="#" target="_blank" rel="noopener noreferrer">{{ item }}</a></li></ul></div></li></ol></div></section>
-    <section class="section training-reveal"><div class="container"><div class="section-head"><h2>历年培训资料</h2></div><div class="training-tabs"><button v-for="year in years" :key="year" type="button" class="chip" :class="{ 'is-active': year === activeYear }" @click="activeYear = year">{{ year }} 年</button></div><ul class="link-list"><li v-for="item in resources" :key="item.label" class="link-row"><div><span class="link-title">{{ item.label }}</span><p class="link-note">{{ item.desc }}</p></div><a v-if="item.href" :href="item.href" target="_blank" rel="noopener noreferrer" class="text-link">查看飞书文档 ↗</a><span v-else class="head-note">链接待补充</span></li></ul><p class="section-foot">{{ activeYear }} 年资料将按培训主题、主讲人和日期持续补充。</p></div></section>
-    <section class="section training-reveal"><div class="container"><div class="section-head"><h2>校队选拔及培训通知</h2><span class="head-note">{{ notices.length ? `共 ${notices.length} 条` : '待更新' }}</span></div><ul class="link-list"><li v-for="item in visibleNotices" :key="item.title" class="link-row"><div><span class="link-title">{{ item.title }}</span><p class="link-note">{{ item.desc }}</p></div><span class="head-note">{{ item.date || '发布日期待更新' }}</span></li></ul></div></section>
-  </main>
-</template>
+<template><main class="page training-page"><HeroSlider :items="heroItems"/><section class="page-head"><div class="container"><h1>校队培训</h1></div></section><section class="section"><div class="container"><div class="section-head"><h2>校队选拔及培训通知</h2></div><ul class="link-list"><li v-for="n in notices" :key="n.title" class="link-row"><span class="link-title">{{n.title}}</span><a class="text-link" :href="n.href" target="_blank" rel="noopener noreferrer">打开 ↗</a></li></ul></div></section><section class="section"><div class="container"><div class="section-head"><h2>历年培训资料</h2></div><div class="year-directories"><details v-for="year in years" :key="year" class="year-directory"><summary>{{year}} 年 <small>展开 / 收起</small></summary><div class="year-directory-body"><div class="lesson-list"><a v-for="lesson in yearLessons(year)" :key="`${year}-${lesson.title}`" class="lesson-row-link" :href="lesson.href" target="_blank" rel="noopener noreferrer"><span>{{lesson.title}}</span><span>{{lesson.href === '#' ? '链接待补充' : '查看资料 ↗'}}</span></a></div></div></details></div></div></section></main></template>
+<style scoped>.year-directories{display:grid;gap:18px}.year-directory{border-top:1px solid var(--line);border-bottom:1px solid var(--line-soft)}.year-directory summary{padding:16px 0;cursor:pointer;font-size:22px;font-weight:600;list-style:none}.year-directory summary::-webkit-details-marker{display:none}.year-directory summary:before{content:'›';display:inline-block;margin-right:8px;color:var(--accent);transition:transform 280ms ease}.year-directory[open] summary:before{transform:rotate(90deg)}.year-directory summary small{margin-left:8px;color:var(--faint);font-size:12px;font-weight:400}.year-directory-body{display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows 420ms cubic-bezier(.22,.61,.36,1)}.year-directory[open] .year-directory-body{grid-template-rows:1fr}.year-directory-body>div{min-height:0}.lesson-list{padding:0 0 16px 28px}.lesson-list p{margin:8px 0}.lesson-list a{color:var(--accent)}@media(prefers-reduced-motion:reduce){.year-directory summary:before{transition:none}.year-directory-body{transition:none}}</style>
 <style scoped>
-.training-stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}.training-stages>li{display:flex;gap:14px;padding:16px 18px 18px 0;border-bottom:1px solid var(--line-soft);animation:training-rise .45s both;animation-delay:var(--delay)}.training-index{color:var(--accent);font:12px/1.5 monospace}.training-stages h3{font-size:15px}.training-stages p,.training-stages ul,.link-note{color:var(--muted);font-size:13px;line-height:1.75}.training-stages ul{margin-top:6px}.training-tabs{display:flex;gap:20px;margin-bottom:12px}.link-row{justify-content:space-between}.link-row>div{min-width:0}.link-row>a{padding:0;font-size:13px}.training-reveal{animation:training-rise .45s both}.training-reveal:nth-of-type(3){animation-delay:80ms}.training-reveal:nth-of-type(4){animation-delay:160ms}@keyframes training-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}@media(max-width:760px){.training-stages{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.training-stages{grid-template-columns:1fr}.link-row{align-items:flex-start;flex-direction:column;gap:6px}}@media(prefers-reduced-motion:reduce){.training-stages,.training-reveal{animation:none}}
+.year-directory summary { transition: transform 220ms ease, box-shadow 220ms ease, color 220ms ease; }
+.year-directory summary:hover { transform: scale(1.025); box-shadow: 0 10px 26px rgba(113, 10, 83, 0.16); color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .year-directory summary { transition: none; } }
+</style>
+<style scoped>
+.lesson-list p { margin:8px 0; }
+.lesson-list p:hover { transform: scale(1.025); box-shadow: 0 10px 26px rgba(113, 10, 83, 0.16); color: var(--accent); }
+.lesson-list p:hover a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .lesson-list p { margin:8px 0; } }
+</style>
+<style scoped>
+.lesson-list p { margin:8px 0; }
+.lesson-list p:hover { transform:scale(1.02); }
+.lesson-list p a { position:relative; z-index:1; padding:14px 0; }
+.lesson-list p span { padding:14px 0; }
 </style>
 
-<style scoped> .training-track{transition:transform 220ms ease,box-shadow 220ms ease,border-color 220ms ease;border:1px solid rgba(113,10,83,.16);border-radius:8px;padding:24px;background:rgba(229,211,235,.34);box-shadow:0 10px 26px rgba(40,36,42,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.training-track:hover{transform:scale(1.09);box-shadow:0 20px 46px rgba(113,10,83,.34),0 0 0 1px rgba(113,10,83,.1);border-color:var(--accent)}.training-track a{color:var(--muted);text-decoration:none}.training-track a:hover{color:var(--accent);text-decoration:underline}@media(prefers-reduced-motion:reduce){.training-track{transition:none}.training-track:hover{transform:none;box-shadow:none}} </style>
-
-<style scoped>.training-page>.page-head h1{font-size:clamp(38px,6vw,56px)}.training-page .section-head h2{font-size:clamp(25px,3.6vw,36px)}.training-stages{gap:30px}.training-track{box-shadow:0 14px 34px rgba(40,36,42,.12)}.training-track:hover{box-shadow:0 24px 54px rgba(113,10,83,.4),0 0 0 1px rgba(113,10,83,.14)}</style>
+<style scoped>.lesson-row-link{display:flex;width:100%;box-sizing:border-box;align-items:center;justify-content:space-between;gap:16px;padding:8px 14px;color:var(--text);text-decoration:none;transition:transform 220ms ease,box-shadow 220ms ease,color 220ms ease}.lesson-row-link:hover{transform:scale(1.02);box-shadow:0 10px 26px rgba(113,10,83,.16);color:var(--accent)}.lesson-row-link span:last-child{color:var(--accent)}@media(prefers-reduced-motion:reduce){.lesson-row-link{transition:none}}</style>

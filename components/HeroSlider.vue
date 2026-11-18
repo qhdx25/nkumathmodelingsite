@@ -52,11 +52,12 @@ onBeforeUnmount(stop)
         @focusout="paused = false"
       >
         <div class="banner-viewport">
-          <div class="banner-track" :style="{ transform: `translateX(-${index * 100}%)` }">
+          <div class="banner-track">
             <a
               v-for="(item, i) in items"
               :key="item.id"
               class="banner-slide"
+              :class="{ 'is-active': i === index }"
               :href="item.url"
               target="_blank"
               rel="noreferrer"
@@ -71,11 +72,6 @@ onBeforeUnmount(stop)
                 </div>
               </div>
 
-              <div class="banner-caption">
-                <span class="banner-tag">{{ item.tag }}</span>
-                <span class="banner-title">{{ item.title }}</span>
-                <span class="banner-arrow" aria-hidden="true">›</span>
-              </div>
             </a>
           </div>
         </div>

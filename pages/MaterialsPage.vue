@@ -1,10 +1,13 @@
 <script setup>
 import PaperLibrary from '../components/PaperLibrary.vue'
 import { feishu, groups } from '../data/materials'
+import HeroSlider from '../components/HeroSlider.vue'
+const heroItems = Array.from({ length: 6 }, (_, index) => ({ id: `hero-${index + 1}`, image: `/img/hero/nku-0${index + 1}.jpg`, title: '南开大学数学建模协会', tag: '校园风景', url: '#' }))
 </script>
 
 <template>
   <main class="page">
+    <HeroSlider :items="heroItems" />
     <section class="page-head">
       <div class="container">
         <h1 class="materials-page-title">建模资料</h1>
@@ -34,10 +37,6 @@ import { feishu, groups } from '../data/materials'
 
     <details v-for="g in groups" :id="g.id" :key="g.id" class="section material-section material-details"><summary class="section-head"><h2>{{ g.title }}</h2><span class="material-toggle"><span>展开 / 收起</span></span></summary><div class="material-details-body"><div class="container">
       <div class="container">
-        <div class="section-head">
-          <h2>{{ g.title }}</h2>
-          <span v-if="g.placeholder" class="head-note">整理中</span>
-        </div>
 
         <p class="section-intro">{{ g.desc }}</p>
 
