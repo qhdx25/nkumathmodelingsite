@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { Search } from '@element-plus/icons-vue'
 import { applicationApi, recruitmentApi, teamApi } from '@/api'
 import type { RecruitmentOut, TeamDetail } from '@/types'

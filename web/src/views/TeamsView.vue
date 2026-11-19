@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { teamApi } from '@/api'
 import type { TeamOut } from '@/types'
 import { formatDate, label } from '@/utils/format'

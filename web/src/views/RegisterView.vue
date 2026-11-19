@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, type FormRules } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
+import type { FormRules } from 'element-plus'
 import { authApi } from '@/api'
 
 const router = useRouter()

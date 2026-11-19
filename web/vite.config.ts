@@ -26,4 +26,27 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // 按依赖域拆包；ECharts 按需加载后为约 520 kB，单独缓存。
+    chunkSizeWarningLimit: 550,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender')) {
+            return 'echarts'
+          }
+          if (id.includes('node_modules/element-plus')) {
+            return 'element-plus'
+          }
+          if (
+            id.includes('node_modules/vue') ||
+            id.includes('node_modules/pinia') ||
+            id.includes('node_modules/vue-router')
+          ) {
+            return 'vue-vendor'
+          }
+        },
+      },
+    },
+  },
 })

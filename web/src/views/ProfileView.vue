@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
+import echarts from '@/utils/echarts'
 import { capabilityApi, profileApi } from '@/api'
 import type { Capability, ProfileOut, ProfileUpdate } from '@/types'
 import { categoryLabels } from '@/utils/format'
@@ -9,7 +9,7 @@ import { categoryLabels } from '@/utils/format'
 const profile = ref<ProfileOut | null>(null)
 const capabilities = ref<Capability[]>([])
 const chartEl = ref<HTMLElement | null>(null)
-let chart: echarts.ECharts | null = null
+let chart: ReturnType<typeof echarts.init> | null = null
 
 // 编辑弹窗的表单数据
 const dialogVisible = ref(false)
@@ -103,9 +103,19 @@ function addExperience(key: 'projects' | 'competitions') {
   draft.value[key]?.push({ title: '', role: '' })
 }
 
-onMounted(load)
-// 窗口尺寸变化时重绘，避免图表变形
-window.addEventListener('resize', () => chart?.resize())
+function resizeChart() {
+  chart?.resize()
+}
+
+onMounted(() => {
+  load()
+  window.addEventListener('resize', resizeChart)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+  chart?.dispose()
+  chart = null
+})
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { messageApi, teamApi } from '@/api'
 import { getToken } from '@/api'
 import type { MessageOut, TeamOut } from '@/types'
@@ -32,14 +32,16 @@ async function loadHistory() {
 }
 
 function connect() {
-  if (teamId.value === null || !getToken()) return
+  const token = getToken()
+  if (teamId.value === null || !token) return
   socket.value?.close()
 
   // WebSocket 无法通过 JS 设置自定义 Authorization 头，因此按后端设计用查询参数传 token
   const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
   // 开发时 Vite 把 /ws 代理到 FastAPI；生产需把 host 换成后端域名
-  const url = `${protocol}://${location.host}/ws/teams/${teamId.value}?token=${encodeURIComponent(getToken() || '')}`
-  const ws = new WebSocket(url)
+  const url = `${protocol}://${location.host}/ws/teams/${teamId.value}`
+  // token 放入 WebSocket 子协议，不放进 URL，避免被代理访问日志记录。
+  const ws = new WebSocket(url, ['bearer', token])
   socket.value = ws
 
   ws.onopen = () => { connected.value = true }

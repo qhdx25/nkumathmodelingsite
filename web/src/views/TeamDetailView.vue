@@ -1,22 +1,34 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
+import echarts from '@/utils/echarts'
 import {
   recommendationApi, recruitmentApi, teamApi,
 } from '@/api'
 import type { RecommendationItem, TeamDetail, TeamProfileOut } from '@/types'
 import { formatDate, label } from '@/utils/format'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
+const store = useUserStore()
 const teamId = Number(route.params.id)
 const team = ref<TeamDetail | null>(null)
 const profile = ref<TeamProfileOut | null>(null)
 const candidates = ref<RecommendationItem[]>([])
 const chartEl = ref<HTMLElement | null>(null)
-let chart: echarts.ECharts | null = null
+let chart: ReturnType<typeof echarts.init> | null = null
+const isLeader = computed(
+  () =>
+    team.value?.members.some(
+      (member) =>
+        member.user_id === store.user?.id && member.role === 'leader',
+    ) ?? false,
+)
+const isFull = computed(
+  () => !!team.value && team.value.member_count >= team.value.max_size,
+)
 
 const publishVisible = ref(false)
 const publishForm = ref({
@@ -29,10 +41,10 @@ async function load() {
   profile.value = await teamApi.profile(teamId)
   await nextTick()
   renderChart()
-  try {
+  if (isLeader.value && !isFull.value) {
     candidates.value = await recommendationApi.members(teamId, 5)
-  } catch {
-    // 非队长访问时后端返回 403，忽略即可
+  } else {
+    candidates.value = []
   }
 }
 
@@ -42,6 +54,7 @@ function renderChart() {
   const names = Object.keys(profile.value.coverage)
   const values = Object.values(profile.value.coverage).map((c) => c.avg_level)
   chart.setOption({
+    animation: false,
     tooltip: {},
     xAxis: { type: 'category', data: names, axisLabel: { interval: 0, rotate: 20 } },
     yAxis: { type: 'value', min: 0, max: 5 },
@@ -51,6 +64,16 @@ function renderChart() {
       markLine: { data: [{ yAxis: 3, name: '薄弱线' }], lineStyle: { color: '#f59e0b' } },
     }],
   }, true)
+  chart.resize()
+}
+
+function openPublish() {
+  if (!team.value) return
+  publishForm.value.target_size = Math.min(
+    team.value.max_size,
+    team.value.member_count + 1,
+  )
+  publishVisible.value = true
 }
 
 async function addMember(userId: number) {
@@ -76,8 +99,19 @@ async function publish() {
   } catch { /* 拦截器处理 */ }
 }
 
-onMounted(load)
-window.addEventListener('resize', () => chart?.resize())
+function resizeChart() {
+  chart?.resize()
+}
+
+onMounted(() => {
+  load()
+  window.addEventListener('resize', resizeChart)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+  chart?.dispose()
+  chart = null
+})
 </script>
 
 <template>
@@ -90,7 +124,14 @@ window.addEventListener('resize', () => chart?.resize())
       </div>
       <div>
         <el-tag type="info">{{ label(team?.status || '') }}</el-tag>
-        <el-button type="primary" class="mt-8" @click="publishVisible = true">发布招募</el-button>
+        <el-button
+          v-if="isLeader && !isFull"
+          type="primary"
+          class="mt-8"
+          @click="openPublish"
+        >
+          发布招募
+        </el-button>
       </div>
     </div>
 
@@ -120,16 +161,25 @@ window.addEventListener('resize', () => chart?.resize())
         <template #header>团队能力分布</template>
         <div ref="chartEl" class="chart-box" />
         <div class="mt-8">
-          <span class="muted">能力短板：</span>
+          <span class="muted">能力缺口：</span>
           <el-tag v-for="g in profile?.gaps || []" :key="g" type="danger" size="small" effect="plain" class="tag">
             {{ g }}
           </el-tag>
-          <span v-if="!profile?.gaps?.length" class="muted">无明显短板</span>
+          <span class="muted ml-8">能力偏弱：</span>
+          <el-tag v-for="g in profile?.weak || []" :key="`weak-${g}`" type="warning" size="small" effect="plain" class="tag">
+            {{ g }}
+          </el-tag>
+          <span
+            v-if="!profile?.gaps?.length && !profile?.weak?.length"
+            class="muted"
+          >
+            暂无明显能力缺口
+          </span>
         </div>
       </el-card>
     </div>
 
-    <el-card class="mt-16">
+    <el-card v-if="isLeader" class="mt-16">
       <template #header>推荐候选人（按团队短板匹配）</template>
       <el-table :data="candidates" size="small">
         <el-table-column prop="title" label="候选人" />
@@ -143,7 +193,15 @@ window.addEventListener('resize', () => chart?.resize())
         </el-table-column>
         <el-table-column label="操作" width="100">
           <template #default="{ row }">
-            <el-button link type="primary" @click="addMember(row.target_id)">添加</el-button>
+            <el-button
+              v-if="!isFull"
+              link
+              type="primary"
+              @click="addMember(row.target_id)"
+            >
+              添加
+            </el-button>
+            <span v-else class="muted">已满员</span>
           </template>
         </el-table-column>
       </el-table>
@@ -154,7 +212,13 @@ window.addEventListener('resize', () => chart?.resize())
       <el-form :model="publishForm" label-position="top">
         <el-form-item label="标题"><el-input v-model="publishForm.title" /></el-form-item>
         <el-form-item label="竞赛方向"><el-input v-model="publishForm.competition_track" /></el-form-item>
-        <el-form-item label="目标人数"><el-input-number v-model="publishForm.target_size" :min="1" :max="6" /></el-form-item>
+        <el-form-item label="目标团队总人数">
+          <el-input-number
+            v-model="publishForm.target_size"
+            :min="(team?.member_count || 0) + 1"
+            :max="team?.max_size || 3"
+          />
+        </el-form-item>
         <el-form-item label="所需角色"><el-select v-model="publishForm.required_roles" multiple style="width:100%">
           <el-option label="writer 论文" value="writer" />
           <el-option label="analyst 数据分析" value="analyst" />
@@ -177,4 +241,5 @@ window.addEventListener('resize', () => chart?.resize())
 <style scoped>
 .row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; }
 .tag { margin: 2px 4px 2px 0; }
+.ml-8 { margin-left: 8px; }
 </style>

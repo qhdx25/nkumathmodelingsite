@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { recommendationApi, teamApi } from '@/api'
-import type { RecommendationItem, RecommendationOut, TeamOut } from '@/types'
+import type {
+  RecommendationItem,
+  RecommendationOut,
+  TeamDetail,
+  TeamOut,
+} from '@/types'
 import { formatDate } from '@/utils/format'
+import { useUserStore } from '@/stores/user'
 
+const store = useUserStore()
 const items = ref<RecommendationItem[]>([])
 const history = ref<RecommendationOut[]>([])
 const myTeams = ref<TeamOut[]>([])
@@ -49,7 +56,19 @@ function applyTarget(item: RecommendationItem) {
 }
 
 onMounted(async () => {
-  myTeams.value = await teamApi.mine()
+  const mine = await teamApi.mine()
+  const details = await Promise.all(mine.map((team) => teamApi.detail(team.id)))
+  myTeams.value = mine.filter((team) =>
+    details.some(
+      (detail: TeamDetail) =>
+        detail.id === team.id &&
+        detail.members.some(
+          (member) =>
+            member.user_id === store.user?.id &&
+            member.role === 'leader',
+        ),
+    ),
+  )
   if (myTeams.value.length) teamId.value = myTeams.value[0].id
   await load()
 })

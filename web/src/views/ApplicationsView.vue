@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { applicationApi, teamApi } from '@/api'
 import type { ApplicationOut, ApplicationWithApplicant, TeamOut } from '@/types'
 import { formatDate, label } from '@/utils/format'

@@ -1,0 +1,401 @@
+"""针对审查报告问题的回归测试。"""
+
+import pytest
+from pydantic import ValidationError
+from sqlalchemy import select
+from starlette.websockets import WebSocketDisconnect
+
+from app.core.config import Settings
+from app.core.security import hash_password
+from app.models.user import User, UserRole, UserStatus
+from tests.conftest import login
+
+
+def _register_and_login(client, username: str, school: str) -> tuple[dict, dict]:
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "username": username,
+            "email": f"{username}@example.com",
+            "password": "secret123",
+            "school": school,
+        },
+    )
+    assert response.status_code == 201, response.text
+    token = login(client, username, "secret123")
+    return response.json(), {"Authorization": f"Bearer {token}"}
+
+
+def _create_team(
+    client,
+    headers: dict,
+    name: str,
+    *,
+    school_track: str = "math_modeling",
+    max_size: int = 3,
+) -> dict:
+    response = client.post(
+        "/api/v1/teams",
+        json={
+            "name": name,
+            "competition_track": school_track,
+            "max_size": max_size,
+        },
+        headers=headers,
+    )
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+def _publish(
+    client,
+    headers: dict,
+    team_id: int,
+    *,
+    title: str,
+    target_size: int,
+    track: str = "math_modeling",
+    skills: list[str] | None = None,
+):
+    return client.post(
+        f"/api/v1/recruitments/teams/{team_id}",
+        json={
+            "title": title,
+            "competition_track": track,
+            "target_size": target_size,
+            "required_roles": [],
+            "required_skills": skills or [],
+        },
+        headers=headers,
+    )
+
+
+def test_home_cards_apply_filters_and_capacity_rules(client, db):
+    leader, leader_headers = _register_and_login(
+        client, "filter_leader", "清华大学"
+    )
+    applicant, applicant_headers = _register_and_login(
+        client, "filter_applicant", "北京大学"
+    )
+    team = _create_team(
+        client,
+        leader_headers,
+        "筛选容量测试队",
+        school_track="filter_track",
+        max_size=3,
+    )
+
+    too_large = _publish(
+        client,
+        leader_headers,
+        team["id"],
+        title="超出团队容量",
+        target_size=4,
+        track="filter_track",
+    )
+    assert too_large.status_code == 400
+
+    no_growth = _publish(
+        client,
+        leader_headers,
+        team["id"],
+        title="没有新增名额",
+        target_size=1,
+        track="filter_track",
+    )
+    assert no_growth.status_code == 400
+
+    created = _publish(
+        client,
+        leader_headers,
+        team["id"],
+        title="筛选专用招募",
+        target_size=3,
+        track="filter_track",
+        skills=["筛选专用技能"],
+    )
+    assert created.status_code == 201, created.text
+
+    filtered = client.get(
+        "/api/v1/recruitments/cards",
+        params={"track": "filter_track", "skill": "筛选专用技能"},
+    )
+    assert filtered.status_code == 200
+    assert filtered.json()["total"] == 1
+    assert filtered.json()["items"][0]["id"] == created.json()["id"]
+
+    empty = client.get(
+        "/api/v1/recruitments/cards",
+        params={"track": "filter_track", "skill": "不存在的技能"},
+    )
+    assert empty.status_code == 200
+    assert empty.json()["total"] == 0
+
+    # 普通用户不能查看无关画像；申请后，队长应能查看申请者画像。
+    assert client.get(f"/api/v1/profile/users/{leader['id']}").status_code == 401
+    assert (
+        client.get(
+            f"/api/v1/profile/users/{applicant['id']}",
+            headers=leader_headers,
+        ).status_code
+        == 403
+    )
+    applied = client.post(
+        f"/api/v1/applications/recruitments/{created.json()['id']}",
+        json={"message": "申请加入"},
+        headers=applicant_headers,
+    )
+    assert applied.status_code == 201, applied.text
+    assert (
+        client.get(
+            f"/api/v1/profile/users/{applicant['id']}",
+            headers=leader_headers,
+        ).status_code
+        == 200
+    )
+
+    # 成员变化后，目标人数低于当前人数的修改必须被拒绝。
+    added = client.post(
+        f"/api/v1/teams/{team['id']}/members/{applicant['id']}",
+        headers=leader_headers,
+    )
+    assert added.status_code == 200, added.text
+    lower_target = client.patch(
+        f"/api/v1/recruitments/{created.json()['id']}",
+        json={"target_size": 2},
+        headers=leader_headers,
+    )
+    assert lower_target.status_code == 400
+
+
+def test_closed_recruitment_cannot_be_approved(client):
+    leader, leader_headers = _register_and_login(
+        client, "closed_leader", "复旦大学"
+    )
+    applicant, applicant_headers = _register_and_login(
+        client, "closed_applicant", "浙江大学"
+    )
+    team = _create_team(client, leader_headers, "关闭审批测试队", max_size=3)
+    recruitment = _publish(
+        client,
+        leader_headers,
+        team["id"],
+        title="关闭审批测试招募",
+        target_size=3,
+    )
+    assert recruitment.status_code == 201
+
+    application = client.post(
+        f"/api/v1/applications/recruitments/{recruitment.json()['id']}",
+        json={"message": "等待审批"},
+        headers=applicant_headers,
+    )
+    assert application.status_code == 201
+
+    closed = client.post(
+        f"/api/v1/recruitments/{recruitment.json()['id']}/close",
+        headers=leader_headers,
+    )
+    assert closed.status_code == 200
+
+    review = client.post(
+        f"/api/v1/applications/{application.json()['id']}/review",
+        json={"decision": "accept"},
+        headers=leader_headers,
+    )
+    assert review.status_code == 400
+
+    detail = client.get(f"/api/v1/teams/{team['id']}").json()
+    assert all(
+        member["user_id"] != applicant["id"] for member in detail["members"]
+    )
+
+
+def test_full_team_closes_recruitment_and_stops_candidates(client):
+    leader, leader_headers = _register_and_login(
+        client, "full_leader", "上海交通大学"
+    )
+    applicant, applicant_headers = _register_and_login(
+        client, "full_applicant", "南京大学"
+    )
+    _, waiting_headers = _register_and_login(
+        client, "full_waiting", "东南大学"
+    )
+    team = _create_team(client, leader_headers, "满员关闭测试队", max_size=2)
+    recruitment = _publish(
+        client,
+        leader_headers,
+        team["id"],
+        title="只招一人",
+        target_size=2,
+    )
+    assert recruitment.status_code == 201
+
+    application = client.post(
+        f"/api/v1/applications/recruitments/{recruitment.json()['id']}",
+        json={"message": "加入"},
+        headers=applicant_headers,
+    )
+    assert application.status_code == 201
+    waiting = client.post(
+        f"/api/v1/applications/recruitments/{recruitment.json()['id']}",
+        json={"message": "候补"},
+        headers=waiting_headers,
+    )
+    assert waiting.status_code == 201
+    review = client.post(
+        f"/api/v1/applications/{application.json()['id']}/review",
+        json={"decision": "accept"},
+        headers=leader_headers,
+    )
+    assert review.status_code == 200, review.text
+
+    detail = client.get(
+        f"/api/v1/recruitments/{recruitment.json()['id']}"
+    ).json()
+    assert detail["status"] == "closed"
+    assert detail["current_members"] == 2
+    waiting_status = client.get(
+        "/api/v1/applications/mine", headers=waiting_headers
+    ).json()[0]["status"]
+    assert waiting_status == "rejected"
+    candidates = client.get(
+        f"/api/v1/recommendations/members?team_id={team['id']}",
+        headers=leader_headers,
+    )
+    assert candidates.status_code == 200
+    assert candidates.json() == []
+
+
+def test_school_admin_data_scope(client, db):
+    _, leader_a_headers = _register_and_login(
+        client, "scope_leader_a", "范围测试大学 A"
+    )
+    _, leader_b_headers = _register_and_login(
+        client, "scope_leader_b", "范围测试大学 B"
+    )
+    team_a = _create_team(client, leader_a_headers, "A 校团队", max_size=3)
+    team_b = _create_team(client, leader_b_headers, "B 校团队", max_size=3)
+    rec_a = _publish(
+        client,
+        leader_a_headers,
+        team_a["id"],
+        title="A 校招募",
+        target_size=2,
+    )
+    rec_b = _publish(
+        client,
+        leader_b_headers,
+        team_b["id"],
+        title="B 校招募",
+        target_size=2,
+    )
+    assert rec_a.status_code == rec_b.status_code == 201
+
+    admin = User(
+        username="scope_school_admin",
+        email="scope_school_admin@example.com",
+        hashed_password=hash_password("secret123"),
+        real_name="范围管理员",
+        school="范围测试大学 A",
+        role=UserRole.SCHOOL_ADMIN,
+        status=UserStatus.ACTIVE,
+    )
+    db.add(admin)
+    db.commit()
+    school_token = login(client, admin.username, "secret123")
+    school_headers = {"Authorization": f"Bearer {school_token}"}
+    platform_token = login(client, "admin")
+    platform_headers = {"Authorization": f"Bearer {platform_token}"}
+
+    teams = client.get("/api/v1/admin/teams", headers=school_headers).json()
+    team_ids = {team["id"] for team in teams}
+    assert team_a["id"] in team_ids
+    assert team_b["id"] not in team_ids
+
+    recruitments = client.get(
+        "/api/v1/admin/recruitments", headers=school_headers
+    ).json()
+    recruitment_ids = {item["id"] for item in recruitments}
+    assert rec_a.json()["id"] in recruitment_ids
+    assert rec_b.json()["id"] not in recruitment_ids
+
+    school_stats = client.get("/api/v1/admin/stats", headers=school_headers).json()
+    platform_stats = client.get(
+        "/api/v1/admin/stats", headers=platform_headers
+    ).json()
+    assert school_stats["users"] < platform_stats["users"]
+    assert school_stats["teams"] < platform_stats["teams"]
+    assert school_stats["recruitments"] < platform_stats["recruitments"]
+
+    denied = client.delete(
+        f"/api/v1/admin/recruitments/{rec_b.json()['id']}",
+        headers=school_headers,
+    )
+    assert denied.status_code == 403
+
+
+def test_websocket_status_and_subprotocol(client, db):
+    leader, leader_headers = _register_and_login(
+        client, "ws_leader", "武汉大学"
+    )
+    team = _create_team(client, leader_headers, "聊天状态测试队", max_size=3)
+    token = leader_headers["Authorization"].removeprefix("Bearer ")
+
+    with client.websocket_connect(
+        f"/ws/teams/{team['id']}", subprotocols=["bearer", token]
+    ) as websocket:
+        assert websocket.receive_json()["type"] == "system"
+
+    user = db.scalar(select(User).where(User.id == leader["id"]))
+    user.status = UserStatus.DISABLED
+    db.commit()
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect(
+            f"/ws/teams/{team['id']}?token={token}"
+        ):
+            pass
+
+
+def test_duplicate_skill_and_recommendation_pool(client, auth_headers):
+    capability_id = client.get("/api/v1/capabilities").json()[0]["id"]
+    duplicate = client.patch(
+        "/api/v1/profile/me",
+        json={
+            "skills": [
+                {"capability_id": capability_id, "level": 2},
+                {"capability_id": capability_id, "level": 4},
+            ]
+        },
+        headers=auth_headers,
+    )
+    assert duplicate.status_code == 422
+
+    _, leader_headers = _register_and_login(
+        client, "candidate_leader", "中山大学"
+    )
+    team = _create_team(client, leader_headers, "候选过滤测试队", max_size=3)
+    recommendations = client.get(
+        f"/api/v1/recommendations/members?team_id={team['id']}",
+        headers=leader_headers,
+    )
+    assert recommendations.status_code == 200
+    target_ids = {item["target_id"] for item in recommendations.json()}
+    assert target_ids
+    # 平台管理员不能进入候选人池。
+    assert all(item["title"] != "Admin" for item in recommendations.json())
+
+
+def test_production_config_rejects_demo_secrets():
+    with pytest.raises(ValidationError):
+        Settings(
+            ENVIRONMENT="production",
+            SECRET_KEY="dev-only-change-me-in-production",
+            SEED_DEMO_DATA=True,
+        )
+    production = Settings(
+        ENVIRONMENT="production",
+        SECRET_KEY="a-long-random-production-secret",
+        SEED_DEMO_DATA=False,
+    )
+    assert production.SEED_DEMO_DATA is False

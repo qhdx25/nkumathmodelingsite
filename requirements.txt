@@ -1,0 +1,30 @@
+# MathTeam 后端依赖（与教程章节对应）
+# 安装：source .venv/bin/activate && pip install -r requirements.txt
+
+# --- Web 框架（第 01、02 章）---
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27
+pydantic>=2.6,<3.0
+pydantic-settings>=2.2          # 读取 .env 配置
+python-multipart>=0.0.9         # OAuth2PasswordRequestForm 表单登录需要
+
+# --- 数据库与迁移（第 03 章）---
+SQLAlchemy>=2.0,<2.1
+alembic>=1.13
+aiosqlite>=0.20                 # 本地用 SQLite 时的异步驱动（可选）
+
+# --- 认证与安全（第 04 章）---
+python-jose[cryptography]>=3.3
+passlib[bcrypt]>=1.7.4
+bcrypt==4.0.1                   # 锁定兼容版本，避免与 passlib 1.7.4 的 API 冲突
+
+# --- 数据校验与算法（第 01、05、09 章）---
+email-validator>=2.0            # Pydantic EmailStr 的底层校验库
+numpy>=1.26
+
+# --- 测试（第 11 章）---
+pytest>=8.0
+httpx>=0.27                     # TestClient 的底层 HTTP 客户端
+
+# --- PostgreSQL 驱动 ---
+psycopg[binary]>=3.1

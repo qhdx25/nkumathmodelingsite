@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { applicationApi, recruitmentApi } from '@/api'
 import type { TeamCard } from '@/types'
@@ -119,7 +119,7 @@ onMounted(loadCards)
           </div>
           <template #footer>
             <div class="flex-between">
-              <el-button link type="primary" @click="router.push(`/recruitments`)">查看详情</el-button>
+              <el-button link type="primary" @click="router.push(`/teams/${card.team_id}`)">查看详情</el-button>
               <el-button type="primary" size="small" @click="apply(card)">申请加入</el-button>
             </div>
           </template>
