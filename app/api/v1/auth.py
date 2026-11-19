@@ -56,7 +56,7 @@ def login(
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="用户名或密码错误",
+            detail="账号或密码错误",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return Token(access_token=create_access_token(str(user.id)))

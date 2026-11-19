@@ -6,7 +6,8 @@
 教程第 01 章的临时内存字典 _capabilities 已经在第 03 章被数据库取代，
 原来的三个能力维度接口搬到了 app/api/v1/capabilities.py，地址保持不变。
 """
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,8 +15,43 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import router as api_router
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
+from app.db.base import SessionLocal
 from app.db.init_db import init_db
+from app.services.storage import (
+    attachment_expiry_event,
+    cleanup_expired_attachments,
+    next_attachment_expiry_delay,
+    storage,
+)
 from app.ws.teams import router as ws_router
+
+
+async def cleanup_attachments_once() -> None:
+    with SessionLocal() as db:
+        await cleanup_expired_attachments(db, storage)
+
+
+async def attachment_cleanup_loop() -> None:
+    """按最早到期时间删除聊天附件，并定期扫描兜底。"""
+    interval = settings.CHAT_ATTACHMENT_CLEANUP_INTERVAL_SECONDS
+    while True:
+        with SessionLocal() as db:
+            next_delay = next_attachment_expiry_delay(db)
+        timeout = min(interval, next_delay if next_delay is not None else interval)
+        try:
+            await asyncio.wait_for(
+                attachment_expiry_event.wait(),
+                timeout=max(timeout, 1),
+            )
+        except TimeoutError:
+            pass
+        else:
+            attachment_expiry_event.clear()
+        try:
+            await cleanup_attachments_once()
+        except Exception as exc:
+            # 单次清理失败不应让后台任务永久退出；下次周期继续重试。
+            print(f"[MathTeam] 聊天附件清理失败: {exc}")
 
 
 @asynccontextmanager
@@ -26,9 +62,17 @@ async def lifespan(app: FastAPI):
     顺序清晰，也不容易忘记配对。
     """
     init_db()   # 建表 + 幂等插入演示数据
+    # 服务停机期间过期的文件在下次启动时立即清理。
+    await cleanup_attachments_once()
+    cleanup_task = asyncio.create_task(attachment_cleanup_loop())
     print(f"[{settings.APP_NAME}] 数据库已就绪 → {settings.DATABASE_URL}")
-    yield
-    print(f"[{settings.APP_NAME}] 服务已关闭")
+    try:
+        yield
+    finally:
+        cleanup_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await cleanup_task
+        print(f"[{settings.APP_NAME}] 服务已关闭")
 
 
 app = FastAPI(

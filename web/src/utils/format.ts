@@ -21,7 +21,7 @@ export const categoryLabels: Record<string, string> = {
 export const statusLabels: Record<string, string> = {
   forming: '组建中',
   recruiting: '招募中',
-  active: '比赛中',
+  active: '组队完成',
   archived: '已归档',
   open: '开放招募',
   closed: '已关闭',
@@ -30,6 +30,15 @@ export const statusLabels: Record<string, string> = {
   rejected: '已拒绝',
 }
 
+export const awardLevelLabels: Record<string, string> = {
+  international: '国际级奖项',
+  national: '国家级奖项',
+  provincial: '省级/赛区奖项',
+  school: '校级奖项',
+  participation: '参赛经历',
+  other: '其他奖项',
+}
+
 export function label(key: string): string {
-  return statusLabels[key] || categoryLabels[key] || key
+  return statusLabels[key] || categoryLabels[key] || awardLevelLabels[key] || key
 }

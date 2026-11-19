@@ -5,7 +5,7 @@ import ElMessageBox from 'element-plus/es/components/message-box/index.mjs'
 import echarts from '@/utils/echarts'
 import { adminApi } from '@/api'
 import type { UserOut } from '@/types'
-import { formatDate } from '@/utils/format'
+import { formatDate, label } from '@/utils/format'
 
 const stats = ref<Record<string, number>>({})
 const users = ref<UserOut[]>([])
@@ -140,7 +140,9 @@ onUnmounted(() => {
         <el-table :data="teams" size="small">
           <el-table-column prop="id" label="ID" width="70" />
           <el-table-column prop="name" label="团队名称" />
-          <el-table-column prop="status" label="状态" width="110" />
+          <el-table-column label="状态" width="110">
+            <template #default="{ row }">{{ label(row.status) }}</template>
+          </el-table-column>
           <el-table-column prop="max_size" label="容量" width="80" />
         </el-table>
       </el-card>
@@ -149,7 +151,9 @@ onUnmounted(() => {
         <el-table :data="recruitments" size="small">
           <el-table-column prop="id" label="ID" width="70" />
           <el-table-column prop="title" label="标题" />
-          <el-table-column prop="status" label="状态" width="100" />
+          <el-table-column label="状态" width="100">
+            <template #default="{ row }">{{ label(row.status) }}</template>
+          </el-table-column>
           <el-table-column label="操作" width="90">
             <template #default="{ row }">
               <el-button link type="danger" @click="remove(row.id)">下架</el-button>

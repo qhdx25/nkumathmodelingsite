@@ -4,6 +4,7 @@
 展示时服务层把它换成能力名称，前端拿到的是 SkillView(name=..., level=...)。
 """
 from datetime import date
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -19,6 +20,17 @@ class ProjectExperience(BaseModel):
     description: str | None = None
     start_date: date | None = None
     end_date: date | None = None
+    award_level: Literal[
+        "international",
+        "national",
+        "provincial",
+        "school",
+        "participation",
+        "other",
+    ] | None = Field(
+        default=None,
+        description="竞赛奖项等级；项目经历可不填",
+    )
 
 
 class Preference(BaseModel):
@@ -31,7 +43,11 @@ class Preference(BaseModel):
 class ProfileUpdate(BaseModel):
     """画像整体更新：四个部分都是可选，未提供的部分保持原样。"""
 
-    skills: list[SkillLevel] | None = None
+    skills: list[SkillLevel] | None = Field(
+        default=None,
+        max_length=6,
+        description="最多六个不重复的能力维度",
+    )
     projects: list[ProjectExperience] | None = None
     competitions: list[ProjectExperience] | None = None
     preference: Preference | None = None

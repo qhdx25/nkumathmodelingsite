@@ -63,13 +63,13 @@ def apply(
     if dup:
         raise BusinessError("你已经申请过该招募", code=40012)
 
-    already_in = db.scalar(
-        select(TeamMember).where(
-            TeamMember.team_id == team.id, TeamMember.user_id == applicant.id
-        )
+    existing_membership = db.scalar(
+        select(TeamMember).where(TeamMember.user_id == applicant.id)
     )
-    if already_in:
-        raise BusinessError("你已经是该团队成员", code=40013)
+    if existing_membership is not None:
+        if existing_membership.team_id == team.id:
+            raise BusinessError("你已经是该团队成员", code=40013)
+        raise BusinessError("每个人只能加入一个团队", code=40005)
 
     members = db.scalar(
         select(func.count())
@@ -125,6 +125,16 @@ def review(
     if recruitment.status != RecruitmentStatus.OPEN:
         raise BusinessError("该招募已关闭，不能继续审批", code=40011)
 
+    applicant = None
+    if target == ApplicationStatus.ACCEPTED:
+        applicant = db.scalar(
+            select(User)
+            .where(User.id == application.applicant_id)
+            .with_for_update()
+        )
+        if applicant is None:
+            raise BusinessError("申请用户不存在", code=40401, http_status=404)
+
     # 锁住团队行（SQLite 会忽略 FOR UPDATE，PostgreSQL 下真正生效）
     team = db.scalar(
         select(Team).where(Team.id == application.team_id).with_for_update()
@@ -133,6 +143,17 @@ def review(
         raise BusinessError("团队不存在", code=40401, http_status=404)
 
     if target == ApplicationStatus.ACCEPTED:
+        existing_membership = db.scalar(
+            select(TeamMember).where(
+                TeamMember.user_id == application.applicant_id
+            )
+        )
+        if (
+            existing_membership is not None
+            and existing_membership.team_id != team.id
+        ):
+            raise BusinessError("申请人已加入其他团队", code=40005)
+
         members = db.scalar(
             select(func.count())
             .select_from(TeamMember)
@@ -142,14 +163,7 @@ def review(
             raise BusinessError("团队已满员，无法通过申请", code=40003)
         if int(members or 0) >= recruitment.target_size:
             raise BusinessError("该招募已达到目标人数", code=40003)
-        # 已通过审批的用户不重复插成员记录
-        exists = db.scalar(
-            select(TeamMember).where(
-                TeamMember.team_id == team.id,
-                TeamMember.user_id == application.applicant_id,
-            )
-        )
-        if exists is None:
+        if existing_membership is None:
             db.add(
                 TeamMember(
                     team_id=team.id,

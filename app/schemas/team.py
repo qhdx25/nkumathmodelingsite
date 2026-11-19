@@ -51,3 +51,8 @@ class TeamProfileOut(BaseModel):
     coverage: dict[str, dict] = Field(default_factory=dict)
     gaps: list[str] = Field(default_factory=list)      # 无人掌握
     weak: list[str] = Field(default_factory=list)      # 平均熟练度 < 3
+    composite_score: float = Field(ge=0, le=100)
+    score_grade: str
+    score_algorithm_version: str
+    score_breakdown: dict[str, dict] = Field(default_factory=dict)
+    score_summary: str

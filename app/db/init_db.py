@@ -167,6 +167,19 @@ def seed_demo_data(db: Session) -> None:
                 application.reviewed_at = datetime.now(timezone.utc)
                 application.reviewed_by = team.created_by
 
+    # 状态为 active 但尚未满员的旧数据恢复为组建中，避免错误显示“组队完成”。
+    for team in db.scalars(select(Team)).all():
+        member_count = int(
+            db.scalar(
+                select(func.count())
+                .select_from(TeamMember)
+                .where(TeamMember.team_id == team.id)
+            )
+            or 0
+        )
+        if team.status == TeamStatus.ACTIVE and member_count < team.max_size:
+            team.status = TeamStatus.FORMING
+
     db.commit()
 
 

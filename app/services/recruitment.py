@@ -184,7 +184,10 @@ def close_completed_recruitments(
             recruitment.status = RecruitmentStatus.CLOSED
             team = db.get(Team, team_id)
             if team is not None:
-                team.status = TeamStatus.ACTIVE
+                if member_count >= team.max_size:
+                    team.status = TeamStatus.ACTIVE
+                elif team.status == TeamStatus.RECRUITING:
+                    team.status = TeamStatus.FORMING
             pending = db.scalars(
                 select(Application).where(
                     Application.recruitment_id == recruitment.id,

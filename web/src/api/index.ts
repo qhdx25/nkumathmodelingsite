@@ -21,6 +21,7 @@ import type {
   ApplicationOut,
   ApplicationWithApplicant,
   Capability,
+  ChatPolicy,
   MessageOut,
   NotificationOut,
   Page,
@@ -187,6 +188,22 @@ export const messageApi = {
   history: (teamId: number, skip = 0, limit = 50) =>
     http.get<MessageOut[]>(`/messages/teams/${teamId}`, { params: { skip, limit } }),
   notifications: () => http.get<NotificationOut[]>('/messages/notifications'),
+  policy: () => http.get<ChatPolicy>('/messages/chat-policy'),
+  uploadAttachment: (teamId: number, file: File, content = '') => {
+    const form = new FormData()
+    form.append('file', file)
+    if (content) form.append('content', content)
+    return http.post<MessageOut>(
+      `/messages/teams/${teamId}/attachments`,
+      form,
+      { timeout: 120000 },
+    )
+  },
+  attachmentBlob: (messageId: number) =>
+    http.get<Blob>(`/messages/attachments/${messageId}/download`, {
+      responseType: 'blob',
+      timeout: 120000,
+    }),
 }
 
 // ---------- 后台 ----------

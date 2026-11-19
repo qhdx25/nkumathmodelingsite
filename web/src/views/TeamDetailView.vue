@@ -29,6 +29,16 @@ const isLeader = computed(
 const isFull = computed(
   () => !!team.value && team.value.member_count >= team.value.max_size,
 )
+const scoreDimensionLabels: Record<string, string> = {
+  skill_strength: '能力深度',
+  skill_coverage: '能力覆盖',
+  awards: '奖项质量',
+  experience: '项目/竞赛经历',
+  composition: '阵容完整度',
+}
+const scoreEntries = computed(() =>
+  Object.entries(profile.value?.score_breakdown || {}),
+)
 
 const publishVisible = ref(false)
 const publishForm = ref({
@@ -141,6 +151,14 @@ onUnmounted(() => {
         <div class="row"><span>竞赛方向</span><span>{{ team?.competition_track }}</span></div>
         <div class="row"><span>成员数</span><span>{{ team?.member_count }} / {{ team?.max_size }}</span></div>
         <div class="row"><span>创建时间</span><span>{{ formatDate(team?.created_at) }}</span></div>
+        <div class="score-summary-row">
+          <div>
+            <span class="muted">团队综合能力评分</span>
+            <strong>{{ profile?.composite_score ?? '—' }}</strong>
+            <span class="muted"> / 100</span>
+          </div>
+          <el-tag type="success" effect="dark">{{ profile?.score_grade || '—' }} 级</el-tag>
+        </div>
         <h4 class="mt-16">成员列表</h4>
         <el-table :data="team?.members || []" size="small">
           <el-table-column prop="username" label="用户名" />
@@ -159,6 +177,35 @@ onUnmounted(() => {
 
       <el-card>
         <template #header>团队能力分布</template>
+        <div class="score-panel">
+          <div class="score-number">
+            <strong>{{ profile?.composite_score ?? '—' }}</strong>
+            <span>/ 100</span>
+          </div>
+          <div class="score-copy">
+            <div>
+              综合能力等级
+              <el-tag size="small" type="success">{{ profile?.score_grade || '—' }}</el-tag>
+            </div>
+            <p>{{ profile?.score_summary }}</p>
+          </div>
+        </div>
+        <div class="score-breakdown">
+          <div
+            v-for="[key, detail] in scoreEntries"
+            :key="key"
+            class="score-dimension"
+          >
+            <div>
+              <span>{{ scoreDimensionLabels[key] || key }}</span>
+              <small>{{ detail.reason }}</small>
+            </div>
+            <div class="score-bar">
+              <i :style="{ width: `${detail.score * 100}%` }" />
+            </div>
+            <strong>{{ (detail.score * 100).toFixed(0) }}</strong>
+          </div>
+        </div>
         <div ref="chartEl" class="chart-box" />
         <div class="mt-8">
           <span class="muted">能力缺口：</span>
@@ -242,4 +289,77 @@ onUnmounted(() => {
 .row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; }
 .tag { margin: 2px 4px 2px 0; }
 .ml-8 { margin-left: 8px; }
+.score-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+.score-summary-row strong {
+  margin-left: 8px;
+  color: #4f46e5;
+  font-size: 24px;
+}
+.score-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #eef2ff, #faf5ff);
+  border-radius: 12px;
+}
+.score-number strong {
+  color: #4338ca;
+  font-size: 34px;
+}
+.score-number span {
+  color: #64748b;
+  font-size: 12px;
+}
+.score-copy {
+  flex: 1;
+  font-size: 13px;
+}
+.score-copy p {
+  margin: 5px 0 0;
+  color: #64748b;
+  line-height: 1.55;
+}
+.score-breakdown {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0 4px;
+}
+.score-dimension {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(100px, 1fr) 30px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.score-dimension > div:first-child {
+  display: flex;
+  flex-direction: column;
+}
+.score-dimension small {
+  overflow: hidden;
+  color: #94a3b8;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.score-bar {
+  height: 6px;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: 99px;
+}
+.score-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: inherit;
+}
 </style>

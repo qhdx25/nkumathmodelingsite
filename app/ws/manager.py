@@ -14,22 +14,28 @@ from fastapi import WebSocket
 
 class ConnectionManager:
     def __init__(self) -> None:
-        self.active: dict[int, list[WebSocket]] = defaultdict(list)
+        self.active: dict[int, dict[WebSocket, int]] = defaultdict(dict)
 
     async def connect(
-        self, team_id: int, websocket: WebSocket, subprotocol: str | None = None
+        self,
+        team_id: int,
+        websocket: WebSocket,
+        user_id: int,
+        subprotocol: str | None = None,
     ) -> None:
         await websocket.accept(subprotocol=subprotocol)
-        self.active[team_id].append(websocket)
+        self.active[team_id][websocket] = user_id
 
     def disconnect(self, team_id: int, websocket: WebSocket) -> None:
-        connections = self.active.get(team_id, [])
-        if websocket in connections:
-            connections.remove(websocket)
+        connections = self.active.get(team_id, {})
+        connections.pop(websocket, None)
+
+    def online_user_ids(self, team_id: int) -> list[int]:
+        return sorted(set(self.active.get(team_id, {}).values()))
 
     async def broadcast(self, team_id: int, payload: dict) -> None:
         """遍历副本发送，避免发送过程中连接断开修改原列表。"""
-        for ws in list(self.active.get(team_id, [])):
+        for ws in list(self.active.get(team_id, {})):
             try:
                 await ws.send_json(payload)
             except Exception:

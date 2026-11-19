@@ -25,7 +25,7 @@ class TeamRole(str, enum.Enum):
 class TeamStatus(str, enum.Enum):
     FORMING = "forming"        # 组建中
     RECRUITING = "recruiting"  # 招募中
-    ACTIVE = "active"          # 比赛中
+    ACTIVE = "active"          # 组队完成
     ARCHIVED = "archived"      # 已归档
 
 
@@ -54,7 +54,7 @@ class Team(Base):
 class TeamMember(Base):
     __tablename__ = "team_members"
     __table_args__ = (
-        UniqueConstraint("team_id", "user_id", name="uq_team_member"),
+        UniqueConstraint("user_id", name="uq_team_member_user"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

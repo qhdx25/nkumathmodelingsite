@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { isAxiosError } from 'axios'
 import ElMessage from 'element-plus/es/components/message/index.mjs'
 import { useUserStore } from '@/stores/user'
 
@@ -19,8 +20,11 @@ async function submit() {
     ElMessage.success('登录成功')
     const redirect = route.query.redirect as string
     await router.push(redirect || '/')
-  } catch {
-    // Axios 拦截器已经弹过错误提示，这里不重复
+  } catch (error) {
+    // 登录页的 401 由拦截器静默处理，这里给出业务需要的明确提示。
+    if (isAxiosError(error) && error.response?.status === 401) {
+      ElMessage.error('账号或密码错误')
+    }
   }
 }
 

@@ -4,6 +4,7 @@
 # --- Web 框架（第 01、02 章）---
 fastapi>=0.110,<1.0
 uvicorn[standard]>=0.27
+websockets>=12                 # 浏览器 WebSocket 实时会话
 pydantic>=2.6,<3.0
 pydantic-settings>=2.2          # 读取 .env 配置
 python-multipart>=0.0.9         # OAuth2PasswordRequestForm 表单登录需要

@@ -5,8 +5,10 @@
 内存 SQLite + StaticPool 让每个测试进程拥有干净独立的数据库。
 """
 import os
+import tempfile
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["CHAT_UPLOAD_DIR"] = tempfile.mkdtemp(prefix="mathteam-chat-test-")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

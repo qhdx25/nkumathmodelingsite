@@ -8,7 +8,16 @@
 import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -35,6 +44,18 @@ class Message(Base):
     content: Mapped[str] = mapped_column(Text)
     message_type: Mapped[MessageType] = mapped_column(
         Enum(MessageType), default=MessageType.TEXT
+    )
+    # 聊天附件属于临时资源。保留元数据便于历史消息显示“已过期”，
+    # attachment_key 在清理文件后置空。
+    attachment_key: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
+    )
+    attachment_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    attachment_mime: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    attachment_size: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    attachment_kind: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    attachment_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True, index=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 

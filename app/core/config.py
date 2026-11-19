@@ -7,7 +7,9 @@
 
 用法：任何模块里 `from app.core.config import settings` 即可拿到单例配置。
 """
-from pydantic import model_validator
+from typing import Literal
+
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -34,6 +36,22 @@ class Settings(BaseSettings):
     AUTO_CREATE_TABLES: bool = True
     # 生产环境必须关闭演示账号和演示业务数据写入
     SEED_DEMO_DATA: bool = True
+
+    # ---- 团队聊天附件 ----
+    # 临时文件只保存在本机目录；后续接入 OSS 时通过存储适配器替换实现。
+    CHAT_UPLOAD_DIR: str = "uploads/chat"
+    CHAT_ATTACHMENT_MAX_BYTES: int = Field(
+        default=50 * 1024 * 1024,
+        ge=1024 * 1024,
+        le=1024 * 1024 * 1024,
+    )
+    # 产品规则固定为 24 小时，不允许通过环境变量延长。
+    CHAT_ATTACHMENT_TTL_HOURS: Literal[24] = 24
+    CHAT_ATTACHMENT_CLEANUP_INTERVAL_SECONDS: int = Field(
+        default=15 * 60,
+        ge=60,
+        le=15 * 60,
+    )
 
     # SettingsConfigDict 是 pydantic-settings v2 的写法
     model_config = SettingsConfigDict(

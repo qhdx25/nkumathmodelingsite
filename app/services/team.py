@@ -9,24 +9,38 @@ from app.models.profile import UserSkill
 from app.models.team import Team, TeamMember, TeamRole, TeamStatus
 from app.models.user import User, UserRole
 from app.schemas.team import TeamCreate
+from app.services.team_score import compute_team_score
 
 
 def create_team(db: Session, current: User, payload: TeamCreate) -> Team:
     """建队并把创建者设为队长。两个 insert 必须在同一事务里。"""
+    locked_user = db.scalar(
+        select(User).where(User.id == current.id).with_for_update()
+    )
+    if locked_user is None:
+        raise BusinessError("用户不存在", code=40401, http_status=404)
+    existing = db.scalar(
+        select(TeamMember).where(TeamMember.user_id == locked_user.id)
+    )
+    if existing is not None:
+        raise BusinessError("每个人只能加入一个团队", code=40005)
+
     team = Team(
         name=payload.name,
         description=payload.description,
         competition_track=payload.competition_track,
         max_size=payload.max_size,
         status=TeamStatus.RECRUITING,
-        created_by=current.id,
+        created_by=locked_user.id,
     )
     db.add(team)
     db.flush()  # 拿到 team.id 才能写关联表
-    db.add(TeamMember(team_id=team.id, user_id=current.id, role=TeamRole.LEADER))
+    db.add(
+        TeamMember(team_id=team.id, user_id=locked_user.id, role=TeamRole.LEADER)
+    )
     # 全局角色同步标记为队长；注意真正的权限判断仍看 TeamMember.role
-    if current.role == UserRole.STUDENT:
-        current.role = UserRole.LEADER
+    if locked_user.role == UserRole.STUDENT:
+        locked_user.role = UserRole.LEADER
     db.commit()
     db.refresh(team)
     return team
@@ -65,7 +79,21 @@ def add_member(
 
     force=True 表示队长直接拉人（第 6 章练习接口），审批通过也走同一函数。
     """
-    # 直接拉人时也锁团队行，避免两个并发请求同时通过容量检查。
+    # 先锁用户行，确保同一用户不会被两个团队并发添加。
+    locked_user = db.scalar(
+        select(User).where(User.id == user.id).with_for_update()
+    )
+    if locked_user is None:
+        raise BusinessError("用户不存在", code=40401, http_status=404)
+    existing = db.scalar(
+        select(TeamMember).where(TeamMember.user_id == locked_user.id)
+    )
+    if existing is not None:
+        if existing.team_id == team_id:
+            raise BusinessError("用户已在团队中", code=40004)
+        raise BusinessError("每个人只能加入一个团队", code=40005)
+
+    # 再锁团队行，避免两个并发请求同时通过容量检查。
     team = db.scalar(select(Team).where(Team.id == team_id).with_for_update())
     if team is None:
         raise BusinessError("团队不存在", code=40401, http_status=404)
@@ -76,15 +104,9 @@ def add_member(
     if team_member_count(db, team_id) >= team.max_size:
         raise BusinessError("团队已满员", code=40003)
 
-    exists = db.scalar(
-        select(TeamMember).where(
-            TeamMember.team_id == team_id, TeamMember.user_id == user.id
-        )
+    member = TeamMember(
+        team_id=team_id, user_id=locked_user.id, role=TeamRole.MEMBER
     )
-    if exists:
-        raise BusinessError("用户已在团队中", code=40004)
-
-    member = TeamMember(team_id=team_id, user_id=user.id, role=TeamRole.MEMBER)
     db.add(member)
     new_count = team_member_count(db, team_id) + 1
     if new_count >= team.max_size:
@@ -98,7 +120,7 @@ def add_member(
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise BusinessError("用户已在团队中", code=40004) from None
+        raise BusinessError("每个人只能加入一个团队", code=40005) from None
     db.refresh(member)
     return member
 
@@ -126,7 +148,7 @@ def compute_team_profile(db: Session, team_id: int) -> dict:
     gaps = [name for name in all_caps if name not in coverage]
     weak = [name for name, stat in coverage.items() if stat["avg_level"] < 3]
 
-    return {
+    result = {
         "team_id": team.id,
         "team_name": team.name,
         "member_count": team_member_count(db, team_id),
@@ -134,3 +156,5 @@ def compute_team_profile(db: Session, team_id: int) -> dict:
         "gaps": gaps,
         "weak": weak,
     }
+    result.update(compute_team_score(db, team))
+    return result

@@ -12,6 +12,7 @@ from app.db.session import get_db
 from app.models.message import Message, MessageType
 from app.models.team import TeamMember
 from app.models.user import User, UserStatus
+from app.services.chat import serialize_message
 from app.ws.manager import manager
 
 router = APIRouter()
@@ -65,10 +66,19 @@ async def team_chat(
         await websocket.close(code=4403, reason="不是团队成员")
         return
 
-    await manager.connect(team_id, websocket, subprotocol=accepted_protocol)
+    await manager.connect(
+        team_id, websocket, user.id, subprotocol=accepted_protocol
+    )
     await manager.broadcast(
         team_id,
         {"type": "system", "content": f"{user.username} 加入了聊天室", "sender_id": 0},
+    )
+    await manager.broadcast(
+        team_id,
+        {
+            "type": "presence",
+            "online_user_ids": manager.online_user_ids(team_id),
+        },
     )
 
     try:
@@ -78,6 +88,11 @@ async def team_chat(
             content = str(data.get("content", "")).strip()
             if not content:
                 await websocket.send_json({"type": "error", "content": "消息不能为空"})
+                continue
+            if len(content) > 1000:
+                await websocket.send_json(
+                    {"type": "error", "content": "消息不能超过 1000 个字符"}
+                )
                 continue
             msg = Message(
                 team_id=team_id,
@@ -92,11 +107,7 @@ async def team_chat(
                 team_id,
                 {
                     "type": "message",
-                    "id": msg.id,
-                    "sender_id": user.id,
-                    "sender_name": user.username,
-                    "content": msg.content,
-                    "created_at": msg.created_at.isoformat(),
+                    **serialize_message(msg, user.username),
                 },
             )
     except WebSocketDisconnect:
@@ -104,4 +115,11 @@ async def team_chat(
         await manager.broadcast(
             team_id,
             {"type": "system", "content": f"{user.username} 离开了聊天室", "sender_id": 0},
+        )
+        await manager.broadcast(
+            team_id,
+            {
+                "type": "presence",
+                "online_user_ids": manager.online_user_ids(team_id),
+            },
         )

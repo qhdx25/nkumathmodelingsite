@@ -259,12 +259,48 @@ def test_full_team_closes_recruitment_and_stops_candidates(client):
         "/api/v1/applications/mine", headers=waiting_headers
     ).json()[0]["status"]
     assert waiting_status == "rejected"
+    team_detail = client.get(f"/api/v1/teams/{team['id']}").json()
+    assert team_detail["member_count"] == team_detail["max_size"]
+    assert team_detail["status"] == "active"
     candidates = client.get(
         f"/api/v1/recommendations/members?team_id={team['id']}",
         headers=leader_headers,
     )
     assert candidates.status_code == 200
     assert candidates.json() == []
+
+
+def test_reaching_recruitment_target_below_capacity_keeps_team_forming(client):
+    leader, leader_headers = _register_and_login(
+        client, "target_leader", "同济大学"
+    )
+    applicant, applicant_headers = _register_and_login(
+        client, "target_member", "厦门大学"
+    )
+    team = _create_team(client, leader_headers, "目标人数状态队", max_size=3)
+    recruitment = _publish(
+        client,
+        leader_headers,
+        team["id"],
+        title="两名成员即可完成招募",
+        target_size=2,
+    )
+    application = client.post(
+        f"/api/v1/applications/recruitments/{recruitment.json()['id']}",
+        json={"message": "加入"},
+        headers=applicant_headers,
+    )
+    review = client.post(
+        f"/api/v1/applications/{application.json()['id']}/review",
+        json={"decision": "accept"},
+        headers=leader_headers,
+    )
+    assert review.status_code == 200
+
+    detail = client.get(f"/api/v1/teams/{team['id']}").json()
+    assert detail["member_count"] == 2
+    assert detail["max_size"] == 3
+    assert detail["status"] == "forming"
 
 
 def test_school_admin_data_scope(client, db):
@@ -358,7 +394,22 @@ def test_websocket_status_and_subprotocol(client, db):
 
 
 def test_duplicate_skill_and_recommendation_pool(client, auth_headers):
-    capability_id = client.get("/api/v1/capabilities").json()[0]["id"]
+    capabilities = client.get("/api/v1/capabilities").json()
+    six_capabilities = capabilities[:6]
+    capability_id = six_capabilities[0]["id"]
+    six_skills = client.patch(
+        "/api/v1/profile/me",
+        json={
+            "skills": [
+                {"capability_id": capability["id"], "level": 3}
+                for capability in six_capabilities
+            ]
+        },
+        headers=auth_headers,
+    )
+    assert six_skills.status_code == 200
+    assert len(six_skills.json()["skills"]) == 6
+
     duplicate = client.patch(
         "/api/v1/profile/me",
         json={
@@ -370,6 +421,18 @@ def test_duplicate_skill_and_recommendation_pool(client, auth_headers):
         headers=auth_headers,
     )
     assert duplicate.status_code == 422
+    too_many = client.patch(
+        "/api/v1/profile/me",
+        json={
+            "skills": [
+                {"capability_id": capability["id"], "level": 3}
+                for capability in six_capabilities
+            ]
+            + [{"capability_id": capability_id, "level": 4}]
+        },
+        headers=auth_headers,
+    )
+    assert too_many.status_code == 422
 
     _, leader_headers = _register_and_login(
         client, "candidate_leader", "中山大学"
@@ -399,3 +462,55 @@ def test_production_config_rejects_demo_secrets():
         SEED_DEMO_DATA=False,
     )
     assert production.SEED_DEMO_DATA is False
+
+
+def test_user_can_only_join_one_team(client):
+    _, leader_a_headers = _register_and_login(
+        client, "single_team_leader_a", "测试大学"
+    )
+    _, leader_b_headers = _register_and_login(
+        client, "single_team_leader_b", "测试大学"
+    )
+    member, member_headers = _register_and_login(
+        client, "single_team_member", "测试大学"
+    )
+    team_a = _create_team(client, leader_a_headers, "唯一团队 A", max_size=3)
+    team_b = _create_team(client, leader_b_headers, "唯一团队 B", max_size=3)
+    recruitment_b = _publish(
+        client,
+        leader_b_headers,
+        team_b["id"],
+        title="唯一团队 B 招募",
+        target_size=2,
+    )
+    assert recruitment_b.status_code == 201
+
+    added = client.post(
+        f"/api/v1/teams/{team_a['id']}/members/{member['id']}",
+        headers=leader_a_headers,
+    )
+    assert added.status_code == 200
+
+    second_team = client.post(
+        "/api/v1/teams",
+        json={
+            "name": "重复建队",
+            "competition_track": "math_modeling",
+            "max_size": 3,
+        },
+        headers=member_headers,
+    )
+    assert second_team.status_code == 400
+
+    application = client.post(
+        f"/api/v1/applications/recruitments/{recruitment_b.json()['id']}",
+        json={"message": "尝试加入第二支团队"},
+        headers=member_headers,
+    )
+    assert application.status_code == 400
+
+    added_again = client.post(
+        f"/api/v1/teams/{team_b['id']}/members/{member['id']}",
+        headers=leader_b_headers,
+    )
+    assert added_again.status_code == 400

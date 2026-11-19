@@ -57,6 +57,14 @@ export interface ProjectExperience {
   description?: string | null
   start_date?: string | null
   end_date?: string | null
+  award_level?:
+    | 'international'
+    | 'national'
+    | 'provincial'
+    | 'school'
+    | 'participation'
+    | 'other'
+    | null
 }
 
 export interface Preference {
@@ -117,6 +125,14 @@ export interface TeamProfileOut {
   coverage: Record<string, { members: number; avg_level: number }>
   gaps: string[]
   weak: string[]
+  composite_score: number
+  score_grade: string
+  score_algorithm_version: string
+  score_breakdown: Record<
+    'skill_strength' | 'skill_coverage' | 'awards' | 'experience' | 'composition',
+    DimensionScore
+  >
+  score_summary: string
 }
 
 // ---------- 招募 ----------
@@ -212,7 +228,25 @@ export interface MessageOut {
   sender_name: string
   content: string
   message_type: 'text' | 'system' | 'resource'
+  attachment: AttachmentOut | null
   created_at: string
+}
+
+export interface AttachmentOut {
+  name: string
+  kind: 'image' | 'video' | 'file'
+  mime_type: string
+  size: number
+  expires_at: string | null
+  expired: boolean
+  download_url: string | null
+}
+
+export interface ChatPolicy {
+  max_bytes: number
+  retention_hours: number
+  cleanup_interval_seconds: number
+  allowed_kinds: ('image' | 'video' | 'file')[]
 }
 
 export interface NotificationOut {

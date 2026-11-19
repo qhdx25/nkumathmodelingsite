@@ -72,10 +72,10 @@ def test_application_and_review_flow(client, auth_headers, bob_token):
 
 
 def test_recommendations_explainable(client, auth_headers, bob_token):
-    # 前面的审批测试会把演示团队招满并关闭招募，这里由 Carol 新建一条开放招募，
+    # 前面的审批测试会把演示团队招满并关闭招募，这里由尚未组队的 Dave 新建招募，
     # 保证推荐测试不依赖其他测试遗留的团队容量状态。
-    carol_token = login(client, "carol")
-    carol_headers = {"Authorization": f"Bearer {carol_token}"}
+    dave_token = login(client, "dave", "secret123")
+    dave_headers = {"Authorization": f"Bearer {dave_token}"}
     created = client.post(
         "/api/v1/teams",
         json={
@@ -83,7 +83,7 @@ def test_recommendations_explainable(client, auth_headers, bob_token):
             "competition_track": "optimization",
             "max_size": 3,
         },
-        headers=carol_headers,
+        headers=dave_headers,
     )
     assert created.status_code == 201, created.text
     published = client.post(
@@ -95,7 +95,7 @@ def test_recommendations_explainable(client, auth_headers, bob_token):
             "required_roles": ["modeler"],
             "required_skills": ["建模分析"],
         },
-        headers=carol_headers,
+        headers=dave_headers,
     )
     assert published.status_code == 201, published.text
 
@@ -128,8 +128,13 @@ def test_websocket_chat(client, bob_token):
     """WebSocket 端点用 TestClient 的 websocket_connect 测试。"""
     with client.websocket_connect(f"/ws/teams/1?token={bob_token}") as ws:
         ws.receive_json()  # 系统消息：XXX 加入了聊天室
+        presence = ws.receive_json()
+        assert presence["type"] == "presence"
+        assert presence["online_user_ids"]
         ws.send_json({"content": "大家好，我来写论文部分"})
         data = ws.receive_json()
+        while data["type"] != "message":
+            data = ws.receive_json()
         assert data["type"] == "message"
         assert data["content"] == "大家好，我来写论文部分"
 

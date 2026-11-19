@@ -62,3 +62,12 @@ def test_duplicate_register_conflict(client):
         json={"username": "alice", "email": "new@example.com", "password": "secret123"},
     )
     assert resp.status_code == 409
+
+
+def test_wrong_password_has_explicit_message(client):
+    response = client.post(
+        "/api/v1/auth/login",
+        data={"username": "alice", "password": "not-the-password"},
+    )
+    assert response.status_code == 401
+    assert response.json()["message"] == "账号或密码错误"

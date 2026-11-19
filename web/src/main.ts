@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import ElAvatar from 'element-plus/es/components/avatar/index.mjs'
 import ElBadge from 'element-plus/es/components/badge/index.mjs'
 import ElButton from 'element-plus/es/components/button/index.mjs'
 import ElCard from 'element-plus/es/components/card/index.mjs'
@@ -45,7 +46,7 @@ app.use(createPinia())
 app.use(router)
 // 只注册项目实际使用的组件，避免把 Element Plus 全量 JS 打进主包。
 const elementComponents = [
-  ElAside, ElBadge, ElButton, ElCard, ElConfigProvider, ElContainer,
+  ElAside, ElAvatar, ElBadge, ElButton, ElCard, ElConfigProvider, ElContainer,
   ElDialog, ElDrawer, ElEmpty, ElForm, ElFormItem, ElHeader, ElIcon,
   ElInput, ElInputNumber, ElLoading, ElMain, ElMenu, ElMenuItem, ElOption,
   ElPagination, ElProgress, ElRadioButton, ElRadioGroup, ElRate, ElSelect,
