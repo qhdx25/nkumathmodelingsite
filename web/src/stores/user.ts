@@ -14,9 +14,17 @@ export const useUserStore = defineStore('user', () => {
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() =>
-    ['school_admin', 'platform_admin'].includes(user.value?.role || ''),
+    ['association_admin', 'school_admin', 'platform_admin'].includes(
+      user.value?.role || '',
+    ),
+  )
+  const isAssociationAdmin = computed(
+    () => user.value?.role === 'association_admin',
   )
   const isPlatformAdmin = computed(() => user.value?.role === 'platform_admin')
+  const canParticipate = computed(() =>
+    ['student', 'leader'].includes(user.value?.role || ''),
+  )
 
   /** 登录：成功后把 token 写入 localStorage 并拉取用户资料 */
   async function login(username: string, password: string) {
@@ -43,5 +51,17 @@ export const useUserStore = defineStore('user', () => {
     clearToken()
   }
 
-  return { token, user, loading, isLoggedIn, isAdmin, isPlatformAdmin, login, fetchMe, logout }
+  return {
+    token,
+    user,
+    loading,
+    isLoggedIn,
+    isAdmin,
+    isAssociationAdmin,
+    isPlatformAdmin,
+    canParticipate,
+    login,
+    fetchMe,
+    logout,
+  }
 })

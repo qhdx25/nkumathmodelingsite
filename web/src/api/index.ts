@@ -30,6 +30,7 @@ import type {
   RecommendationItem,
   RecommendationOut,
   RecruitmentOut,
+  ResumeOut,
   TeamCard,
   TeamDetail,
   TeamOut,
@@ -129,6 +130,19 @@ export const profileApi = {
   mine: () => http.get<ProfileOut>('/profile/me'),
   update: (data: ProfileUpdate) => http.patch<ProfileOut>('/profile/me', data),
   user: (id: number) => http.get<ProfileOut>(`/profile/users/${id}`),
+  uploadResume: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return http.post<ResumeOut>('/profile/me/resume', form, {
+      timeout: 120000,
+    })
+  },
+  deleteResume: () => http.delete<{ message: string }>('/profile/me/resume'),
+  downloadResume: (userId: number) =>
+    http.get<Blob>(`/profile/users/${userId}/resume`, {
+      responseType: 'blob',
+      timeout: 120000,
+    }),
 }
 
 // ---------- 团队 ----------
@@ -209,11 +223,30 @@ export const messageApi = {
 // ---------- 后台 ----------
 export const adminApi = {
   users: (skip = 0, limit = 20) => http.get<Page<UserOut>>('/admin/users', { params: { skip, limit } }),
-  teams: () => http.get<{ id: number; name: string; status: string; max_size: number }[]>('/admin/teams'),
+  teams: () => http.get<{
+    id: number
+    name: string
+    status: string
+    max_size: number
+    member_count: number
+    competition_track: string
+    creator_name: string
+    school: string | null
+    composite_score: number
+    score_grade: string
+  }[]>('/admin/teams'),
   recruitments: () =>
     http.get<{ id: number; title: string; status: string; team_id: number }[]>('/admin/recruitments'),
   stats: () => http.get<Record<string, number>>('/admin/stats'),
   setUserStatus: (id: number, status: 'active' | 'disabled') =>
     http.patch<UserOut>(`/admin/users/${id}/status`, undefined, { params: { status } }),
   removeRecruitment: (id: number) => http.delete(`/admin/recruitments/${id}`),
+  setAssociationAdmin: (id: number, enable: boolean) =>
+    http.patch<UserOut>(`/admin/users/${id}/association-admin`, undefined, {
+      params: { enable },
+    }),
+  exportTable: () => http.get<Blob>('/admin/export', {
+    responseType: 'blob',
+    timeout: 120000,
+  }),
 }

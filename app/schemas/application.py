@@ -4,6 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.application import ApplicationStatus
+from app.schemas.profile import ResumeOut
 from app.schemas.user import UserBrief
 
 
@@ -37,3 +38,4 @@ class ApplicationWithApplicant(ApplicationOut):
 
     applicant: UserBrief | None = None
     skills: list[dict] = Field(default_factory=list)
+    resume: ResumeOut | None = None

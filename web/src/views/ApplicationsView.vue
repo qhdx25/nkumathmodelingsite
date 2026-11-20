@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import ElMessage from 'element-plus/es/components/message/index.mjs'
-import { applicationApi, teamApi } from '@/api'
+import { applicationApi, profileApi, teamApi } from '@/api'
 import type { ApplicationOut, ApplicationWithApplicant, TeamOut } from '@/types'
 import { formatDate, label } from '@/utils/format'
 
@@ -48,6 +48,17 @@ function statusType(s: string): 'success' | 'danger' | 'warning' {
   return 'warning'
 }
 
+async function downloadApplicantResume(app: ApplicationWithApplicant) {
+  if (!app.resume) return
+  const blob = await profileApi.downloadResume(app.applicant_id)
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = app.resume.name
+  anchor.click()
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
 onMounted(load)
 </script>
 
@@ -86,7 +97,24 @@ onMounted(load)
           <el-table-column label="申请者">
             <template #default="{ row }">
               {{ row.applicant?.real_name || row.applicant?.username || '—' }}
-              <div class="muted">{{ row.applicant?.school }}</div>
+              <div class="muted">
+                {{ row.applicant?.student_number || '—' }} ·
+                {{ row.applicant?.college || '未填写学院' }} ·
+                {{ row.applicant?.school || '未填写学校' }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="简历" width="100">
+            <template #default="{ row }">
+              <el-button
+                v-if="row.resume"
+                link
+                type="primary"
+                @click="downloadApplicantResume(row)"
+              >
+                下载简历
+              </el-button>
+              <span v-else class="muted">未上传</span>
             </template>
           </el-table-column>
           <el-table-column label="技能">

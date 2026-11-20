@@ -34,19 +34,19 @@ const routes: RouteRecordRaw[] = [
         path: 'profile',
         name: 'profile',
         component: () => import('@/views/ProfileView.vue'),
-        meta: { requiresAuth: true, title: '能力画像' },
+        meta: { requiresAuth: true, title: '个人中心' },
       },
       {
         path: 'teams',
         name: 'teams',
         component: () => import('@/views/TeamsView.vue'),
-        meta: { requiresAuth: true, title: '我的团队' },
+        meta: { requiresAuth: true, participantOnly: true, title: '我的团队' },
       },
       {
         path: 'teams/:id',
         name: 'team-detail',
         component: () => import('@/views/TeamDetailView.vue'),
-        meta: { requiresAuth: true, title: '团队详情' },
+        meta: { requiresAuth: true, participantOnly: true, title: '团队详情' },
       },
       {
         path: 'recruitments',
@@ -58,19 +58,19 @@ const routes: RouteRecordRaw[] = [
         path: 'applications',
         name: 'applications',
         component: () => import('@/views/ApplicationsView.vue'),
-        meta: { requiresAuth: true, title: '申请管理' },
+        meta: { requiresAuth: true, participantOnly: true, title: '申请管理' },
       },
       {
         path: 'recommendations',
         name: 'recommendations',
         component: () => import('@/views/RecommendationsView.vue'),
-        meta: { requiresAuth: true, title: '智能推荐' },
+        meta: { requiresAuth: true, participantOnly: true, title: '智能推荐' },
       },
       {
         path: 'chat',
         name: 'chat',
         component: () => import('@/views/ChatView.vue'),
-        meta: { requiresAuth: true, title: '团队交流' },
+        meta: { requiresAuth: true, participantOnly: true, title: '团队交流' },
       },
       {
         path: 'admin',
@@ -107,6 +107,9 @@ router.beforeEach(async (to) => {
   }
   if (to.meta.requiresAdmin && !store.isAdmin) {
     return { name: 'home' }
+  }
+  if (to.meta.participantOnly && store.isAssociationAdmin) {
+    return { name: 'admin' }
   }
   return true
 })

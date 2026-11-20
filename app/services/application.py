@@ -14,7 +14,7 @@ from app.models.message import Notification
 from app.models.profile import UserSkill
 from app.models.recruitment import Recruitment, RecruitmentStatus
 from app.models.team import Team, TeamMember, TeamRole, TeamStatus
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.application import ApplicationCreate
 
 
@@ -43,6 +43,12 @@ def apply(
     db: Session, recruitment_id: int, applicant: User, payload: ApplicationCreate
 ) -> Application:
     """学生提交申请。"""
+    if applicant.role not in {UserRole.STUDENT, UserRole.LEADER}:
+        raise BusinessError(
+            "当前身份不能提交入队申请",
+            code=40302,
+            http_status=403,
+        )
     rec = db.get(Recruitment, recruitment_id)
     if rec is None:
         raise BusinessError("招募信息不存在", code=40401, http_status=404)
@@ -235,7 +241,22 @@ def list_for_team(db: Session, team_id: int) -> list[dict]:
                     "username": user.username,
                     "real_name": user.real_name,
                     "school": user.school,
+                    "student_number": user.student_number,
+                    "college": user.college,
                 },
+                "resume": (
+                    {
+                        "name": user.resume_name,
+                        "mime_type": user.resume_mime,
+                        "size": user.resume_size or 0,
+                        "uploaded_at": user.resume_uploaded_at,
+                        "download_url": (
+                            f"/api/v1/profile/users/{user.id}/resume"
+                        ),
+                    }
+                    if user.resume_name
+                    else None
+                ),
                 "skills": skills_by_user.get(user.id, []),
             }
         )

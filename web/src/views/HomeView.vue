@@ -33,6 +33,10 @@ async function loadCards() {
 }
 
 async function apply(card: TeamCard) {
+  if (!store.canParticipate) {
+    ElMessage.warning('协会管理员不能申请加入学生团队')
+    return
+  }
   if (!store.isLoggedIn) {
     ElMessage.warning('请先登录再申请加入队伍')
     await router.push('/login')
@@ -64,8 +68,23 @@ onMounted(loadCards)
         <p>能力画像 · 智能匹配 · 队伍招募 · 协作交流，从发现队友到组队参赛的一站式平台</p>
         <div class="hero-actions">
           <el-button type="primary" size="large" @click="router.push('/register')">立即加入</el-button>
-          <el-button size="large" @click="router.push(store.isLoggedIn ? '/recommendations' : '/login')">
-            {{ store.isLoggedIn ? '查看智能推荐' : '体验智能推荐' }}
+          <el-button
+            size="large"
+            @click="router.push(
+              store.isAssociationAdmin
+                ? '/admin'
+                : store.isLoggedIn
+                  ? '/recommendations'
+                  : '/login'
+            )"
+          >
+            {{
+              store.isAssociationAdmin
+                ? '进入管理后台'
+                : store.isLoggedIn
+                  ? '查看智能推荐'
+                  : '体验智能推荐'
+            }}
           </el-button>
         </div>
       </div>
@@ -119,8 +138,23 @@ onMounted(loadCards)
           </div>
           <template #footer>
             <div class="flex-between">
-              <el-button link type="primary" @click="router.push(`/teams/${card.team_id}`)">查看详情</el-button>
-              <el-button type="primary" size="small" @click="apply(card)">申请加入</el-button>
+              <el-button
+                v-if="!store.isAssociationAdmin"
+                link
+                type="primary"
+                @click="router.push(`/teams/${card.team_id}`)"
+              >
+                查看详情
+              </el-button>
+              <span v-else class="muted">协会管理员为只读身份</span>
+              <el-button
+                v-if="!store.isAssociationAdmin"
+                type="primary"
+                size="small"
+                @click="apply(card)"
+              >
+                申请加入
+              </el-button>
             </div>
           </template>
         </el-card>

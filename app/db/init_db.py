@@ -44,6 +44,7 @@ USER_SEED = [
     ("alice", "alice@example.com", "Alice", "清华大学", UserRole.STUDENT, "123456"),
     ("bob", "bob@example.com", "Bob", "北京大学", UserRole.LEADER, "123456"),
     ("carol", "carol@example.com", "Carol", "浙江大学", UserRole.STUDENT, "123456"),
+    ("association", "association@example.com", "协会管理员", "平台", UserRole.ASSOCIATION_ADMIN, "123456"),
     ("admin", "admin@example.com", "Admin", "平台", UserRole.PLATFORM_ADMIN, "123456"),
 ]
 

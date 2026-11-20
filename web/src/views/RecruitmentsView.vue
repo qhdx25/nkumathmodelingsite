@@ -30,7 +30,7 @@ async function load() {
 
 /** 查我带的队伍，用于显示“编辑/关闭”按钮（后端仍会做真正的权限校验） */
 async function loadLeaderTeams() {
-  if (!store.isLoggedIn) return
+  if (!store.isLoggedIn || !store.canParticipate) return
   const mine = await teamApi.mine()
   const details = await Promise.all(mine.map((t) => teamApi.detail(t.id)))
   leaderTeamIds.value = new Set(
@@ -43,6 +43,10 @@ async function loadLeaderTeams() {
 }
 
 async function apply(r: RecruitmentOut) {
+  if (!store.canParticipate) {
+    ElMessage.warning('协会管理员不能申请加入学生团队')
+    return
+  }
   if (!store.isLoggedIn) {
     ElMessage.warning('请先登录')
     return
@@ -105,7 +109,13 @@ onMounted(async () => {
           </el-tag>
         </div>
         <div class="actions">
-          <el-button v-if="r.status === 'open'" type="primary" @click="apply(r)">申请加入</el-button>
+          <el-button
+            v-if="r.status === 'open' && !store.isAssociationAdmin"
+            type="primary"
+            @click="apply(r)"
+          >
+            申请加入
+          </el-button>
           <el-button v-if="r.status === 'open' && leaderTeamIds.has(r.team_id)" type="danger" plain @click="close(r)">
             关闭招募
           </el-button>

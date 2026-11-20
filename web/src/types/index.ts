@@ -6,7 +6,12 @@
  */
 
 // ---------- 用户与认证 ----------
-export type UserRole = 'student' | 'leader' | 'school_admin' | 'platform_admin'
+export type UserRole =
+  | 'student'
+  | 'leader'
+  | 'association_admin'
+  | 'school_admin'
+  | 'platform_admin'
 export type UserStatus = 'active' | 'disabled'
 
 export interface UserOut {
@@ -15,6 +20,12 @@ export interface UserOut {
   email: string
   real_name: string | null
   school: string | null
+  student_number: string | null
+  college: string | null
+  phone: string | null
+  qq: string | null
+  wechat: string | null
+  github: string | null
   role: UserRole
   status: UserStatus
   created_at: string
@@ -77,19 +88,45 @@ export interface Preference {
 export interface ProfileOut {
   user_id: number
   username: string
+  role: UserRole
   real_name: string | null
   school: string | null
+  student_number: string | null
+  college: string | null
+  phone: string | null
+  email: string
+  qq: string | null
+  wechat: string | null
+  github: string | null
   skills: SkillView[]
   projects: ProjectExperience[]
   competitions: ProjectExperience[]
   preference: Preference
+  resume: ResumeOut | null
 }
 
 export interface ProfileUpdate {
+  real_name?: string | null
+  school?: string | null
+  student_number?: string | null
+  college?: string | null
+  phone?: string | null
+  email?: string | null
+  qq?: string | null
+  wechat?: string | null
+  github?: string | null
   skills?: { capability_id: number; level: number }[]
   projects?: ProjectExperience[]
   competitions?: ProjectExperience[]
   preference?: Preference
+}
+
+export interface ResumeOut {
+  name: string
+  mime_type: string
+  size: number
+  uploaded_at: string | null
+  download_url: string
 }
 
 // ---------- 团队 ----------
@@ -185,8 +222,16 @@ export interface ApplicationOut {
 }
 
 export interface ApplicationWithApplicant extends ApplicationOut {
-  applicant: { id: number; username: string; real_name: string | null; school: string | null } | null
+  applicant: {
+    id: number
+    username: string
+    real_name: string | null
+    school: string | null
+    student_number: string | null
+    college: string | null
+  } | null
   skills: { name: string; level: number }[]
+  resume: ResumeOut | null
 }
 
 // ---------- 推荐 ----------

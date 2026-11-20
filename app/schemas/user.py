@@ -14,6 +14,9 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8, max_length=72, description="明文密码，入库前哈希")
     real_name: str | None = Field(default=None, max_length=50)
     school: str | None = Field(default=None, max_length=100)
+    student_number: str | None = Field(default=None, max_length=40)
+    college: str | None = Field(default=None, max_length=100)
+    phone: str | None = Field(default=None, max_length=30)
 
     @field_validator("username")
     @classmethod
@@ -34,6 +37,12 @@ class UserOut(BaseModel):
     email: EmailStr
     real_name: str | None = None
     school: str | None = None
+    student_number: str | None = None
+    college: str | None = None
+    phone: str | None = None
+    qq: str | None = None
+    wechat: str | None = None
+    github: str | None = None
     role: UserRole
     status: UserStatus
     created_at: datetime
@@ -55,3 +64,5 @@ class UserBrief(BaseModel):
     username: str
     real_name: str | None = None
     school: str | None = None
+    student_number: str | None = None
+    college: str | None = None

@@ -23,6 +23,7 @@ def utcnow() -> datetime:
 class UserRole(str, enum.Enum):
     STUDENT = "student"          # 普通学生
     LEADER = "leader"            # 队长（全局标识，实际权限看团队成员表）
+    ASSOCIATION_ADMIN = "association_admin"  # 协会管理员（只读后台）
     SCHOOL_ADMIN = "school_admin"      # 学校管理员
     PLATFORM_ADMIN = "platform_admin"  # 平台管理员
 
@@ -41,6 +42,21 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(200))
     real_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
     school: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    student_number: Mapped[str | None] = mapped_column(
+        String(40), nullable=True, index=True
+    )
+    college: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    qq: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    wechat: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    github: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    resume_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    resume_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    resume_mime: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    resume_size: Mapped[int | None] = mapped_column(nullable=True)
+    resume_uploaded_at: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True
+    )
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole), default=UserRole.STUDENT, index=True
     )

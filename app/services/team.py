@@ -14,6 +14,12 @@ from app.services.team_score import compute_team_score
 
 def create_team(db: Session, current: User, payload: TeamCreate) -> Team:
     """建队并把创建者设为队长。两个 insert 必须在同一事务里。"""
+    if current.role not in {UserRole.STUDENT, UserRole.LEADER}:
+        raise BusinessError(
+            "当前身份不能创建或加入团队",
+            code=40302,
+            http_status=403,
+        )
     locked_user = db.scalar(
         select(User).where(User.id == current.id).with_for_update()
     )
@@ -79,6 +85,13 @@ def add_member(
 
     force=True 表示队长直接拉人（第 6 章练习接口），审批通过也走同一函数。
     """
+    if user.role not in {UserRole.STUDENT, UserRole.LEADER}:
+        raise BusinessError(
+            "该用户身份不能加入学生团队",
+            code=40302,
+            http_status=403,
+        )
+
     # 先锁用户行，确保同一用户不会被两个团队并发添加。
     locked_user = db.scalar(
         select(User).where(User.id == user.id).with_for_update()

@@ -18,6 +18,7 @@ const drawerVisible = ref(false)
 const activeMenu = computed(() => route.path)
 const roleLabels: Record<string, string> = {
   student: '学生', leader: '队长',
+  association_admin: '协会管理员',
   school_admin: '学校管理员', platform_admin: '平台管理员',
 }
 const roleLabel = computed(() => roleLabels[store.user?.role || ''] || '')
@@ -57,19 +58,31 @@ async function logout() {
         <el-menu-item index="/recruitments">
           <el-icon><Search /></el-icon><template #title>招募广场</template>
         </el-menu-item>
-        <el-menu-item v-if="store.isLoggedIn" index="/recommendations">
+        <el-menu-item
+          v-if="store.isLoggedIn && !store.isAssociationAdmin"
+          index="/recommendations"
+        >
           <el-icon><DataAnalysis /></el-icon><template #title>智能推荐</template>
         </el-menu-item>
         <el-menu-item v-if="store.isLoggedIn" index="/profile">
-          <el-icon><User /></el-icon><template #title>能力画像</template>
+          <el-icon><User /></el-icon><template #title>个人中心</template>
         </el-menu-item>
-        <el-menu-item v-if="store.isLoggedIn" index="/teams">
+        <el-menu-item
+          v-if="store.isLoggedIn && !store.isAssociationAdmin"
+          index="/teams"
+        >
           <el-icon><UserFilled /></el-icon><template #title>我的团队</template>
         </el-menu-item>
-        <el-menu-item v-if="store.isLoggedIn" index="/applications">
+        <el-menu-item
+          v-if="store.isLoggedIn && !store.isAssociationAdmin"
+          index="/applications"
+        >
           <el-icon><Document /></el-icon><template #title>申请管理</template>
         </el-menu-item>
-        <el-menu-item v-if="store.isLoggedIn" index="/chat">
+        <el-menu-item
+          v-if="store.isLoggedIn && !store.isAssociationAdmin"
+          index="/chat"
+        >
           <el-icon><Message /></el-icon><template #title>团队交流</template>
         </el-menu-item>
         <el-menu-item v-if="store.isAdmin" index="/admin">

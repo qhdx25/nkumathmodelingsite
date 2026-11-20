@@ -53,6 +53,14 @@ class Settings(BaseSettings):
         le=15 * 60,
     )
 
+    # ---- 私有简历 ----
+    RESUME_UPLOAD_DIR: str = "uploads/resumes"
+    RESUME_MAX_BYTES: int = Field(
+        default=10 * 1024 * 1024,
+        ge=1024 * 1024,
+        le=50 * 1024 * 1024,
+    )
+
     # SettingsConfigDict 是 pydantic-settings v2 的写法
     model_config = SettingsConfigDict(
         env_file=".env",

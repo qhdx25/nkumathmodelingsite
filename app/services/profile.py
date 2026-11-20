@@ -7,10 +7,12 @@ from app.models.capability import Capability
 from app.models.profile import UserProfile, UserSkill
 from app.models.user import User
 from app.schemas.profile import Preference, ProfileUpdate
+from app.services.resume import can_view_resume, serialize_resume
 
 
-def get_profile(db: Session, user: User) -> dict:
+def get_profile(db: Session, user: User, viewer: User | None = None) -> dict:
     """拼接画像：技能（联表取名称）+ 经历 + 偏好。"""
+    viewer = viewer or user
     # join 一次查出技能与维度名称，避免循环里 N+1 查询
     rows = db.execute(
         select(UserSkill, Capability)
@@ -33,12 +35,25 @@ def get_profile(db: Session, user: User) -> dict:
     return {
         "user_id": user.id,
         "username": user.username,
+        "role": user.role,
         "real_name": user.real_name,
         "school": user.school,
+        "student_number": user.student_number,
+        "college": user.college,
+        "phone": user.phone,
+        "email": user.email,
+        "qq": user.qq,
+        "wechat": user.wechat,
+        "github": user.github,
         "skills": skills,
         "projects": profile.projects if profile and profile.projects else [],
         "competitions": profile.competitions if profile and profile.competitions else [],
         "preference": profile.preference if profile and profile.preference else {},
+        "resume": (
+            serialize_resume(user)
+            if can_view_resume(db, viewer, user)
+            else None
+        ),
     }
 
 
@@ -49,14 +64,39 @@ def update_profile(db: Session, user: User, payload: ProfileUpdate) -> dict:
     任何一步失败都 rollback，避免“技能改了、偏好没改”的不一致状态。
     """
     try:
+        if "email" in payload.model_fields_set and payload.email is None:
+            raise BusinessError("邮箱不能为空", code=40001)
+        if payload.email is not None and payload.email != user.email:
+            duplicate = db.scalar(
+                select(User).where(
+                    User.email == str(payload.email),
+                    User.id != user.id,
+                )
+            )
+            if duplicate is not None:
+                raise BusinessError("该邮箱已被其他账号使用", code=40901, http_status=409)
+
+        for field in (
+            "real_name",
+            "school",
+            "student_number",
+            "college",
+            "phone",
+            "email",
+            "qq",
+            "wechat",
+            "github",
+        ):
+            if field in payload.model_fields_set:
+                value = getattr(payload, field)
+                setattr(user, field, str(value) if field == "email" and value else value)
+
         if payload.skills is not None:
             # 一次性查出所有引用的维度，逐个 db.get 会产生 N+1 查询
             ids = [s.capability_id for s in payload.skills]
             caps = db.scalars(select(Capability).where(Capability.id.in_(ids))).all() if ids else []
             if len(caps) != len(set(ids)):
                 raise BusinessError("存在不存在的能力维度 ID", code=40001)
-            cap_map = {c.id: c for c in caps}
-
             old_skills = db.scalars(
                 select(UserSkill).where(UserSkill.user_id == user.id)
             ).all()
@@ -97,4 +137,4 @@ def update_profile(db: Session, user: User, payload: ProfileUpdate) -> dict:
     except Exception:
         db.rollback()
         raise
-    return get_profile(db, user)
+    return get_profile(db, user, viewer=user)

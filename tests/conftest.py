@@ -9,6 +9,7 @@ import tempfile
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["CHAT_UPLOAD_DIR"] = tempfile.mkdtemp(prefix="mathteam-chat-test-")
+os.environ["RESUME_UPLOAD_DIR"] = tempfile.mkdtemp(prefix="mathteam-resume-test-")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
