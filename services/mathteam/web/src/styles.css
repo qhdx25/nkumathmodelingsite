@@ -1,0 +1,68 @@
+/* 全局样式：轻量、统一，具体组件用 Element Plus 的默认主题 */
+
+:root {
+  --mt-primary: #4f46e5;
+  --mt-bg: #f5f7fb;
+  --mt-text: #1f2937;
+  --mt-muted: #6b7280;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: var(--mt-text);
+  background: var(--mt-bg);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.page {
+  padding: 20px 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.page-desc {
+  color: var(--mt-muted);
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-cards {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.grid-two {
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+}
+
+.muted { color: var(--mt-muted); font-size: 13px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.right { text-align: right; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+.chart-box { width: 100%; height: 320px; }
+.empty-tip { padding: 40px; text-align: center; color: var(--mt-muted); }
