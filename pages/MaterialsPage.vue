@@ -1,15 +1,18 @@
 <script setup>
 import PaperLibrary from '../components/PaperLibrary.vue'
 import { feishu, groups } from '../data/materials'
+import HeroSlider from '../components/HeroSlider.vue'
+const heroItems = Array.from({ length: 6 }, (_, index) => ({ id: `hero-${index + 1}`, image: `/img/hero/nku-0${index + 1}.jpg`, title: '南开大学数学建模协会', tag: '校园风景', url: '#' }))
 </script>
 
 <template>
   <main class="page">
+    <HeroSlider :items="heroItems" />
     <section class="page-head">
       <div class="container">
-        <h1>资料共享，共同进步</h1>
+        <h1 class="materials-page-title">建模资料</h1>
         <p class="page-lead">
-          历年真题、获奖论文与工具资料，按五类归档。真题与论文以外部链接为主，
+          <strong class="materials-page-subtitle">资料共享，共同进步</strong><br />历年真题、获奖论文与工具资料，按五类归档。真题与论文以外部链接为主，
           LaTeX / Python / MATLAB 三类正在整理。
         </p>
       </div>
@@ -32,12 +35,8 @@ import { feishu, groups } from '../data/materials'
       </div>
     </section>
 
-    <section v-for="g in groups" :id="g.id" :key="g.id" class="section material-section">
+    <details v-for="g in groups" :id="g.id" :key="g.id" class="section material-section material-details"><summary class="section-head"><h2>{{ g.title }}</h2><span class="material-toggle"><span>展开 / 收起</span></span></summary><div class="material-details-body"><div class="container">
       <div class="container">
-        <div class="section-head">
-          <h2>{{ g.title }}</h2>
-          <span v-if="g.placeholder" class="head-note">整理中</span>
-        </div>
 
         <p class="section-intro">{{ g.desc }}</p>
 
@@ -60,7 +59,7 @@ import { feishu, groups } from '../data/materials'
           {{ g.placeholder }}
         </p>
       </div>
-    </section>
+    </div></div></details>
 
     <section class="section">
       <div class="container">
@@ -75,3 +74,7 @@ import { feishu, groups } from '../data/materials'
     </section>
   </main>
 </template>
+
+<style scoped>.material-details{margin:0;border-top:1px solid var(--line)}.material-details summary{list-style:none;cursor:pointer}.material-details summary::-webkit-details-marker{display:none}.material-details summary:after{content:'+';color:var(--accent);font-size:20px}.material-details[open] summary:after{content:'-'} .material-details-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows 280ms ease;overflow:hidden}.material-details[open] .material-details-body{grid-template-rows:1fr}.material-details-body>.container{min-height:0}@media(prefers-reduced-motion:reduce){.material-details-body{transition:none}}</style>
+
+<style scoped>.material-details>.section-head{justify-content:flex-start;gap:8px}.material-toggle{display:inline-flex;align-items:center;gap:5px;color:var(--faint);font-size:12px}.material-details summary:after{content:none}.material-toggle:before{content:'›';display:inline-block;color:var(--accent);font-size:20px;line-height:1;transition:transform 280ms ease}.material-details[open] .material-toggle:before{transform:rotate(90deg)}.material-details-body{transition:grid-template-rows 420ms cubic-bezier(.22,.61,.36,1)}@media(prefers-reduced-motion:reduce){.material-toggle:before{transition:none}}</style>
