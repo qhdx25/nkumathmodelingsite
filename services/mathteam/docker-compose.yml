@@ -1,0 +1,29 @@
+# 本地一键起 PostgreSQL + Redis（教程第 11 章）。
+# 用法：docker compose up -d
+# 使用 Docker PostgreSQL 时，把 DATABASE_URL 改为：
+# postgresql+psycopg://postgres:postgres@localhost:5432/mathteam
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mathteam
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mathteam"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

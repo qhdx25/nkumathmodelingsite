@@ -1,0 +1,72 @@
+# MathTeam 接口调试示例（JetBrains HTTP Client / VS Code REST Client）
+# 用法：先启动 uvicorn main:app --reload，再依次执行下面的请求。
+
+### 1. 健康检查
+GET http://127.0.0.1:8000/health
+Accept: application/json
+
+### 2. 能力维度列表（无需登录）
+GET http://127.0.0.1:8000/api/v1/capabilities
+Accept: application/json
+
+### 3. 登录拿 Token（表单提交，不是 JSON）
+POST http://127.0.0.1:8000/api/v1/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=alice&password=123456
+
+> {%
+    client.global.set("alice_token", response.body.access_token);
+%}
+
+### 4. 我的画像（带 Bearer Token）
+GET http://127.0.0.1:8000/api/v1/profile/me
+Authorization: Bearer {{alice_token}}
+Accept: application/json
+
+### 5. 首页队伍卡片
+GET http://127.0.0.1:8000/api/v1/recruitments/cards
+Accept: application/json
+
+### 6. 智能推荐（带理由）
+GET http://127.0.0.1:8000/api/v1/recommendations/teams?top_k=5
+Authorization: Bearer {{alice_token}}
+Accept: application/json
+
+### 7. 提交加入申请
+POST http://127.0.0.1:8000/api/v1/applications/recruitments/1
+Authorization: Bearer {{alice_token}}
+Content-Type: application/json
+
+{"message": "我看过论文写作相关经历，希望加入"}
+
+### 8. 队长登录（审批用）
+POST http://127.0.0.1:8000/api/v1/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=bob&password=123456
+
+> {%
+    client.global.set("bob_token", response.body.access_token);
+%}
+
+### 9. 队长查看申请
+GET http://127.0.0.1:8000/api/v1/applications/teams/1
+Authorization: Bearer {{bob_token}}
+Accept: application/json
+
+### 10. 运营统计（平台管理员）
+POST http://127.0.0.1:8000/api/v1/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=123456
+
+> {%
+    client.global.set("admin_token", response.body.access_token);
+%}
+
+###
+
+GET http://127.0.0.1:8000/api/v1/admin/stats
+Authorization: Bearer {{admin_token}}
+Accept: application/json
