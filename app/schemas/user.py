@@ -44,6 +44,7 @@ class UserOut(BaseModel):
     wechat: str | None = None
     github: str | None = None
     role: UserRole
+    is_admin: bool
     status: UserStatus
     created_at: datetime
 

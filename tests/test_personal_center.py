@@ -1,4 +1,4 @@
-"""个人中心、协会管理员与私有简历的回归测试。"""
+"""个人中心、管理员与私有简历的回归测试。"""
 
 from tests.conftest import login
 from tests.test_regressions import _create_team, _publish, _register_and_login
@@ -114,32 +114,20 @@ def test_private_resume_visibility_and_application_workflow(client):
     assert downloaded.content == pdf_bytes
     assert downloaded.headers["content-disposition"].startswith("attachment")
 
-    association_token = login(client, "association")
-    association_headers = {"Authorization": f"Bearer {association_token}"}
-    association_view = client.get(
-        f"/api/v1/profile/users/{applicant['id']}",
-        headers=association_headers,
-    )
-    assert association_view.status_code == 200
-    assert association_view.json()["resume"]["name"] == "我的简历.pdf"
-    assert client.get(
-        f"/api/v1/profile/users/{applicant['id']}/resume",
-        headers=association_headers,
-    ).status_code == 200
-
-    # 平台管理员可查看画像，但严格按需求不能查看私有简历文件。
     admin_token = login(client, "admin")
-    platform_headers = {"Authorization": f"Bearer {admin_token}"}
-    platform_profile = client.get(
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    admin_view = client.get(
         f"/api/v1/profile/users/{applicant['id']}",
-        headers=platform_headers,
+        headers=admin_headers,
     )
-    assert platform_profile.status_code == 200
-    assert platform_profile.json()["resume"] is None
-    assert client.get(
+    assert admin_view.status_code == 200
+    assert admin_view.json()["resume"]["name"] == "我的简历.pdf"
+    admin_download = client.get(
         f"/api/v1/profile/users/{applicant['id']}/resume",
-        headers=platform_headers,
-    ).status_code == 403
+        headers=admin_headers,
+    )
+    assert admin_download.status_code == 200
+    assert admin_download.content == pdf_bytes
 
     deleted = client.delete("/api/v1/profile/me/resume", headers=applicant_headers)
     assert deleted.status_code == 200
@@ -148,9 +136,9 @@ def test_private_resume_visibility_and_application_workflow(client):
     ).json()["resume"] is None
 
 
-def test_association_admin_is_read_only_and_can_export(client):
-    association_token = login(client, "association")
-    headers = {"Authorization": f"Bearer {association_token}"}
+def test_admin_has_full_backend_access_and_can_export(client):
+    admin_token = login(client, "admin")
+    headers = {"Authorization": f"Bearer {admin_token}"}
 
     assert client.get("/api/v1/admin/users", headers=headers).status_code == 200
     assert client.get("/api/v1/admin/stats", headers=headers).status_code == 200
@@ -158,39 +146,28 @@ def test_association_admin_is_read_only_and_can_export(client):
     assert teams.status_code == 200
     assert all("composite_score" in team for team in teams.json())
 
-    created = client.post(
-        "/api/v1/teams",
-        json={
-            "name": "协会管理员非法建队",
-            "competition_track": "math_modeling",
-            "max_size": 3,
-        },
+    users = client.get("/api/v1/admin/users", headers=headers).json()["items"]
+    user = next(item for item in users if item["username"] == "carol")
+    current_admin = next(item for item in users if item["username"] == "admin")
+    self_disable = client.patch(
+        f"/api/v1/admin/users/{current_admin['id']}/status",
+        params={"status": "disabled"},
         headers=headers,
     )
-    assert created.status_code == 403
-
-    # 取一条任意开放招募；即使招募已关闭，身份校验也应先拒绝。
-    recruitments = client.get("/api/v1/admin/recruitments", headers=headers)
-    assert recruitments.status_code == 200
-    if recruitments.json():
-        attempt_apply = client.post(
-            f"/api/v1/applications/recruitments/{recruitments.json()[0]['id']}",
-            json={"message": "协会管理员不应能申请"},
-            headers=headers,
-        )
-        assert attempt_apply.status_code == 403
-
-    user = client.get("/api/v1/admin/users", headers=headers).json()["items"][0]
-    assert client.patch(
+    assert self_disable.status_code == 400
+    disabled = client.patch(
         f"/api/v1/admin/users/{user['id']}/status",
         params={"status": "disabled"},
         headers=headers,
-    ).status_code == 403
-    if recruitments.json():
-        assert client.delete(
-            f"/api/v1/admin/recruitments/{recruitments.json()[0]['id']}",
-            headers=headers,
-        ).status_code == 403
+    )
+    assert disabled.status_code == 200
+    assert disabled.json()["status"] == "disabled"
+    enabled = client.patch(
+        f"/api/v1/admin/users/{user['id']}/status",
+        params={"status": "active"},
+        headers=headers,
+    )
+    assert enabled.status_code == 200
 
     exported = client.get("/api/v1/admin/export", headers=headers)
     assert exported.status_code == 200
@@ -201,51 +178,129 @@ def test_association_admin_is_read_only_and_can_export(client):
     assert "竞赛与奖项" in text
 
 
-def test_association_admin_cannot_be_added_to_a_team(client):
-    association_token = login(client, "association")
-    association_headers = {"Authorization": f"Bearer {association_token}"}
-    association_user = client.get(
-        "/api/v1/auth/me", headers=association_headers
-    ).json()
-    _, leader_headers = _register_and_login(
-        client, "association_guard_leader", "身份边界大学"
+def test_admin_can_be_added_to_a_team(client):
+    candidate, _ = _register_and_login(
+        client, "admin_team_candidate", "管理员参赛大学"
     )
-    team = _create_team(client, leader_headers, "协会身份边界队", max_size=3)
+    admin_headers = {
+        "Authorization": f"Bearer {login(client, 'admin')}"
+    }
+    promoted = client.patch(
+        f"/api/v1/admin/users/{candidate['id']}/admin",
+        params={"enable": True},
+        headers=admin_headers,
+    )
+    assert promoted.status_code == 200
+
+    _, leader_headers = _register_and_login(
+        client, "admin_team_leader", "管理员参赛大学"
+    )
+    team = _create_team(client, leader_headers, "管理员参赛测试队", max_size=3)
     response = client.post(
-        f"/api/v1/teams/{team['id']}/members/{association_user['id']}",
+        f"/api/v1/teams/{team['id']}/members/{candidate['id']}",
         headers=leader_headers,
     )
-    assert response.status_code == 403
+    assert response.status_code == 200, response.text
 
-
-def test_platform_admin_can_assign_read_only_association_role(client):
-    candidate, _ = _register_and_login(
-        client, "association_role_candidate", "身份配置大学"
-    )
-    candidate_token = login(client, "association_role_candidate", "secret123")
+    candidate_token = login(client, "admin_team_candidate", "secret123")
     candidate_headers = {"Authorization": f"Bearer {candidate_token}"}
-    platform_headers = {
+    candidate_me = client.get("/api/v1/auth/me", headers=candidate_headers).json()
+    assert candidate_me["role"] == "student"
+    assert candidate_me["is_admin"] is True
+    assert client.get(
+        "/api/v1/admin/stats", headers=candidate_headers
+    ).status_code == 200
+
+
+def test_admin_can_assign_and_remove_admin_role(client):
+    candidate, _ = _register_and_login(
+        client, "admin_role_candidate", "身份配置大学"
+    )
+    candidate_token = login(client, "admin_role_candidate", "secret123")
+    candidate_headers = {"Authorization": f"Bearer {candidate_token}"}
+    admin_headers = {
         "Authorization": f"Bearer {login(client, 'admin')}"
     }
 
     enabled = client.patch(
-        f"/api/v1/admin/users/{candidate['id']}/association-admin",
+        f"/api/v1/admin/users/{candidate['id']}/admin",
         params={"enable": True},
-        headers=platform_headers,
+        headers=admin_headers,
     )
     assert enabled.status_code == 200, enabled.text
-    assert enabled.json()["role"] == "association_admin"
+    assert enabled.json()["role"] == "student"
+    assert enabled.json()["is_admin"] is True
     assert client.get(
         "/api/v1/admin/stats", headers=candidate_headers
     ).status_code == 200
 
     disabled = client.patch(
-        f"/api/v1/admin/users/{candidate['id']}/association-admin",
+        f"/api/v1/admin/users/{candidate['id']}/admin",
         params={"enable": False},
-        headers=platform_headers,
+        headers=admin_headers,
     )
     assert disabled.status_code == 200
     assert disabled.json()["role"] == "student"
+    assert disabled.json()["is_admin"] is False
     assert client.get(
         "/api/v1/admin/stats", headers=candidate_headers
     ).status_code == 403
+
+
+def test_team_leader_can_become_admin_without_losing_team_role(client):
+    leader, leader_headers = _register_and_login(
+        client, "promoted_team_leader", "管理员兼任测试大学"
+    )
+    _create_team(client, leader_headers, "管理员兼任测试队", max_size=3)
+    admin_headers = {
+        "Authorization": f"Bearer {login(client, 'admin')}"
+    }
+
+    promoted = client.patch(
+        f"/api/v1/admin/users/{leader['id']}/admin",
+        params={"enable": True},
+        headers=admin_headers,
+    )
+    assert promoted.status_code == 200, promoted.text
+    assert promoted.json()["role"] == "leader"
+    assert promoted.json()["is_admin"] is True
+
+    demoted = client.patch(
+        f"/api/v1/admin/users/{leader['id']}/admin",
+        params={"enable": False},
+        headers=admin_headers,
+    )
+    assert demoted.status_code == 200, demoted.text
+    assert demoted.json()["role"] == "leader"
+    assert demoted.json()["is_admin"] is False
+
+
+def test_admin_can_create_team_and_retain_backend_access(client):
+    candidate, _ = _register_and_login(
+        client, "admin_creating_team", "管理员建队大学"
+    )
+    admin_headers = {
+        "Authorization": f"Bearer {login(client, 'admin')}"
+    }
+    promoted = client.patch(
+        f"/api/v1/admin/users/{candidate['id']}/admin",
+        params={"enable": True},
+        headers=admin_headers,
+    )
+    assert promoted.status_code == 200
+
+    candidate_token = login(client, "admin_creating_team", "secret123")
+    candidate_headers = {"Authorization": f"Bearer {candidate_token}"}
+    team = _create_team(
+        client,
+        candidate_headers,
+        "管理员正常参赛队",
+        max_size=3,
+    )
+    me = client.get("/api/v1/auth/me", headers=candidate_headers).json()
+    assert team["id"]
+    assert me["role"] == "leader"
+    assert me["is_admin"] is True
+    assert client.get(
+        "/api/v1/admin/stats", headers=candidate_headers
+    ).status_code == 200

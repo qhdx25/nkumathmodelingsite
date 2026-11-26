@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import ElMessage from 'element-plus/es/components/message/index.mjs'
 import ElMessageBox from 'element-plus/es/components/message-box/index.mjs'
 import echarts from '@/utils/echarts'
@@ -33,7 +33,6 @@ const loading = ref(false)
 const exporting = ref(false)
 let chart: ReturnType<typeof echarts.init> | null = null
 
-const canManage = computed(() => !store.isAssociationAdmin)
 const statsLabels: Record<string, string> = {
   users: '用户',
   teams: '团队',
@@ -46,9 +45,6 @@ const statsLabels: Record<string, string> = {
 const roleLabels: Record<string, string> = {
   student: '学生',
   leader: '队长',
-  association_admin: '协会管理员',
-  school_admin: '学校管理员',
-  platform_admin: '平台管理员',
 }
 
 async function load() {
@@ -133,16 +129,16 @@ async function toggleStatus(user: UserOut) {
   await load()
 }
 
-async function toggleAssociationAdmin(user: UserOut) {
-  const enable = user.role !== 'association_admin'
+async function toggleAdmin(user: UserOut) {
+  const enable = !user.is_admin
   await ElMessageBox.confirm(
     enable
-      ? `确认将 ${user.username} 设为只读协会管理员？`
-      : `确认取消 ${user.username} 的协会管理员身份？`,
+      ? `确认将 ${user.username} 设为管理员？`
+      : `确认取消 ${user.username} 的管理员身份？`,
     '身份变更',
     { type: 'warning' },
   )
-  await adminApi.setAssociationAdmin(user.id, enable)
+  await adminApi.setAdmin(user.id, enable)
   ElMessage.success('身份已更新')
   await load()
 }
@@ -177,20 +173,12 @@ onUnmounted(() => {
       <div>
         <h1 class="page-title">后台管理</h1>
         <p class="page-desc">
-          {{
-            store.isAssociationAdmin
-              ? '只读查看组队、团队评分、能力图谱与奖项经历'
-              : '用户、团队、招募管理与运营数据统计'
-          }}
+          用户、团队、招募管理与运营数据统计
         </p>
       </div>
       <el-button type="primary" :loading="exporting" @click="exportTable">
         一键导出表格
       </el-button>
-    </div>
-
-    <div v-if="store.isAssociationAdmin" class="read-only-tip">
-      协会管理员为只读角色，不能创建或加入团队，也不能修改用户和招募状态。
     </div>
 
     <div class="grid grid-two">
@@ -226,9 +214,12 @@ onUnmounted(() => {
         </el-table-column>
         <el-table-column label="身份" width="115">
           <template #default="{ row }">
-            <el-tag size="small" :type="row.role.includes('admin') ? 'warning' : 'info'">
-              {{ roleLabels[row.role] || row.role }}
-            </el-tag>
+            <div class="role-tags">
+              <el-tag size="small" type="info">
+                {{ roleLabels[row.role] || row.role }}
+              </el-tag>
+              <el-tag v-if="row.is_admin" size="small" type="warning">管理员</el-tag>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="状态" width="90">
@@ -242,7 +233,7 @@ onUnmounted(() => {
           <template #default="{ row }">
             <el-button link type="primary" @click="openProfile(row)">查看画像</el-button>
             <el-button
-              v-if="canManage"
+              v-if="row.id !== store.user?.id"
               link
               :type="row.status === 'active' ? 'danger' : 'success'"
               @click="toggleStatus(row)"
@@ -250,12 +241,12 @@ onUnmounted(() => {
               {{ row.status === 'active' ? '停用' : '启用' }}
             </el-button>
             <el-button
-              v-if="store.isPlatformAdmin && !['platform_admin', 'school_admin'].includes(row.role)"
+              v-if="row.id !== store.user?.id"
               link
               type="warning"
-              @click="toggleAssociationAdmin(row)"
+              @click="toggleAdmin(row)"
             >
-              {{ row.role === 'association_admin' ? '取消协会身份' : '设协会管理员' }}
+              {{ row.is_admin ? '取消管理员' : '设为管理员' }}
             </el-button>
           </template>
         </el-table-column>
@@ -296,7 +287,7 @@ onUnmounted(() => {
           <el-table-column label="状态" width="90">
             <template #default="{ row }">{{ label(row.status) }}</template>
           </el-table-column>
-          <el-table-column v-if="canManage" label="操作" width="80">
+          <el-table-column label="操作" width="80">
             <template #default="{ row }">
               <el-button link type="danger" @click="remove(row.id)">下架</el-button>
             </template>
@@ -312,6 +303,7 @@ onUnmounted(() => {
             <h3>{{ selectedProfile.real_name || selectedProfile.username }}</h3>
             <p class="muted">
               {{ roleLabels[selectedProfile.role] }} ·
+              {{ selectedProfile.is_admin ? '管理员 · ' : '' }}
               {{ selectedProfile.student_number || '未填写学号' }} ·
               {{ selectedProfile.college || '未填写学院' }}
             </p>
@@ -410,14 +402,7 @@ onUnmounted(() => {
   font-size: 24px;
   font-weight: 700;
 }
-.read-only-tip {
-  margin-bottom: 16px;
-  padding: 11px 14px;
-  color: #92400e;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 9px;
-}
+.role-tags { display: flex; gap: 4px; flex-wrap: wrap; }
 .score { color: #4f46e5; font-size: 16px; }
 .profile-summary {
   display: flex;

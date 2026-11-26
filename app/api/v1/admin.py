@@ -1,9 +1,7 @@
 """后台管理接口（教程第 11 章，设计说明书 2.8 节）。
 
 权限范围：
-- 平台管理员：可管理全部数据；
-- 学校管理员：只能管理同校用户（scoped_users 里按 school 过滤）。
-- 协会管理员：只读查看全部组队、评分和画像信息，并可导出表格。
+- 管理员：统一拥有全部数据查看、账号管理、招募管理和 CSV 导出权限。
 关键管理操作都会写 AdminLog 留痕。
 """
 import csv
@@ -15,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 from sqlalchemy import func, select
 
-from app.api.deps import DB, Paging, require_role
+from app.api.deps import DB, Paging, require_admin
 from app.models.admin_log import AdminLog
 from app.models.application import Application
 from app.models.capability import Capability
@@ -31,43 +29,6 @@ from app.services.team_score import compute_team_score
 
 router = APIRouter(prefix="/admin", tags=["后台管理"])
 
-admin_reader = require_role(
-    UserRole.ASSOCIATION_ADMIN,
-    UserRole.SCHOOL_ADMIN,
-    UserRole.PLATFORM_ADMIN,
-)
-management_admin = require_role(UserRole.SCHOOL_ADMIN, UserRole.PLATFORM_ADMIN)
-platform_admin = require_role(UserRole.PLATFORM_ADMIN)
-
-
-def scoped_users(db, admin: User):
-    """按管理员范围返回用户查询：学校管理员只能看到同校用户。"""
-    stmt = select(User)
-    if admin.role == UserRole.SCHOOL_ADMIN:
-        stmt = stmt.where(User.school == admin.school) if admin.school else stmt.where(False)
-    return stmt
-
-
-def scoped_teams(db, admin: User):
-    """学校管理员只看到由本校用户创建的团队。"""
-    stmt = select(Team).join(User, User.id == Team.created_by)
-    if admin.role == UserRole.SCHOOL_ADMIN:
-        stmt = stmt.where(User.school == admin.school) if admin.school else stmt.where(False)
-    return stmt
-
-
-def scoped_recruitments(db, admin: User):
-    """招募归属按其所属团队创建者的学校确定。"""
-    stmt = (
-        select(Recruitment)
-        .join(Team, Team.id == Recruitment.team_id)
-        .join(User, User.id == Team.created_by)
-    )
-    if admin.role == UserRole.SCHOOL_ADMIN:
-        stmt = stmt.where(User.school == admin.school) if admin.school else stmt.where(False)
-    return stmt
-
-
 def _log(db, admin_id: int, action: str, target_type: str, target_id: int, detail: str) -> None:
     db.add(
         AdminLog(
@@ -80,13 +41,13 @@ def _log(db, admin_id: int, action: str, target_type: str, target_id: int, detai
     )
 
 
-@router.get("/users", response_model=Page[UserOut], summary="用户列表（分权限范围）")
+@router.get("/users", response_model=Page[UserOut], summary="用户列表")
 def list_users(
     db: DB,
     paging: Paging,
-    admin=Depends(admin_reader),
+    admin=Depends(require_admin),
 ) -> dict:
-    stmt = scoped_users(db, admin)
+    stmt = select(User)
     total = len(db.scalars(stmt).all())
     users = db.scalars(stmt.offset(paging[0]).limit(paging[1])).all()
     return {"items": users, "total": total, "skip": paging[0], "limit": paging[1]}
@@ -97,13 +58,13 @@ def set_user_status(
     user_id: int,
     status: UserStatus,
     db: DB,
-    admin=Depends(management_admin),
+    admin=Depends(require_admin),
 ) -> User:
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="用户不存在")
-    if admin.role == UserRole.SCHOOL_ADMIN and user.school != admin.school:
-        raise HTTPException(status_code=403, detail="只能管理本校用户")
+    if user.id == admin.id and status == UserStatus.DISABLED:
+        raise HTTPException(status_code=400, detail="不能停用当前账号")
     user.status = status
     _log(db, admin.id, "set_user_status", "user", user.id, f"status={status.value}")
     db.commit()
@@ -114,11 +75,11 @@ def set_user_status(
 @router.get("/teams", response_model=list[dict], summary="全部团队")
 def list_all_teams(
     db: DB,
-    admin=Depends(admin_reader),
+    admin=Depends(require_admin),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
 ) -> list[dict]:
-    teams = db.scalars(scoped_teams(db, admin).offset(skip).limit(limit)).all()
+    teams = db.scalars(select(Team).offset(skip).limit(limit)).all()
     result = []
     for team in teams:
         creator = db.get(User, team.created_by)
@@ -144,11 +105,9 @@ def list_all_teams(
 
 @router.get("/recruitments", response_model=list[dict], summary="全部招募信息")
 def list_all_recruitments(
-    db: DB, admin=Depends(admin_reader), skip: int = 0, limit: int = 50
+    db: DB, admin=Depends(require_admin), skip: int = 0, limit: int = 50
 ) -> list[dict]:
-    recs = db.scalars(
-        scoped_recruitments(db, admin).offset(skip).limit(limit)
-    ).all()
+    recs = db.scalars(select(Recruitment).offset(skip).limit(limit)).all()
     return [
         {"id": r.id, "title": r.title, "status": r.status.value, "team_id": r.team_id}
         for r in recs
@@ -157,16 +116,11 @@ def list_all_recruitments(
 
 @router.delete("/recruitments/{recruitment_id}", summary="下架违规招募")
 def remove_recruitment(
-    recruitment_id: int, db: DB, admin=Depends(management_admin)
+    recruitment_id: int, db: DB, admin=Depends(require_admin)
 ) -> dict:
     rec = db.get(Recruitment, recruitment_id)
     if rec is None:
         raise HTTPException(status_code=404, detail="招募信息不存在")
-    if admin.role == UserRole.SCHOOL_ADMIN:
-        team = db.get(Team, rec.team_id)
-        creator = db.get(User, team.created_by) if team else None
-        if creator is None or creator.school != admin.school:
-            raise HTTPException(status_code=403, detail="只能管理本校招募")
     _log(db, admin.id, "delete_recruitment", "recruitment", rec.id, rec.title)
     db.delete(rec)
     db.commit()
@@ -174,81 +128,43 @@ def remove_recruitment(
 
 
 @router.get("/stats", summary="运营数据统计")
-def platform_stats(db: DB, admin=Depends(admin_reader)) -> dict:
+def admin_stats(db: DB, admin=Depends(require_admin)) -> dict:
     """一次发出多条 COUNT 查询；真实项目里可按天缓存结果。"""
     def count(stmt) -> int:
         return int(db.scalar(select(func.count()).select_from(stmt.subquery())) or 0)
 
-    users_stmt = scoped_users(db, admin)
-    teams_stmt = scoped_teams(db, admin)
-    recruitments_stmt = scoped_recruitments(db, admin)
-    applications_stmt = (
-        select(Application)
-        .join(Team, Team.id == Application.team_id)
-        .join(User, User.id == Team.created_by)
-    )
-    messages_stmt = (
-        select(Message)
-        .join(Team, Team.id == Message.team_id)
-        .join(User, User.id == Team.created_by)
-    )
-    admin_logs_stmt = select(AdminLog).join(User, User.id == AdminLog.admin_id)
-    if admin.role == UserRole.SCHOOL_ADMIN:
-        if admin.school:
-            applications_stmt = applications_stmt.where(User.school == admin.school)
-            messages_stmt = messages_stmt.where(User.school == admin.school)
-            admin_logs_stmt = admin_logs_stmt.where(User.school == admin.school)
-        else:
-            applications_stmt = applications_stmt.where(False)
-            messages_stmt = messages_stmt.where(False)
-            admin_logs_stmt = admin_logs_stmt.where(False)
-
     return {
-        "users": count(users_stmt),
-        "teams": count(teams_stmt),
+        "users": count(select(User)),
+        "teams": count(select(Team)),
         "capabilities": count(select(Capability)),
-        "recruitments": count(recruitments_stmt),
-        "applications": count(applications_stmt),
-        "messages": count(messages_stmt),
-        "admin_logs": count(admin_logs_stmt),
+        "recruitments": count(select(Recruitment)),
+        "applications": count(select(Application)),
+        "messages": count(select(Message)),
+        "admin_logs": count(select(AdminLog)),
     }
 
 
 @router.patch(
-    "/users/{user_id}/association-admin",
+    "/users/{user_id}/admin",
     response_model=UserOut,
-    summary="设置或取消协会管理员",
+    summary="设置或取消管理员身份",
 )
-def set_association_admin(
+def set_admin_role(
     user_id: int,
     db: DB,
-    admin=Depends(platform_admin),
+    admin=Depends(require_admin),
     enable: bool = Query(True),
 ) -> User:
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="用户不存在")
-    if user.id == admin.id or user.role in {
-        UserRole.SCHOOL_ADMIN,
-        UserRole.PLATFORM_ADMIN,
-    }:
-        raise HTTPException(
-            status_code=400,
-            detail="不能修改管理员或当前账号的身份",
-        )
-    membership = db.scalar(
-        select(TeamMember).where(TeamMember.user_id == user.id)
-    )
-    if enable and membership is not None:
-        raise HTTPException(
-            status_code=400,
-            detail="该用户已在团队中，不能转为协会管理员",
-        )
-    user.role = UserRole.ASSOCIATION_ADMIN if enable else UserRole.STUDENT
+    if user.id == admin.id:
+        raise HTTPException(status_code=400, detail="不能修改当前账号的身份")
+    user.is_admin = enable
     _log(
         db,
         admin.id,
-        "set_association_admin",
+        "set_admin",
         "user",
         user.id,
         f"enabled={enable}",
@@ -267,11 +183,11 @@ def _csv_cell(value: object) -> str:
 
 
 @router.get("/export", summary="一键导出组队、评分与画像表格")
-def export_association_table(
+def export_admin_table(
     db: DB,
-    admin=Depends(admin_reader),
+    admin=Depends(require_admin),
 ) -> Response:
-    users = list(db.scalars(scoped_users(db, admin).order_by(User.id)).all())
+    users = list(db.scalars(select(User).order_by(User.id)).all())
     profiles = {
         profile.user_id: profile
         for profile in db.scalars(select(UserProfile)).all()
@@ -308,6 +224,7 @@ def export_association_table(
             "微信",
             "GitHub",
             "身份",
+            "管理员权限",
             "团队",
             "团队状态",
             "团队人数",
@@ -344,10 +261,8 @@ def export_association_table(
             {
                 UserRole.STUDENT: "学生",
                 UserRole.LEADER: "队长",
-                UserRole.ASSOCIATION_ADMIN: "协会管理员",
-                UserRole.SCHOOL_ADMIN: "学校管理员",
-                UserRole.PLATFORM_ADMIN: "平台管理员",
             }[user.role],
+            "是" if user.is_admin else "否",
             team.name if team else "",
             team.status.value if team else "",
             team_member_count(db, team.id) if team else 0,
@@ -367,7 +282,7 @@ def export_association_table(
         ]
         writer.writerow([_csv_cell(value) for value in row])
     data = ("\ufeff" + output.getvalue()).encode("utf-8")
-    _log(db, admin.id, "export_table", "association", 0, "csv")
+    _log(db, admin.id, "export_table", "admin", 0, "csv")
     db.commit()
     filename = datetime.now(timezone.utc).strftime(
         "MathTeam组队与能力信息_%Y%m%d_%H%M.csv"

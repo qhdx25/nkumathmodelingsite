@@ -6,8 +6,7 @@ from sqlalchemy import select
 from starlette.websockets import WebSocketDisconnect
 
 from app.core.config import Settings
-from app.core.security import hash_password
-from app.models.user import User, UserRole, UserStatus
+from app.models.user import User, UserStatus
 from tests.conftest import login
 
 
@@ -303,7 +302,7 @@ def test_reaching_recruitment_target_below_capacity_keeps_team_forming(client):
     assert detail["status"] == "forming"
 
 
-def test_school_admin_data_scope(client, db):
+def test_admin_can_manage_all_schools(client):
     _, leader_a_headers = _register_and_login(
         client, "scope_leader_a", "范围测试大学 A"
     )
@@ -328,47 +327,31 @@ def test_school_admin_data_scope(client, db):
     )
     assert rec_a.status_code == rec_b.status_code == 201
 
-    admin = User(
-        username="scope_school_admin",
-        email="scope_school_admin@example.com",
-        hashed_password=hash_password("secret123"),
-        real_name="范围管理员",
-        school="范围测试大学 A",
-        role=UserRole.SCHOOL_ADMIN,
-        status=UserStatus.ACTIVE,
-    )
-    db.add(admin)
-    db.commit()
-    school_token = login(client, admin.username, "secret123")
-    school_headers = {"Authorization": f"Bearer {school_token}"}
-    platform_token = login(client, "admin")
-    platform_headers = {"Authorization": f"Bearer {platform_token}"}
+    admin_token = login(client, "admin")
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
 
-    teams = client.get("/api/v1/admin/teams", headers=school_headers).json()
+    teams = client.get("/api/v1/admin/teams", headers=admin_headers).json()
     team_ids = {team["id"] for team in teams}
     assert team_a["id"] in team_ids
-    assert team_b["id"] not in team_ids
+    assert team_b["id"] in team_ids
 
     recruitments = client.get(
-        "/api/v1/admin/recruitments", headers=school_headers
+        "/api/v1/admin/recruitments", headers=admin_headers
     ).json()
     recruitment_ids = {item["id"] for item in recruitments}
     assert rec_a.json()["id"] in recruitment_ids
-    assert rec_b.json()["id"] not in recruitment_ids
+    assert rec_b.json()["id"] in recruitment_ids
 
-    school_stats = client.get("/api/v1/admin/stats", headers=school_headers).json()
-    platform_stats = client.get(
-        "/api/v1/admin/stats", headers=platform_headers
-    ).json()
-    assert school_stats["users"] < platform_stats["users"]
-    assert school_stats["teams"] < platform_stats["teams"]
-    assert school_stats["recruitments"] < platform_stats["recruitments"]
+    stats = client.get("/api/v1/admin/stats", headers=admin_headers).json()
+    assert stats["users"] >= 2
+    assert stats["teams"] >= 2
+    assert stats["recruitments"] >= 2
 
-    denied = client.delete(
+    removed = client.delete(
         f"/api/v1/admin/recruitments/{rec_b.json()['id']}",
-        headers=school_headers,
+        headers=admin_headers,
     )
-    assert denied.status_code == 403
+    assert removed.status_code == 200
 
 
 def test_websocket_status_and_subprotocol(client, db):
@@ -445,8 +428,6 @@ def test_duplicate_skill_and_recommendation_pool(client, auth_headers):
     assert recommendations.status_code == 200
     target_ids = {item["target_id"] for item in recommendations.json()}
     assert target_ids
-    # 平台管理员不能进入候选人池。
-    assert all(item["title"] != "Admin" for item in recommendations.json())
 
 
 def test_production_config_rejects_demo_secrets():

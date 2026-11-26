@@ -36,6 +36,7 @@ def get_profile(db: Session, user: User, viewer: User | None = None) -> dict:
         "user_id": user.id,
         "username": user.username,
         "role": user.role,
+        "is_admin": user.is_admin,
         "real_name": user.real_name,
         "school": user.school,
         "student_number": user.student_number,

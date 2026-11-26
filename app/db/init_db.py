@@ -41,11 +41,10 @@ CAPABILITY_SEED = [
 
 # 演示账号：password 字段只是种子数据来源，插入时会被哈希，绝不入库明文
 USER_SEED = [
-    ("alice", "alice@example.com", "Alice", "清华大学", UserRole.STUDENT, "123456"),
-    ("bob", "bob@example.com", "Bob", "北京大学", UserRole.LEADER, "123456"),
-    ("carol", "carol@example.com", "Carol", "浙江大学", UserRole.STUDENT, "123456"),
-    ("association", "association@example.com", "协会管理员", "平台", UserRole.ASSOCIATION_ADMIN, "123456"),
-    ("admin", "admin@example.com", "Admin", "平台", UserRole.PLATFORM_ADMIN, "123456"),
+    ("alice", "alice@example.com", "Alice", "清华大学", UserRole.STUDENT, "123456", False),
+    ("bob", "bob@example.com", "Bob", "北京大学", UserRole.LEADER, "123456", False),
+    ("carol", "carol@example.com", "Carol", "浙江大学", UserRole.STUDENT, "123456", False),
+    ("admin", "admin@example.com", "Admin", "平台", UserRole.STUDENT, "123456", True),
 ]
 
 
@@ -65,7 +64,7 @@ def seed_demo_data(db: Session) -> None:
 
     # --- 用户 ---
     users: dict[str, User] = {}
-    for username, email, real_name, school, role, plain_pwd in USER_SEED:
+    for username, email, real_name, school, role, plain_pwd, is_admin in USER_SEED:
         user = db.scalar(select(User).where(User.username == username))
         if user is None:
             user = User(
@@ -75,6 +74,7 @@ def seed_demo_data(db: Session) -> None:
                 real_name=real_name,
                 school=school,
                 role=role,
+                is_admin=is_admin,
             )
             db.add(user)
         users[username] = user

@@ -241,8 +241,8 @@ export const adminApi = {
   setUserStatus: (id: number, status: 'active' | 'disabled') =>
     http.patch<UserOut>(`/admin/users/${id}/status`, undefined, { params: { status } }),
   removeRecruitment: (id: number) => http.delete(`/admin/recruitments/${id}`),
-  setAssociationAdmin: (id: number, enable: boolean) =>
-    http.patch<UserOut>(`/admin/users/${id}/association-admin`, undefined, {
+  setAdmin: (id: number, enable: boolean) =>
+    http.patch<UserOut>(`/admin/users/${id}/admin`, undefined, {
       params: { enable },
     }),
   exportTable: () => http.get<Blob>('/admin/export', {

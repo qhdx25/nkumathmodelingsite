@@ -9,9 +9,6 @@
 export type UserRole =
   | 'student'
   | 'leader'
-  | 'association_admin'
-  | 'school_admin'
-  | 'platform_admin'
 export type UserStatus = 'active' | 'disabled'
 
 export interface UserOut {
@@ -27,6 +24,7 @@ export interface UserOut {
   wechat: string | null
   github: string | null
   role: UserRole
+  is_admin: boolean
   status: UserStatus
   created_at: string
 }
@@ -89,6 +87,7 @@ export interface ProfileOut {
   user_id: number
   username: string
   role: UserRole
+  is_admin: boolean
   real_name: string | null
   school: string | null
   student_number: string | null

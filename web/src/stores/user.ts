@@ -13,15 +13,7 @@ export const useUserStore = defineStore('user', () => {
   const loading = ref(false)
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() =>
-    ['association_admin', 'school_admin', 'platform_admin'].includes(
-      user.value?.role || '',
-    ),
-  )
-  const isAssociationAdmin = computed(
-    () => user.value?.role === 'association_admin',
-  )
-  const isPlatformAdmin = computed(() => user.value?.role === 'platform_admin')
+  const isAdmin = computed(() => user.value?.is_admin === true)
   const canParticipate = computed(() =>
     ['student', 'leader'].includes(user.value?.role || ''),
   )
@@ -57,8 +49,6 @@ export const useUserStore = defineStore('user', () => {
     loading,
     isLoggedIn,
     isAdmin,
-    isAssociationAdmin,
-    isPlatformAdmin,
     canParticipate,
     login,
     fetchMe,

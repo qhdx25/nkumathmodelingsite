@@ -43,10 +43,6 @@ async function loadLeaderTeams() {
 }
 
 async function apply(r: RecruitmentOut) {
-  if (!store.canParticipate) {
-    ElMessage.warning('协会管理员不能申请加入学生团队')
-    return
-  }
   if (!store.isLoggedIn) {
     ElMessage.warning('请先登录')
     return
@@ -110,7 +106,7 @@ onMounted(async () => {
         </div>
         <div class="actions">
           <el-button
-            v-if="r.status === 'open' && !store.isAssociationAdmin"
+            v-if="r.status === 'open'"
             type="primary"
             @click="apply(r)"
           >

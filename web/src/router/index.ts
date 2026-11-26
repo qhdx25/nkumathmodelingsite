@@ -108,9 +108,6 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAdmin && !store.isAdmin) {
     return { name: 'home' }
   }
-  if (to.meta.participantOnly && store.isAssociationAdmin) {
-    return { name: 'admin' }
-  }
   return true
 })
 

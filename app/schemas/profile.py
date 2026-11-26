@@ -119,6 +119,7 @@ class ProfileOut(BaseModel):
     user_id: int
     username: str
     role: UserRole
+    is_admin: bool
     real_name: str | None = None
     school: str | None = None
     student_number: str | None = None

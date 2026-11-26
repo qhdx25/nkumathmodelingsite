@@ -6,9 +6,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 
-from app.api.deps import DB, Paging, require_role
+from app.api.deps import DB, Paging, require_admin
 from app.models.capability import Capability
-from app.models.user import UserRole
 from app.schemas.capability import CapabilityCategory, CapabilityCreate, CapabilityOut
 
 router = APIRouter(prefix="/capabilities", tags=["能力维度"])
@@ -56,7 +55,7 @@ def get_capability(capability_id: int, db: DB) -> Capability:
 def create_capability(
     payload: CapabilityCreate,
     db: DB,
-    current=Depends(require_role(UserRole.SCHOOL_ADMIN, UserRole.PLATFORM_ADMIN)),
+    current=Depends(require_admin),
 ) -> Capability:
     """require_role(...) 是依赖工厂：返回的函数再由 Depends 注入。"""
     cap = Capability(

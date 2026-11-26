@@ -9,7 +9,7 @@ from sqlalchemy import select
 from app.api.deps import CurrentUser, DB
 from app.models.application import Application
 from app.models.team import TeamMember, TeamRole
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.core.config import settings
 from app.schemas.profile import ProfileOut, ProfileUpdate, ResumeOut
 from app.services.profile import get_profile, update_profile
@@ -122,15 +122,7 @@ async def download_resume(
 
 def _can_view_profile(db, current: User, target: User) -> bool:
     """本人、管理员、同队成员及收到其申请的队长可查看画像。"""
-    if current.id == target.id or current.role == UserRole.PLATFORM_ADMIN:
-        return True
-    if current.role == UserRole.ASSOCIATION_ADMIN:
-        return True
-    if (
-        current.role == UserRole.SCHOOL_ADMIN
-        and current.school is not None
-        and current.school == target.school
-    ):
+    if current.id == target.id or current.is_admin:
         return True
 
     leader_team_ids = set(

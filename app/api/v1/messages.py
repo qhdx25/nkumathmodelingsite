@@ -13,7 +13,7 @@ from sqlalchemy import select
 from app.api.deps import CurrentUser, DB
 from app.core.config import settings
 from app.models.message import Message, MessageType, Notification
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.schemas.message import ChatPolicyOut, MessageOut, NotificationOut
 from app.services.chat import (
     attachment_is_expired,
@@ -41,7 +41,7 @@ def list_messages(
     limit: int = Query(50, ge=1, le=200),
 ) -> list[dict]:
     """先校验成员身份，再做分页查询。"""
-    if current.role != UserRole.PLATFORM_ADMIN:
+    if not current.is_admin:
         ensure_team_member(db, team_id, current.id)
 
     rows = db.execute(
@@ -133,7 +133,7 @@ async def download_attachment(
     message = db.get(Message, message_id)
     if message is None or not message.attachment_name:
         raise HTTPException(status_code=404, detail="附件不存在")
-    if current.role != UserRole.PLATFORM_ADMIN:
+    if not current.is_admin:
         ensure_team_member(db, message.team_id, current.id)
     if (
         message.attachment_key is None

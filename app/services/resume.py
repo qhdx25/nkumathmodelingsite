@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.exceptions import BusinessError
 from app.models.application import Application
 from app.models.team import TeamMember, TeamRole
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.services.chat import normalize_attachment_mime
 from app.services.storage import LocalAttachmentStorage
 
@@ -37,10 +37,10 @@ def validate_resume(filename: str, content_type: str | None) -> str:
 
 
 def can_view_resume(db: Session, viewer: User, target: User) -> bool:
-    """简历仅本人、协会管理员和收到申请人入队申请的队长可查看。"""
+    """简历仅本人、管理员和收到申请人入队申请的队长可查看。"""
     if viewer.id == target.id:
         return True
-    if viewer.role == UserRole.ASSOCIATION_ADMIN:
+    if viewer.is_admin:
         return True
 
     leader_team_ids = set(

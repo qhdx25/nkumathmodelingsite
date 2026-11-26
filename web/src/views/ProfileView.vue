@@ -155,7 +155,7 @@ async function downloadMyResume() {
 
 async function deleteMyResume() {
   await ElMessageBox.confirm(
-    '删除后协会管理员和申请团队队长将无法再查看当前简历，确认删除？',
+    '删除后管理员和申请团队队长将无法再查看当前简历，确认删除？',
     '删除简历',
     { type: 'warning' },
   )
@@ -277,7 +277,7 @@ onUnmounted(() => {
           </div>
         </template>
         <p class="muted resume-privacy">
-          简历仅本人、协会管理员，以及你已申请团队的队长可以查看。
+          简历仅本人、管理员，以及你已申请团队的队长可以查看。
           支持 PDF、DOC、DOCX，最大 10 MB。
         </p>
         <el-button

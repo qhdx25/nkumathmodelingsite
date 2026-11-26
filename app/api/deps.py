@@ -70,8 +70,8 @@ def require_role(*roles: UserRole) -> Callable[..., User]:
     """依赖工厂：生成一个“必须具备指定全局角色之一”的守卫。
 
     用法（注意是调用结果赋给变量，不是把函数本身传给 Depends）：
-        admin_only = require_role(UserRole.PLATFORM_ADMIN)
-        def admin_api(user: User = Depends(admin_only)): ...
+        student_only = require_role(UserRole.STUDENT)
+        def student_api(user: User = Depends(student_only)): ...
     """
 
     def guard(current: User = Depends(get_current_active_user)) -> User:
@@ -85,14 +85,24 @@ def require_role(*roles: UserRole) -> Callable[..., User]:
     return guard
 
 
+def require_admin(
+    current: User = Depends(get_current_active_user),
+) -> User:
+    """后台权限使用独立标记，不影响用户的学生 / 队长参赛身份。"""
+    if not current.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="需要管理员权限",
+        )
+    return current
+
+
 def ensure_team_leader(db: Session, team_id: int, current: User) -> None:
     """“队长权限与具体团队关联”：必须在该团队的 team_members 里是 LEADER。
 
-    平台管理员放松限制，便于后台管理。路由里拿不到 team_id 路径参数时，
-    先查出对象再直接调用这个函数即可。
+    后台管理通过独立的管理接口完成；管理员本人也必须是自己团队的队长，
+    才能执行关闭招募、审批申请等参赛者操作。
     """
-    if current.role == UserRole.PLATFORM_ADMIN:
-        return
     is_leader = db.scalar(
         select(TeamMember).where(
             TeamMember.team_id == team_id,
