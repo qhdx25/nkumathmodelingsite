@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import router as api_router
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
-from app.db.base import SessionLocal
+from app.db.base import SessionLocal, engine
 from app.db.init_db import init_db
 from app.services.storage import (
     attachment_expiry_event,
@@ -65,7 +65,8 @@ async def lifespan(app: FastAPI):
     # 服务停机期间过期的文件在下次启动时立即清理。
     await cleanup_attachments_once()
     cleanup_task = asyncio.create_task(attachment_cleanup_loop())
-    print(f"[{settings.APP_NAME}] 数据库已就绪 → {settings.DATABASE_URL}")
+    database_target = engine.url.render_as_string(hide_password=True)
+    print(f"[{settings.APP_NAME}] 数据库已就绪 → {database_target}")
     try:
         yield
     finally:
