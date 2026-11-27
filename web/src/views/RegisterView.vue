@@ -7,13 +7,27 @@ import { authApi } from '@/api'
 
 const router = useRouter()
 const loading = ref(false)
+const NANKAI_EMAIL_DOMAIN = 'mail.nankai.edu.cn'
 const form = reactive({
   username: '', email: '', password: '', confirm: '', real_name: '', school: '',
 })
 
 const rules: FormRules = {
   username: [{ required: true, min: 3, max: 50, message: '用户名至少 3 个字符', trigger: 'blur' }],
-  email: [{ required: true, type: 'email', message: '请输入合法邮箱', trigger: 'blur' }],
+  email: [
+    { required: true, type: 'email', message: '请输入合法邮箱', trigger: 'blur' },
+    {
+      validator: (_rule, value, callback) => {
+        const domain = value?.split('@').pop()?.toLowerCase()
+        if (value && domain !== NANKAI_EMAIL_DOMAIN) {
+          callback(new Error(`仅支持 @${NANKAI_EMAIL_DOMAIN} 邮箱注册`))
+        } else {
+          callback()
+        }
+      },
+      trigger: ['blur', 'change'],
+    },
+  ],
   password: [{ required: true, min: 8, message: '密码至少 8 位', trigger: 'blur' }],
   confirm: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
@@ -58,7 +72,8 @@ async function submit() {
           <el-input v-model="form.username" placeholder="用于登录" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="name@example.com" />
+          <el-input v-model="form.email" placeholder="name@mail.nankai.edu.cn" />
+          <div class="email-hint">仅支持南开大学邮箱（@{{ NANKAI_EMAIL_DOMAIN }}）</div>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="form.password" type="password" show-password placeholder="至少 8 位" />
@@ -92,4 +107,5 @@ async function submit() {
 .subtitle { text-align: center; color: #6b7280; margin: 8px 0 24px; font-size: 14px; }
 .submit { width: 100%; }
 .footer { text-align: center; margin-top: 12px; font-size: 14px; color: #6b7280; }
+.email-hint { width: 100%; margin-top: 6px; color: #6b7280; font-size: 12px; line-height: 1.4; }
 </style>

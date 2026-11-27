@@ -15,7 +15,7 @@ def _register_and_login(client, username: str, school: str) -> tuple[dict, dict]
         "/api/v1/auth/register",
         json={
             "username": username,
-            "email": f"{username}@example.com",
+            "email": f"{username}@mail.nankai.edu.cn",
             "password": "secret123",
             "school": school,
         },

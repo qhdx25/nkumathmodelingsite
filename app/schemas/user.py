@@ -5,12 +5,16 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models.user import UserRole, UserStatus
 
+NANKAI_EMAIL_DOMAIN = "mail.nankai.edu.cn"
+
 
 class UserCreate(BaseModel):
     """注册请求体：注意没有 role 字段，防止用户自己注册成管理员。"""
 
     username: str = Field(min_length=3, max_length=50, description="登录用户名")
-    email: EmailStr  # 需要 email-validator 包，Pydantic 会自动校验格式
+    email: EmailStr = Field(
+        description=f"仅支持 @{NANKAI_EMAIL_DOMAIN} 邮箱注册"
+    )
     password: str = Field(min_length=8, max_length=72, description="明文密码，入库前哈希")
     real_name: str | None = Field(default=None, max_length=50)
     school: str | None = Field(default=None, max_length=100)
@@ -25,6 +29,14 @@ class UserCreate(BaseModel):
         if not cleaned:
             raise ValueError("用户名不能为空")
         return cleaned
+
+    @field_validator("email")
+    @classmethod
+    def require_nankai_email(cls, email: EmailStr) -> EmailStr:
+        domain = str(email).rsplit("@", 1)[-1].lower()
+        if domain != NANKAI_EMAIL_DOMAIN:
+            raise ValueError(f"仅支持 @{NANKAI_EMAIL_DOMAIN} 邮箱注册")
+        return email
 
 
 class UserOut(BaseModel):

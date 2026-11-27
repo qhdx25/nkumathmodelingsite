@@ -8,7 +8,11 @@ def test_application_and_review_flow(client, auth_headers, bob_token):
     # 新注册一个学生来申请（避免与种子用户/其他测试冲突）
     resp = client.post(
         "/api/v1/auth/register",
-        json={"username": "eve", "email": "eve@example.com", "password": "secret123"},
+        json={
+            "username": "eve",
+            "email": "eve@mail.nankai.edu.cn",
+            "password": "secret123",
+        },
     )
     assert resp.status_code == 201
     eve_token = client.post(

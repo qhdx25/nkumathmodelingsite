@@ -1,4 +1,6 @@
 """基础接口与认证测试（教程第 01、04 章）。"""
+import pytest
+
 from tests.conftest import login
 
 
@@ -41,7 +43,7 @@ def test_register_login_and_me(client):
         "/api/v1/auth/register",
         json={
             "username": "dave",
-            "email": "dave@example.com",
+            "email": "dave@mail.nankai.edu.cn",
             "password": "secret123",
             "school": "复旦大学",
         },
@@ -59,9 +61,35 @@ def test_register_login_and_me(client):
 def test_duplicate_register_conflict(client):
     resp = client.post(
         "/api/v1/auth/register",
-        json={"username": "alice", "email": "new@example.com", "password": "secret123"},
+        json={
+            "username": "alice",
+            "email": "new@mail.nankai.edu.cn",
+            "password": "secret123",
+        },
     )
     assert resp.status_code == 409
+
+
+@pytest.mark.parametrize(
+    "email",
+    [
+        "dave@example.com",
+        "dave@mail.nankai.edu.cn.example.com",
+    ],
+)
+def test_register_requires_nankai_email(client, email):
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "username": "invalid_email_user",
+            "email": email,
+            "password": "secret123",
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["message"] == "参数校验失败"
+    assert "mail.nankai.edu.cn" in response.text
 
 
 def test_wrong_password_has_explicit_message(client):
