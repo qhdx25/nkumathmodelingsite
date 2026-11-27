@@ -95,7 +95,7 @@ function connect() {
   manuallyClosed = false
 
   const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
-  const url = `${protocol}://${location.host}/ws/teams/${teamId.value}`
+  const url = `${protocol}://${location.host}${import.meta.env.BASE_URL}ws/teams/${teamId.value}`
   // JWT 通过 WebSocket 子协议传递，避免出现在 URL 和代理访问日志中。
   const ws = new WebSocket(url, ['bearer', token])
   socket.value = ws

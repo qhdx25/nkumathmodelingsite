@@ -50,8 +50,10 @@ interface ApiClient extends Pick<AxiosInstance, 'interceptors'> {
 }
 
 const rawHttp = axios.create({
-  // Vite 开发服务器把 /api 转发到 FastAPI；生产由 Nginx 同域转发
-  baseURL: import.meta.env.VITE_API_BASE || '/api/v1',
+  // 开发环境基路径为 /，生产构建可位于 /team/ 等子路径。
+  baseURL:
+    import.meta.env.VITE_API_BASE ||
+    `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/v1`,
   timeout: 15000,
 })
 
