@@ -197,9 +197,10 @@ onMounted(loadCards)
 .hero p { font-size: 16px; opacity: .9; margin: 0 0 28px; }
 .hero-actions { display: flex; gap: 12px; }
 .hero-actions :deep(.el-button--primary) {
-  color: var(--mt-primary);
-  background: rgba(255, 255, 255, .92);
+  color: #fff;
+  background: linear-gradient(135deg, rgba(113, 10, 83, .96), rgba(141, 58, 116, .92));
   border-color: transparent;
+  box-shadow: 0 10px 26px rgba(44, 4, 33, .28);
 }
 .hero-actions :deep(.el-button:not(.el-button--primary)) {
   color: #fff;
