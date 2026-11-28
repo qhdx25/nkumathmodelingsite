@@ -532,8 +532,23 @@ onUnmounted(() => {
 .row-actions :deep(.el-button) {
   height: 28px;
   margin-left: 0;
-  padding: 0 4px;
+  padding: 0 10px;
+  color: #fff !important;
   font-size: 12px;
+  border-radius: 999px;
+}
+.row-actions :deep(.el-button--danger) {
+  background: #b42318;
+}
+.row-actions :deep(.el-button--success) {
+  background: #15803d;
+}
+.row-actions :deep(.el-button--warning) {
+  background: #8a5a00;
+}
+.row-actions :deep(.el-button:hover) {
+  color: #fff !important;
+  filter: brightness(1.08);
 }
 .stat {
   padding: 14px 8px;
