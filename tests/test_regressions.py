@@ -10,14 +10,15 @@ from app.models.user import User, UserStatus
 from tests.conftest import login
 
 
-def _register_and_login(client, username: str, school: str) -> tuple[dict, dict]:
+def _register_and_login(client, username: str, college: str) -> tuple[dict, dict]:
     response = client.post(
         "/api/v1/auth/register",
         json={
             "username": username,
             "email": f"{username}@mail.nankai.edu.cn",
             "password": "secret123",
-            "school": school,
+            "real_name": f"{username} 测试姓名",
+            "college": college,
         },
     )
     assert response.status_code == 201, response.text

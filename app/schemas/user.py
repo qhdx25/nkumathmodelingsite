@@ -16,10 +16,18 @@ class UserCreate(BaseModel):
         description=f"仅支持 @{NANKAI_EMAIL_DOMAIN} 邮箱注册"
     )
     password: str = Field(min_length=8, max_length=72, description="明文密码，入库前哈希")
-    real_name: str | None = Field(default=None, max_length=50)
+    real_name: str = Field(
+        min_length=1,
+        max_length=50,
+        description="真实姓名，注册时必填",
+    )
     school: str | None = Field(default=None, max_length=100)
     student_number: str | None = Field(default=None, max_length=40)
-    college: str | None = Field(default=None, max_length=100)
+    college: str = Field(
+        min_length=1,
+        max_length=100,
+        description="学院全称，注册时必填",
+    )
     phone: str | None = Field(default=None, max_length=30)
 
     @field_validator("username")
@@ -28,6 +36,16 @@ class UserCreate(BaseModel):
         cleaned = v.strip()
         if not cleaned:
             raise ValueError("用户名不能为空")
+        return cleaned
+
+    @field_validator("real_name", "college", mode="before")
+    @classmethod
+    def strip_required_text(cls, value: str | None) -> str:
+        if value is None:
+            raise ValueError("该字段不能为空")
+        cleaned = str(value).strip()
+        if not cleaned:
+            raise ValueError("该字段不能为空")
         return cleaned
 
     @field_validator("email")

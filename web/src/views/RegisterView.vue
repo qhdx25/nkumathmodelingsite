@@ -9,7 +9,7 @@ const router = useRouter()
 const loading = ref(false)
 const NANKAI_EMAIL_DOMAIN = 'mail.nankai.edu.cn'
 const form = reactive({
-  username: '', email: '', password: '', confirm: '', real_name: '', school: '',
+  username: '', email: '', password: '', confirm: '', real_name: '', college: '',
 })
 
 const rules: FormRules = {
@@ -39,6 +39,17 @@ const rules: FormRules = {
       trigger: 'blur',
     },
   ],
+  real_name: [
+    { required: true, whitespace: true, message: '请输入姓名', trigger: 'blur' },
+  ],
+  college: [
+    {
+      required: true,
+      whitespace: true,
+      message: '请输入学院全称',
+      trigger: 'blur',
+    },
+  ],
 }
 
 async function submit() {
@@ -49,8 +60,8 @@ async function submit() {
       username: form.username,
       email: form.email,
       password: form.password,
-      real_name: form.real_name || undefined,
-      school: form.school || undefined,
+      real_name: form.real_name.trim(),
+      college: form.college.trim(),
     })
     ElMessage.success('注册成功，请登录')
     await router.push('/login')
@@ -81,15 +92,25 @@ async function submit() {
         <el-form-item label="确认密码" prop="confirm">
           <el-input v-model="form.confirm" type="password" show-password />
         </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="form.real_name" placeholder="选填" />
+        <el-form-item label="姓名" prop="real_name">
+          <el-input v-model="form.real_name" placeholder="请输入姓名" />
         </el-form-item>
-        <el-form-item label="学校">
-          <el-input v-model="form.school" placeholder="选填，管理员按学校限定管理范围" />
+        <el-form-item label="学院（必须填写学院全称）" prop="college">
+          <el-input v-model="form.college" placeholder="例如：数学科学学院" />
         </el-form-item>
         <el-button type="primary" class="submit" :loading="loading" @click="submit">注册</el-button>
       </el-form>
-      <div class="footer">已有账号？<el-button link type="primary" @click="router.push('/login')">去登录</el-button></div>
+      <div class="auth-footer">
+        已有账号？
+        <el-button
+          class="auth-switch-button"
+          link
+          type="primary"
+          @click="router.push('/login')"
+        >
+          去登录
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -112,6 +133,5 @@ async function submit() {
 .brand { text-align: center; margin: 0; font-size: 28px; font-weight: 800; color: var(--mt-primary); }
 .subtitle { text-align: center; color: #6b7280; margin: 8px 0 24px; font-size: 14px; }
 .submit { width: 100%; }
-.footer { text-align: center; margin-top: 12px; font-size: 14px; color: #6b7280; }
 .email-hint { width: 100%; margin-top: 6px; color: #6b7280; font-size: 12px; line-height: 1.4; }
 </style>

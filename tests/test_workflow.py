@@ -12,6 +12,8 @@ def test_application_and_review_flow(client, auth_headers, bob_token):
             "username": "eve",
             "email": "eve@mail.nankai.edu.cn",
             "password": "secret123",
+            "real_name": "Eve",
+            "college": "统计与数据科学学院",
         },
     )
     assert resp.status_code == 201

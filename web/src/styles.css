@@ -187,6 +187,28 @@ a { color: inherit; text-decoration: none; }
   background: var(--mt-primary);
 }
 
+.auth-footer {
+  margin-top: 14px;
+  color: var(--mt-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth-footer .el-button.auth-switch-button,
+.auth-footer .el-button.auth-switch-button:hover,
+.auth-footer .el-button.auth-switch-button:focus {
+  margin-left: 6px;
+  padding: 6px 14px;
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--mt-primary), var(--mt-primary-light));
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(113, 10, 83, .2);
+}
+
+.auth-footer .el-button.auth-switch-button:hover {
+  background: linear-gradient(135deg, var(--mt-primary-light), var(--mt-accent));
+}
+
 #app .page-heading {
   padding: 18px 20px;
   background: rgba(255, 255, 255, .46);

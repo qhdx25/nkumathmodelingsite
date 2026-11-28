@@ -45,11 +45,15 @@ def test_register_login_and_me(client):
             "username": "dave",
             "email": "dave@mail.nankai.edu.cn",
             "password": "secret123",
-            "school": "复旦大学",
+            "real_name": "Dave",
+            "college": "数学科学学院",
         },
     )
     assert resp.status_code == 201, resp.text
     assert "hashed_password" not in resp.json()  # 响应模型过滤掉密码字段
+    assert resp.json()["real_name"] == "Dave"
+    assert resp.json()["college"] == "数学科学学院"
+    assert resp.json()["school"] == "南开大学"
 
     # 登录必须用表单，不能用 JSON（OAuth2PasswordRequestForm）
     token = login(client, "dave", "secret123")
@@ -65,9 +69,25 @@ def test_duplicate_register_conflict(client):
             "username": "alice",
             "email": "new@mail.nankai.edu.cn",
             "password": "secret123",
+            "real_name": "Alice Duplicate",
+            "college": "数学科学学院",
         },
     )
     assert resp.status_code == 409
+
+
+@pytest.mark.parametrize("missing_field", ["real_name", "college"])
+def test_register_requires_name_and_college(client, missing_field):
+    payload = {
+        "username": f"missing_{missing_field}",
+        "email": f"missing_{missing_field}@mail.nankai.edu.cn",
+        "password": "secret123",
+        "real_name": "测试姓名",
+        "college": "数学科学学院",
+    }
+    payload.pop(missing_field)
+    response = client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 422
 
 
 @pytest.mark.parametrize(
@@ -84,6 +104,8 @@ def test_register_requires_nankai_email(client, email):
             "username": "invalid_email_user",
             "email": email,
             "password": "secret123",
+            "real_name": "Invalid Email",
+            "college": "数学科学学院",
         },
     )
 

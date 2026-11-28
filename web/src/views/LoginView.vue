@@ -47,7 +47,17 @@ async function submit() {
         </el-button>
       </el-form>
 
-      <div class="footer">还没有账号？<el-button link type="primary" @click="router.push('/register')">立即注册</el-button></div>
+      <div class="auth-footer">
+        还没有账号？
+        <el-button
+          class="auth-switch-button"
+          link
+          type="primary"
+          @click="router.push('/register')"
+        >
+          立即注册
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -85,17 +95,4 @@ async function submit() {
 .brand span { color: var(--mt-primary); }
 .subtitle { text-align: center; color: #6b7280; margin: 8px 0 28px; font-size: 14px; }
 .submit { width: 100%; }
-.footer { text-align: center; margin-top: 14px; font-size: 14px; color: #6b7280; }
-.footer :deep(.el-button) {
-  margin-left: 6px;
-  padding: 6px 14px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--mt-primary), var(--mt-primary-light));
-  border-radius: 999px;
-  box-shadow: 0 6px 16px rgba(113, 10, 83, .2);
-}
-.footer :deep(.el-button:hover) {
-  color: #fff;
-  background: linear-gradient(135deg, var(--mt-primary-light), var(--mt-accent));
-}
 </style>

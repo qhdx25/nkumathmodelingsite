@@ -34,7 +34,8 @@ def register(payload: UserCreate, db: DB) -> User:
         email=payload.email,
         hashed_password=hash_password(payload.password),
         real_name=payload.real_name,
-        school=payload.school,
+        school="南开大学",
+        college=payload.college,
     )
     db.add(user)
     db.commit()

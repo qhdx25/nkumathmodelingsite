@@ -121,8 +121,8 @@ export const authApi = {
     username: string
     email: string
     password: string
-    real_name?: string
-    school?: string
+    real_name: string
+    college: string
   }) => http.post<UserOut>('/auth/register', data),
   me: () => http.get<UserOut>('/auth/me'),
 }
