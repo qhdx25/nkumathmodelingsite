@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
+import { enterTeam } from './assets/teamAccess'
 
 const SITE = '南开大学数学建模协会'
 
@@ -33,6 +34,14 @@ const router = createRouter({
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
     return { top: 0 }
   },
+})
+
+router.beforeEach((to) => {
+  if (to.path === '/team') {
+    void enterTeam()
+    return false
+  }
+  return true
 })
 
 router.afterEach((to) => {

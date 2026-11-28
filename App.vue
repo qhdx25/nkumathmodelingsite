@@ -5,6 +5,7 @@ import SiteHeader from './components/SiteHeader.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import MathBackground from './components/MathBackground.vue'
 import siteStyles from './assets/main.css?inline'
+import { installTeamNavigation } from './assets/teamAccess'
 
 const route = useRoute()
 // 首页（中/英）头部叠在大图上，文字反白；其余页面为常规白底头部
@@ -13,14 +14,19 @@ const lang = computed(() => (route.meta?.lang === 'en' ? 'en' : 'zh'))
 
 // 滚过大图后头部变白底吸顶
 const stuck = ref(false)
+let removeTeamNavigation = () => {}
 const onScroll = () => {
   stuck.value = window.scrollY > 96
 }
 onMounted(() => {
   onScroll()
   window.addEventListener('scroll', onScroll, { passive: true })
+  removeTeamNavigation = installTeamNavigation()
 })
-onUnmounted(() => window.removeEventListener('scroll', onScroll))
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+  removeTeamNavigation()
+})
 
 const overlay = computed(() => overlayPage.value && !stuck.value)
 
