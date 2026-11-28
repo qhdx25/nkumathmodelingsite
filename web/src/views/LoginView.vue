@@ -23,14 +23,9 @@ async function submit() {
   } catch (error) {
     // 登录页的 401 由拦截器静默处理，这里给出业务需要的明确提示。
     if (isAxiosError(error) && error.response?.status === 401) {
-      ElMessage.error('账号或密码错误')
+      ElMessage.error('账户或密码错误')
     }
   }
-}
-
-function fillDemo(username: string) {
-  form.username = username
-  form.password = '123456'
 }
 </script>
 
@@ -52,12 +47,6 @@ function fillDemo(username: string) {
         </el-button>
       </el-form>
 
-      <div class="demo">
-        <span class="muted">演示账号（密码 123456）：</span>
-        <el-button link type="primary" @click="fillDemo('alice')">alice 学生</el-button>
-        <el-button link type="primary" @click="fillDemo('bob')">bob 队长</el-button>
-        <el-button link type="primary" @click="fillDemo('admin')">admin 管理员</el-button>
-      </div>
       <div class="footer">还没有账号？<el-button link type="primary" @click="router.push('/register')">立即注册</el-button></div>
     </div>
   </div>
@@ -66,16 +55,35 @@ function fillDemo(username: string) {
 <style scoped>
 .auth-page {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #eef2ff 0%, #fdf2f8 100%);
+  position: relative; overflow: hidden; padding: 28px;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(141, 58, 116, .2), transparent 28%),
+    radial-gradient(circle at 82% 76%, rgba(113, 10, 83, .16), transparent 30%),
+    linear-gradient(145deg, #fdf9fb 0%, #f3e8ef 52%, #e9dce5 100%);
+}
+.auth-page::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(113, 10, 83, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(113, 10, 83, .055) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, #000, transparent 85%);
+}
+.auth-page::after {
+  content: ''; position: absolute; width: 520px; height: 520px;
+  right: -210px; top: -190px; border: 1px solid rgba(113, 10, 83, .16);
+  border-radius: 50%; box-shadow: 0 0 0 64px rgba(113, 10, 83, .035),
+    0 0 0 128px rgba(113, 10, 83, .025);
 }
 .auth-card {
-  width: 420px; padding: 40px; background: #fff; border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(79,70,229,.12);
+  position: relative; z-index: 1; width: min(430px, 100%); padding: 42px;
+  background: rgba(255, 255, 255, .7); border: 1px solid rgba(113, 10, 83, .16);
+  border-radius: 24px; backdrop-filter: blur(22px) saturate(135%);
+  box-shadow: 0 28px 80px rgba(64, 8, 47, .16), inset 0 1px rgba(255,255,255,.9);
 }
 .brand { text-align: center; margin: 0; font-size: 32px; font-weight: 800; }
-.brand span { color: #4f46e5; }
+.brand span { color: var(--mt-primary); }
 .subtitle { text-align: center; color: #6b7280; margin: 8px 0 28px; font-size: 14px; }
 .submit { width: 100%; }
-.demo { margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e5e7eb; }
 .footer { text-align: center; margin-top: 12px; font-size: 14px; color: #6b7280; }
 </style>

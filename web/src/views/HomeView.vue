@@ -172,13 +172,41 @@ onMounted(loadCards)
 
 <style scoped>
 .hero {
-  background: linear-gradient(120deg, #312e81 0%, #4f46e5 55%, #7c3aed 100%);
-  color: #fff; padding: 64px 24px;
+  position: relative; overflow: hidden; color: #fff; padding: 72px 24px;
+  background:
+    radial-gradient(circle at 78% 22%, rgba(236, 170, 218, .32), transparent 24%),
+    linear-gradient(118deg, #40062f 0%, #710a53 52%, #9b3f7f 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
 }
-.hero-inner { max-width: 1100px; margin: 0 auto; }
+.hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .065) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .065) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(90deg, transparent, #000 32%, #000 78%, transparent);
+}
+.hero::after {
+  content: ''; position: absolute; width: 360px; height: 360px;
+  right: -100px; top: -170px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .2);
+  box-shadow: 0 0 0 48px rgba(255, 255, 255, .035), 0 0 0 96px rgba(255, 255, 255, .02);
+}
+.hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
 .hero h1 { font-size: 38px; margin: 0 0 12px; font-weight: 800; }
 .hero p { font-size: 16px; opacity: .9; margin: 0 0 28px; }
 .hero-actions { display: flex; gap: 12px; }
+.hero-actions :deep(.el-button--primary) {
+  color: var(--mt-primary);
+  background: rgba(255, 255, 255, .92);
+  border-color: transparent;
+}
+.hero-actions :deep(.el-button:not(.el-button--primary)) {
+  color: #fff;
+  background: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .36);
+  backdrop-filter: blur(10px);
+}
 .team-card { min-height: 230px; }
 .card-body .row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
 .skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }

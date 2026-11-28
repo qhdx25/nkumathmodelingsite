@@ -97,13 +97,19 @@ async function submit() {
 <style scoped>
 .auth-page {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #eef2ff 0%, #fdf2f8 100%);
+  position: relative; overflow: hidden; padding: 28px;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(141, 58, 116, .2), transparent 28%),
+    radial-gradient(circle at 82% 76%, rgba(113, 10, 83, .16), transparent 30%),
+    linear-gradient(145deg, #fdf9fb 0%, #f3e8ef 52%, #e9dce5 100%);
 }
 .auth-card {
-  width: 460px; padding: 36px 40px; background: #fff; border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(79,70,229,.12);
+  position: relative; z-index: 1; width: min(470px, 100%); padding: 38px 40px;
+  background: rgba(255, 255, 255, .7); border: 1px solid rgba(113, 10, 83, .16);
+  border-radius: 24px; backdrop-filter: blur(22px) saturate(135%);
+  box-shadow: 0 28px 80px rgba(64, 8, 47, .16), inset 0 1px rgba(255,255,255,.9);
 }
-.brand { text-align: center; margin: 0; font-size: 28px; font-weight: 800; }
+.brand { text-align: center; margin: 0; font-size: 28px; font-weight: 800; color: var(--mt-primary); }
 .subtitle { text-align: center; color: #6b7280; margin: 8px 0 24px; font-size: 14px; }
 .submit { width: 100%; }
 .footer { text-align: center; margin-top: 12px; font-size: 14px; color: #6b7280; }

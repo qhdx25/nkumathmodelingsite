@@ -57,6 +57,12 @@ const rawHttp = axios.create({
   timeout: 15000,
 })
 
+const appBasePath = import.meta.env.BASE_URL.replace(/\/$/, '')
+const loginPath = `${appBasePath}/login` || '/login'
+const isLoginPage = () =>
+  location.pathname === loginPath ||
+  location.pathname === `${loginPath}/`
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
 }
@@ -83,6 +89,7 @@ rawHttp.interceptors.response.use(
   (response) => response.data,
   (error: AxiosError<{ message?: string; detail?: string }>) => {
     const status = error.response?.status
+    const isLoginRequest = error.config?.url?.replace(/\/+$/, '') === '/auth/login'
     const message =
       error.response?.data?.message ||
       error.response?.data?.detail ||
@@ -90,10 +97,10 @@ rawHttp.interceptors.response.use(
 
     if (status === 401) {
       clearToken()
-      // 避免在登录页本身弹出“登录已过期”
-      if (!location.pathname.startsWith('/login')) {
+      // 登录表单的 401 由登录页展示明确错误，不触发全局重定向。
+      if (!isLoginRequest && !isLoginPage()) {
         ElMessage.warning(message)
-        setTimeout(() => location.href = '/login', 800)
+        setTimeout(() => location.assign(loginPath), 800)
       }
     } else {
       ElMessage.error(message)
