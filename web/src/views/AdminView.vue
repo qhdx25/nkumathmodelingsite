@@ -197,60 +197,108 @@ onUnmounted(() => {
       </el-card>
     </div>
 
-    <el-card class="mt-16">
-      <template #header>用户、能力与奖项</template>
-      <el-table :data="users" size="small">
-        <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="username" label="用户名" width="110" />
-        <el-table-column prop="real_name" label="姓名" width="100" />
-        <el-table-column prop="student_number" label="学号" width="120" />
-        <el-table-column prop="college" label="学院" min-width="140" />
-        <el-table-column prop="school" label="学校" min-width="130" />
-        <el-table-column label="联系方式" min-width="190">
-          <template #default="{ row }">
-            <div>{{ row.phone || '—' }}</div>
-            <div class="muted">{{ row.email }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="身份" width="115">
-          <template #default="{ row }">
-            <div class="role-tags">
-              <el-tag size="small" type="info">
-                {{ roleLabels[row.role] || row.role }}
+    <el-card class="mt-16 admin-users-card">
+      <template #header>
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">USER DIRECTORY</div>
+            <div class="section-title">用户、能力与奖项</div>
+            <div class="section-desc">点击“画像”查看用户能力、经历、奖项与简历</div>
+          </div>
+          <div class="section-count">{{ users.length }} 位用户</div>
+        </div>
+      </template>
+
+      <div class="admin-table-wrap">
+        <el-table
+          :data="users"
+          row-key="id"
+          size="small"
+          class="admin-users-table"
+        >
+          <el-table-column prop="id" label="ID" width="62" />
+          <el-table-column label="用户" min-width="165">
+            <template #default="{ row }">
+              <div class="user-cell">
+                <el-avatar :size="34" class="user-avatar">
+                  {{ (row.real_name || row.username).slice(0, 1) }}
+                </el-avatar>
+                <div class="user-copy">
+                  <strong>{{ row.real_name || '未填写姓名' }}</strong>
+                  <span>@{{ row.username }}</span>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="学号" width="118">
+            <template #default="{ row }">
+              <span :class="{ muted: !row.student_number }">
+                {{ row.student_number || '未填写' }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column label="学院 / 学校" min-width="190">
+            <template #default="{ row }">
+              <div class="cell-stack">
+                <strong>{{ row.college || '未填写学院' }}</strong>
+                <span>{{ row.school || '未填写学校' }}</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="联系方式" min-width="190">
+            <template #default="{ row }">
+              <div class="cell-stack">
+                <strong>{{ row.phone || '未填写电话' }}</strong>
+                <span>{{ row.email }}</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="身份" width="122">
+            <template #default="{ row }">
+              <div class="role-tags">
+                <el-tag size="small" type="info">
+                  {{ roleLabels[row.role] || row.role }}
+                </el-tag>
+                <el-tag v-if="row.is_admin" size="small" type="warning">
+                  管理员
+                </el-tag>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="状态" width="82">
+            <template #default="{ row }">
+              <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
+                {{ row.status === 'active' ? '正常' : '停用' }}
               </el-tag>
-              <el-tag v-if="row.is_admin" size="small" type="warning">管理员</el-tag>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="90">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
-              {{ row.status === 'active' ? '正常' : '停用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="205" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="openProfile(row)">查看画像</el-button>
-            <el-button
-              v-if="row.id !== store.user?.id"
-              link
-              :type="row.status === 'active' ? 'danger' : 'success'"
-              @click="toggleStatus(row)"
-            >
-              {{ row.status === 'active' ? '停用' : '启用' }}
-            </el-button>
-            <el-button
-              v-if="row.id !== store.user?.id"
-              link
-              type="warning"
-              @click="toggleAdmin(row)"
-            >
-              {{ row.is_admin ? '取消管理员' : '设为管理员' }}
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="226">
+            <template #default="{ row }">
+              <div class="row-actions">
+                <el-button link type="primary" @click="openProfile(row)">
+                  画像
+                </el-button>
+                <el-button
+                  v-if="row.id !== store.user?.id"
+                  link
+                  :type="row.status === 'active' ? 'danger' : 'success'"
+                  @click="toggleStatus(row)"
+                >
+                  {{ row.status === 'active' ? '停用' : '启用' }}
+                </el-button>
+                <el-button
+                  v-if="row.id !== store.user?.id"
+                  link
+                  type="warning"
+                  @click="toggleAdmin(row)"
+                >
+                  {{ row.is_admin ? '取消管理员' : '设为管理员' }}
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-card>
 
     <div class="grid grid-two mt-16">
@@ -391,6 +439,102 @@ onUnmounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 12px;
 }
+.admin-users-card :deep(.el-card__body) { padding: 0; }
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.section-kicker {
+  margin-bottom: 3px;
+  color: var(--mt-primary-light);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+.section-title {
+  color: var(--mt-primary);
+  font-size: 17px;
+  font-weight: 700;
+}
+.section-desc {
+  margin-top: 4px;
+  color: var(--mt-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.section-count {
+  flex: none;
+  padding: 6px 12px;
+  color: var(--mt-primary);
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(113, 10, 83, .06);
+  border: 1px solid rgba(113, 10, 83, .1);
+  border-radius: 999px;
+}
+.admin-table-wrap { overflow-x: auto; }
+.admin-users-table { min-width: 1050px; }
+.admin-users-table :deep(.el-table__cell) {
+  padding: 10px 0;
+  vertical-align: middle;
+}
+.admin-users-table :deep(th.el-table__cell) {
+  height: 44px;
+  color: var(--mt-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.user-avatar {
+  flex: none;
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--mt-primary), var(--mt-accent));
+  box-shadow: 0 6px 14px rgba(113, 10, 83, .18);
+}
+.user-copy,
+.cell-stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+.user-copy strong,
+.cell-stack strong {
+  overflow: hidden;
+  color: var(--mt-text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-copy span,
+.cell-stack span {
+  overflow: hidden;
+  color: var(--mt-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.row-actions :deep(.el-button) {
+  height: 28px;
+  margin-left: 0;
+  padding: 0 4px;
+  font-size: 12px;
+}
 .stat {
   padding: 14px 8px;
   text-align: center;
@@ -402,7 +546,7 @@ onUnmounted(() => {
   font-size: 24px;
   font-weight: 700;
 }
-.role-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.role-tags { display: flex; gap: 4px; flex-wrap: nowrap; }
 .score { color: #4f46e5; font-size: 16px; }
 .profile-summary {
   display: flex;
@@ -432,4 +576,8 @@ onUnmounted(() => {
 .profile-grid span { color: #64748b; font-size: 12px; }
 .skill-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .award-tag { margin-left: 8px; }
+@media (max-width: 760px) {
+  .section-head { align-items: flex-start; }
+  .section-count { margin-top: 2px; }
+}
 </style>
